@@ -1,13 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
 #include <string.h>
-#include <arpa/inet.h>
 #include <SDL_net.h>
+#include <unistd.h>
 #include "protocol.h"
 #include "color.h"
 

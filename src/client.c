@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2_gfxPrimitives.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
 #include <SDL_net.h>
 #include "color.h"
 #include "list.h"
