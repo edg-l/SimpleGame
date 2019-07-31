@@ -22,6 +22,7 @@ int send_packet(int clean) {
 	}
 	if(clean == 1) {
 		memset(sendPacket->data, 0, PACKET_SIZE);
+		sendPacket->len = 0;
 	}
 	return sent;
 }
