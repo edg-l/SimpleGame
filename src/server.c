@@ -63,6 +63,7 @@ int main(int argc, const char* argv[]) {
 		return EXIT_FAILURE;
 	}
 
+	printf(COLOR_BOLD COLOR_GREEN "Server listening on port: %d" COLOR_RESET "\n", port);
 
 	UDPpacket *packet;
 	UDPpacket *sendPacket;
