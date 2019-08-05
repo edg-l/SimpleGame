@@ -6,6 +6,7 @@
 #include "list.h"
 #include "protocol.h"
 #include "renderer.h"
+#include "logger.h"
 
 static SDL_Window *pWindow = NULL;
 static UDPsocket sock;
@@ -18,7 +19,7 @@ int send_packet(int clean) {
 	int sent;
 	sent = SDLNet_UDP_Send(sock, channel, sendPacket);
 	if(!sent) {
-		fprintf(stderr, "Error sending packet: %s\n", SDLNet_GetError());
+		log_write(LOG_ERROR, "Error sending packet: %s\n", SDLNet_GetError());
 	}
 	if(clean == 1) {
 		memset(sendPacket->data, 0, PACKET_SIZE);
@@ -29,33 +30,33 @@ int send_packet(int clean) {
 
 int main(int argc, const char* argv[]) {
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) == -1) {
-		fprintf(stderr, "Error initializing SDL2: %s", SDL_GetError());
+		log_write(LOG_ERROR, "Error initializing SDL2: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
 	pWindow = SDL_CreateWindow("SimpleGame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 768, SDL_WINDOW_SHOWN);
 
 	if(!pWindow) {
-		fprintf(stderr, "Error creating window: %s", SDL_GetError());
+		log_write(LOG_ERROR, "Error creating window: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
 
 	if(!render_init(pWindow)) {
-		fprintf(stderr, "Error creating renderer: %s", SDL_GetError());
+		log_write(LOG_ERROR, "Error creating renderer: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
 
 	if(SDLNet_Init() == -1) {
-		fprintf(stderr, "Error initializing SDLNet: %s\n", SDLNet_GetError());
+		log_write(LOG_ERROR, "Error initializing SDLNet: %s\n", SDLNet_GetError());
 		return EXIT_FAILURE;
 	}
 
 	sock = SDLNet_UDP_Open(0);
 
 	if(!sock) {
-		fprintf(stderr, "Error opening socket at port %d: %s\n", 6666, SDLNet_GetError());
+		log_write(LOG_ERROR, "Error opening socket at port %d: %s\n", 6666, SDLNet_GetError());
 		return EXIT_FAILURE;
 	}
 
@@ -66,7 +67,7 @@ int main(int argc, const char* argv[]) {
 	channel = SDLNet_UDP_Bind(sock, -1, &address);
 
 	if(channel == -1) {
-		fprintf(stderr, "Error binding socket: %s\n", SDLNet_GetError());
+		log_write(LOG_ERROR, "Error binding socket: %s\n", SDLNet_GetError());
 		return EXIT_FAILURE;
 	}
 
@@ -95,11 +96,11 @@ int main(int argc, const char* argv[]) {
 
 		nrecv = SDLNet_UDP_Recv(sock, packet);
 		if(nrecv == -1) {
-			fprintf(stderr, "Error receiving a packet: %s\n", SDLNet_GetError());
+			log_write(LOG_ERROR, "Error receiving a packet: %s\n", SDLNet_GetError());
 		}
 
 		if(nrecv > 0) {
-			printf(COLOR_GREEN "Received packet with size: %d\n" COLOR_RESET, nrecv);
+			log_write(LOG_INFO, "Received packet with size: %d\n", nrecv);
 		}
 
 		// Render

@@ -4,6 +4,7 @@
 #include "renderer.h"
 #include "list.h"
 #include "color.h"
+#include "logger.h"
 
 static SDL_Renderer *pRenderer = NULL;
 static List *pFontCache = NULL;
@@ -82,12 +83,12 @@ static CachedFont* search_font(int pt, int style) {
 		c->style = style;
 		c->pFont = TTF_OpenFont(font_path(style), pt);
 		if(!c->pFont) {
-			fprintf(stderr, "Error opening font: %s\n", TTF_GetError());
+			log_write(LOG_ERROR, "Error opening font: %s\n", TTF_GetError());
 			return NULL;
 		}
 		list_push_back(pFontCache, c, sizeof(CachedFont));
+		log_write(LOG_INFO, "Added font (%dpt, %d) to cache\n", c->pt, c->style);
 		free(c);
-		printf(COLOR_GREEN "Added font to font cache\n" COLOR_RESET);
 	}
 
 	return pFontCache->tail->value;
@@ -97,17 +98,19 @@ int render_init(SDL_Window *pWindow) {
 	pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
 
 	if(!pRenderer) {
-		fprintf(stderr, "Error creating renderer: %s\n", SDL_GetError());
+		log_write(LOG_ERROR, "Error creating renderer: %s\n", SDL_GetError());
 		return 0;
 	}
 
 	if(TTF_Init() == -1) {
-		fprintf(stderr, "Error initializing SDL_ttf: %s\n", TTF_GetError());
+		log_write(LOG_ERROR, "Error initializing SDL_ttf: %s\n", TTF_GetError());
 		return 0;
 	}
-
+	
 	pFontCache = list_create_fn(free_font);
 	pTextCache = list_create_fn(free_texture);
+
+	log_write(LOG_INFO, "Renderer initialized.\n");
 
 	return 1;
 }
@@ -151,7 +154,7 @@ static SDL_Texture *create_text(int pt, int style, const char *text) {
 		SDL_Surface * pTextSurface;
 		pTextSurface = TTF_RenderText_Blended(c->pFont, text, fontColor);
 		if(!pTextSurface)
-			fprintf(stderr, "Error rendering text: %s\n", TTF_GetError());
+			log_write(LOG_ERROR, "Error rendering text: %s\n", TTF_GetError());
 
 		SDL_Texture *pTextTexture;
 
@@ -163,7 +166,7 @@ static SDL_Texture *create_text(int pt, int style, const char *text) {
 		return pTextTexture;
 	}
 	else
-		fprintf(stderr, "Tried to render text with either a NULL font or text.\n");
+		log_write(LOG_ERROR, "Tried to render text with either a NULL font or text.\n");
 	return NULL;
 }
 
