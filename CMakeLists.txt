@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.13)
 
 project(SimpleGame LANGUAGES C)
 
-
-# Needed so that cmake uses our find modules.
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 1)
+set(VERSION_REV 0)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
 
 find_package(SDL2 REQUIRED)
 find_package(SDL2_net REQUIRED)
@@ -20,6 +20,8 @@ set(SHARED_SOURCE_FILES
 	src/protocol.h
 	src/list.h
 	src/list.c
+	src/logger.h
+	src/logger.c
 	)
 
 set(CLIENT_SOURCE_FILES
@@ -35,7 +37,17 @@ set(SERVER_SOURCE_FILES
 	)
 
 
+execute_process(
+	COMMAND git rev-parse HEAD
+	RESULT_VARIABLE GIT_REV_HASH_RESULT
+	OUTPUT_VARIABLE GIT_REV_HASH
+	ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+
+configure_file(config.h.in src/config.h)
+
 include_directories(src)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/src)
 
 file(COPY resources DESTINATION .)
 
