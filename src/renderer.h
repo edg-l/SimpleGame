@@ -8,7 +8,7 @@
 enum {
 	STYLE_LIGHT,
 	STYLE_LIGHT_ITALIC,
-	STYLE_NORMAL,
+	STYLE_REGULAR,
 	STYLE_ITALIC,
 	STYLE_BOLD,
 	STYLE_BOLD_ITALIC,
@@ -31,5 +31,6 @@ int render_create_cached_text(int pt, int style, const char *text);
 void render_cached_text(int id, int x, int y);
 void render_text(int x, int y, int pt, int style, const char* text);
 void render_clear_text_cache();
+void render_text_size(const char* text, int pt, int style, int *w, int *h);
 
 #endif

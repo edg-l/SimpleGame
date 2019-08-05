@@ -41,7 +41,7 @@ static const char* font_path(int style) {
 			return "resources/fonts/OpenSans-Light.ttf";
 		case STYLE_LIGHT_ITALIC:
 			return "resources/fonts/OpenSans-LightItalic.ttf";
-		case STYLE_NORMAL:
+		case STYLE_REGULAR:
 			return "resources/fonts/OpenSans-Regular.ttf";
 		case STYLE_ITALIC:
 			return "resources/fonts/OpenSans-Italic.ttf";
@@ -58,7 +58,7 @@ static const char* font_path(int style) {
 		case STYLE_SEMIBOLD_ITALIC:
 			return "resources/fonts/OpenSans-SemiboldItalic.ttf";
 	}
-	return font_path(STYLE_NORMAL);
+	return font_path(STYLE_REGULAR);
 }
 
 static CachedFont* search_font(int pt, int style) {
@@ -106,7 +106,7 @@ int render_init(SDL_Window *pWindow) {
 		log_write(LOG_ERROR, "Error initializing SDL_ttf: %s\n", TTF_GetError());
 		return 0;
 	}
-	
+
 	pFontCache = list_create_fn(free_font);
 	pTextCache = list_create_fn(free_texture);
 
@@ -213,3 +213,12 @@ void render_cached_text(int id, int x, int y) {
 void render_clear_text_cache() {
 	list_clear(pTextCache);
 }
+
+void render_text_size(const char* text, int pt, int style, int *w, int *h) {
+	CachedFont *c = search_font(pt, style);
+
+	if(TTF_SizeText(c->pFont, text, w, h)) {
+		log_write(LOG_ERROR, "Error calculating text size: %s\n", TTF_GetError());
+	}
+}
+

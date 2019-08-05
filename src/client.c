@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <SDL.h>
-#include <SDL2_gfxPrimitives.h>
 #include <SDL_net.h>
 #include "color.h"
 #include "list.h"
 #include "protocol.h"
 #include "renderer.h"
 #include "logger.h"
+#include "config.h"
 
 static SDL_Window *pWindow = NULL;
 static UDPsocket sock;
@@ -14,6 +14,8 @@ static int port = 6666;
 static int channel;
 static UDPpacket *packet = NULL;
 static UDPpacket *sendPacket = NULL;
+static int width = 1024;
+static int height = 768;
 
 int send_packet(int clean) {
 	int sent;
@@ -34,7 +36,7 @@ int main(int argc, const char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	pWindow = SDL_CreateWindow("SimpleGame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 768, SDL_WINDOW_SHOWN);
+	pWindow = SDL_CreateWindow("SimpleGame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
 
 	if(!pWindow) {
 		log_write(LOG_ERROR, "Error creating window: %s", SDL_GetError());
@@ -81,8 +83,8 @@ int main(int argc, const char* argv[]) {
 
 	int nrecv;
 
-	render_text_color(200, 50, 50, 255);
-	int textID = render_create_cached_text(40, STYLE_NORMAL, "Hello world!");
+	render_text_color(255, 255, 255, 255);
+	int versionTextID = render_create_cached_text(18, STYLE_REGULAR, VERSION_STR);
 
 	while(1) {
 		SDL_Event event;
@@ -107,7 +109,7 @@ int main(int argc, const char* argv[]) {
 		render_color(46, 46, 46, 255);
 		render_clear();
 
-		render_cached_text(textID, 200, 200);
+		render_cached_text(versionTextID, 5, height - 30);
 
 		render_present();
 		SDL_Delay(1);
