@@ -23,7 +23,6 @@ typedef struct CachedTexture {
 
 static void free_font(void* p) {
 	CachedFont *c = p;
-	printf("Style: %d, pt: %d, font %p\n", c->style, c->pt, c->pFont);
 	TTF_CloseFont(c->pFont);
 	c->pFont = NULL;
 	free(c);
