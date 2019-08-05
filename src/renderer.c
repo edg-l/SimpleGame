@@ -147,9 +147,6 @@ void render_text_color(int r, int g, int b, int a) {
 static SDL_Texture *create_text(int pt, int style, const char *text) {
 	CachedFont *c = search_font(pt, style);
 
-	if(!c) {
-		printf("no font\n");
-	}
 	if(c && c->pFont && text) {
 		SDL_Surface * pTextSurface;
 		pTextSurface = TTF_RenderText_Blended(c->pFont, text, fontColor);
