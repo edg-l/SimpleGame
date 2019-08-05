@@ -2,28 +2,34 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void strlist_freeelem(StrListValue *elem) {
+
+static void list_freeelem(List *list, ListValue *elem) {
     if(elem != NULL) {
-        free(elem->value);
+        list->freeFunc(elem->value);
         free(elem);
     }
 }
 
-StrList *strlist_create() {
-    StrList *list = (StrList*)malloc(sizeof(StrList));
+List *list_create_fn(FREE_FN f) {
+    List *list = (List*)malloc(sizeof(List));
     list->head = list->tail = NULL;
+	list->freeFunc = f;
     return list;
 }
 
-void strlist_push_front(StrList *list, char *value, size_t size) {
-    char* buf = (char*)malloc(size);
+List *list_create() {
+	return list_create_fn(free);
+}
+
+void list_push_front(List *list, void *value, size_t size) {
+    void* buf = malloc(size);
     memcpy(buf, value, size);
 
-    StrListValue *oldFirst = list->head;
+    ListValue *oldFirst = list->head;
 
-    list->head = (StrListValue*)malloc(sizeof(StrListValue));
+    list->head = (ListValue*)malloc(sizeof(ListValue));
 
-    if(oldFirst) 
+    if(oldFirst)
         oldFirst->prev = list->head;
 
     list->head->next = oldFirst;
@@ -36,11 +42,11 @@ void strlist_push_front(StrList *list, char *value, size_t size) {
 }
 
 
-void strlist_push_back(StrList *list, char *value, size_t size) {
-    char* buf = (char*)malloc(size);
+void list_push_back(List *list, void *value, size_t size) {
+    void *buf = malloc(size);
     memcpy(buf, value, size);
 
-    StrListValue *newVal = (StrListValue*)malloc(sizeof(StrListValue));
+    ListValue *newVal = (ListValue*)malloc(sizeof(ListValue));
 
     newVal->next = NULL;
     newVal->prev = list->tail;
@@ -49,7 +55,7 @@ void strlist_push_back(StrList *list, char *value, size_t size) {
     if(list->tail) {
         list->tail->next = newVal;
     }
-    
+
     list->tail = newVal;
 
     if(list->head == NULL) {
@@ -57,12 +63,12 @@ void strlist_push_back(StrList *list, char *value, size_t size) {
     }
 }
 
-int strlist_pop_front(StrList *list) {
-    StrListValue *oldHead = list->head;
+int list_pop_front(List *list) {
+    ListValue *oldHead = list->head;
 
     if(!oldHead)
         return 0;
-    
+
     list->head = oldHead->next;
 
     if(list->head)
@@ -71,11 +77,12 @@ int strlist_pop_front(StrList *list) {
     if(list->tail == oldHead)
         list->tail = list->head;
 
-    strlist_freeelem(oldHead);
+    list_freeelem(list, oldHead);
+	return 1;
 }
 
-int strlist_pop_back(StrList *list) {
-    StrListValue *oldTail = list->tail;
+int list_pop_back(List *list) {
+    ListValue *oldTail = list->tail;
 
     if(oldTail == NULL)
         return 0;
@@ -88,17 +95,18 @@ int strlist_pop_back(StrList *list) {
     if(list->head == oldTail)
         list->head = list->tail;
 
-    strlist_freeelem(oldTail);
+    list_freeelem(list, oldTail);
+	return 1;
 }
 
-int strlist_delete(StrList *list, int index) {
+int list_delete(List *list, int index) {
     int i = 0;
 
-    StrListValue *current = list->head;
+    ListValue *current = list->head;
 
     if(!current)
         return 0;
-    
+
     while(current && i != index) {
         current = current->next;
         i++;
@@ -108,16 +116,16 @@ int strlist_delete(StrList *list, int index) {
         if(current->prev) {
             current->prev->next = current->next;
             current->next->prev = current->prev;
-            strlist_freeelem(current);
-        } 
+            list_freeelem(list, current);
+        }
         else if(current->next && list->head == current) {
             list->head = current->next;
-            strlist_freeelem(current);
+            list_freeelem(list, current);
         }
         else {
             list->head = NULL;
             list->tail = NULL;
-            strlist_freeelem(current);
+            list_freeelem(list, current);
         }
 
         return 1;
@@ -126,14 +134,14 @@ int strlist_delete(StrList *list, int index) {
     return 0;
 }
 
-char* strlist_get(StrList *list, int index) {
+void* list_get(List *list, int index) {
     int i = 0;
 
-    StrListValue *current = list->head;
+    ListValue *current = list->head;
 
     if(!current)
         return NULL;
-    
+
     while(current && i != index) {
         current = current->next;
         i++;
@@ -146,15 +154,15 @@ char* strlist_get(StrList *list, int index) {
     return NULL;
 }
 
-int strlist_empty(StrList *list) {
+int list_empty(List *list) {
     return list->head == NULL;
 }
 
-int strlist_size(StrList *list) {
+int list_size(List *list) {
     int i = 0;
 
-    StrListValue *current = list->head;
-    
+    ListValue *current = list->head;
+
     while(current) {
         current = current->next;
         i++;
@@ -163,17 +171,19 @@ int strlist_size(StrList *list) {
     return i;
 }
 
-void strlist_clear(StrList *list) {
+void list_clear(List *list) {
     while(list->head) {
-        StrListValue *next = list->head->next;
-        strlist_freeelem(list->head);
+        ListValue *next = list->head->next;
+        list_freeelem(list, list->head);
         list->head = next;
     }
 
     list->head = list->tail = NULL;
 }
 
-void strlist_free(StrList *list) {
-    strlist_clear(list);
+
+void list_free(List *list) {
+    list_clear(list);
     free(list);
 }
+

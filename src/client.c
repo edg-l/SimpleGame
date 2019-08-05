@@ -80,8 +80,6 @@ int main(int argc, const char* argv[]) {
 
 	int nrecv;
 
-	StrList *list = strlist_create();
-
 	while(1) {
 		SDL_Event event;
 		while(SDL_PollEvent(&event)) {
@@ -111,7 +109,6 @@ int main(int argc, const char* argv[]) {
 	}
 
 cleanup:
-	strlist_free(list);
 	SDLNet_FreePacket(packet);
 	SDLNet_FreePacket(sendPacket);
 	SDLNet_UDP_Unbind(sock, channel);
