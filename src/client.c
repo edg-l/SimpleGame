@@ -80,6 +80,9 @@ int main(int argc, const char* argv[]) {
 
 	int nrecv;
 
+	render_text_color(200, 50, 50, 255);
+	int textID = render_create_cached_text(40, STYLE_NORMAL, "Hello world!");
+
 	while(1) {
 		SDL_Event event;
 		while(SDL_PollEvent(&event)) {
@@ -103,6 +106,7 @@ int main(int argc, const char* argv[]) {
 		render_color(46, 46, 46, 255);
 		render_clear();
 
+		render_cached_text(textID, 200, 200);
 
 		render_present();
 		SDL_Delay(1);

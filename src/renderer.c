@@ -3,6 +3,7 @@
 #include <SDL_ttf.h>
 #include "renderer.h"
 #include "list.h"
+#include "color.h"
 
 static SDL_Renderer *pRenderer = NULL;
 static List *pFontCache = NULL;
@@ -22,7 +23,9 @@ typedef struct CachedTexture {
 
 static void free_font(void* p) {
 	CachedFont *c = p;
+	printf("Style: %d, pt: %d, font %p\n", c->style, c->pt, c->pFont);
 	TTF_CloseFont(c->pFont);
+	c->pFont = NULL;
 	free(c);
 }
 
@@ -35,31 +38,31 @@ static void free_texture(void *p) {
 static const char* font_path(int style) {
 	switch(style) {
 		case STYLE_LIGHT:
-			return "resources/OpenSans-Light.ttf";
+			return "resources/fonts/OpenSans-Light.ttf";
 		case STYLE_LIGHT_ITALIC:
-			return "resources/OpenSans-LightItalic.ttf";
+			return "resources/fonts/OpenSans-LightItalic.ttf";
 		case STYLE_NORMAL:
-			return "resources/OpenSans-Normal.ttf";
+			return "resources/fonts/OpenSans-Regular.ttf";
 		case STYLE_ITALIC:
-			return "resources/OpenSans-Italic.ttf";
+			return "resources/fonts/OpenSans-Italic.ttf";
 		case STYLE_BOLD:
-			return "resources/OpenSans-Bold.ttf";
+			return "resources/fonts/OpenSans-Bold.ttf";
 		case STYLE_BOLD_ITALIC:
-			return "resources/OpenSans-BoldItalic.ttf";
+			return "resources/fonts/OpenSans-BoldItalic.ttf";
 		case STYLE_EXTRABOLD:
-			return "resources/OpenSans-ExtraBold.ttf";
+			return "resources/fonts/OpenSans-ExtraBold.ttf";
 		case STYLE_EXTRABOLD_ITALIC:
-			return "resources/OpenSans-ExtraBoldItalic.ttf";
+			return "resources/fonts/OpenSans-ExtraBoldItalic.ttf";
 		case STYLE_SEMIBOLD:
-			return "resources/OpenSans-Semibold.ttf";
+			return "resources/fonts/OpenSans-Semibold.ttf";
 		case STYLE_SEMIBOLD_ITALIC:
-			return "resources/OpenSans-SemiboldItalic.ttf";
+			return "resources/fonts/OpenSans-SemiboldItalic.ttf";
 	}
 	return font_path(STYLE_NORMAL);
 }
 
 static CachedFont* search_font(int pt, int style) {
-	if(!pFontCache || !pFontCache->head)
+	if(!pFontCache)
 		return NULL;
 
 	ListValue *pCurrent = pFontCache->head;
@@ -85,6 +88,7 @@ static CachedFont* search_font(int pt, int style) {
 		}
 		list_push_back(pFontCache, c, sizeof(CachedFont));
 		free(c);
+		printf(COLOR_GREEN "Added font to font cache\n" COLOR_RESET);
 	}
 
 	return pFontCache->tail->value;
@@ -110,16 +114,6 @@ int render_init(SDL_Window *pWindow) {
 }
 
 void render_quit() {
-
-	if(pFontCache && pFontCache->head) {
-		ListValue *pCurrent = pFontCache->head;
-
-		while(pCurrent) {
-			CachedFont *c = (CachedFont*)pCurrent->value;
-			TTF_CloseFont(c->pFont);
-			pCurrent = pCurrent->next;
-		}
-	}
 	list_clear(pFontCache);
 	TTF_Quit();
 	SDL_DestroyRenderer(pRenderer);
@@ -154,6 +148,9 @@ void render_text_color(int r, int g, int b, int a) {
 static SDL_Texture *create_text(int pt, int style, const char *text) {
 	CachedFont *c = search_font(pt, style);
 
+	if(!c) {
+		printf("no font\n");
+	}
 	if(c && c->pFont && text) {
 		SDL_Surface * pTextSurface;
 		pTextSurface = TTF_RenderText_Blended(c->pFont, text, fontColor);
