@@ -1,13 +1,13 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <SDL2_gfxPrimitives.h>
 #include <SDL_net.h>
 #include "color.h"
 #include "list.h"
 #include "protocol.h"
+#include "renderer.h"
 
 static SDL_Window *pWindow = NULL;
-static SDL_Renderer *pRenderer = NULL;
 static UDPsocket sock;
 static int port = 6666;
 static int channel;
@@ -40,9 +40,8 @@ int main(int argc, const char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
 
-	if(!pRenderer) {
+	if(!render_init(pWindow)) {
 		fprintf(stderr, "Error creating renderer: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
@@ -103,20 +102,11 @@ int main(int argc, const char* argv[]) {
 		}
 
 		// Render
-		SDL_SetRenderDrawColor(pRenderer, 46, 46, 46, 255);
-		SDL_RenderClear(pRenderer);
+		render_color(46, 46, 46, 255);
+		render_clear();
 
-		int y = 20;
 
-		StrListValue *cur = list->head;
-
-		while(cur != NULL) {
-			stringRGBA(pRenderer, 20, y, cur->value, 200, 0, 0, 255);
-			cur = cur->next;
-			y += 15;
-		}
-
-		SDL_RenderPresent(pRenderer);
+		render_present();
 		SDL_Delay(1);
 	}
 
@@ -126,7 +116,7 @@ cleanup:
 	SDLNet_FreePacket(sendPacket);
 	SDLNet_UDP_Unbind(sock, channel);
 	SDLNet_UDP_Close(sock);
-	SDL_DestroyRenderer(pRenderer);
+	render_quit();
 	SDL_DestroyWindow(pWindow);
 	SDLNet_Quit();
 	SDL_Quit();

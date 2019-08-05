@@ -24,6 +24,8 @@ set(SHARED_SOURCE_FILES
 
 set(CLIENT_SOURCE_FILES
 	src/client.c
+	src/renderer.c
+	src/renderer.h
 	${SHARED_SOURCE_FILES}
 	)
 
@@ -34,6 +36,8 @@ set(SERVER_SOURCE_FILES
 
 
 include_directories(src)
+
+file(COPY resources DESTINATION .)
 
 add_executable(SimpleGame ${CLIENT_SOURCE_FILES})
 
