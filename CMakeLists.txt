@@ -8,28 +8,31 @@ set(VERSION_REV 0)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-find_package(SDL2 REQUIRED)
-find_package(SDL2_net REQUIRED)
-find_package(SDL2_mixer REQUIRED)
-find_package(SDL2_image REQUIRED)
-find_package(SDL2_ttf REQUIRED)
-find_package(OpenGL REQUIRED)
-
 find_package(GLEW REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+find_package(SDL2_mixer REQUIRED)
+find_package(SDL2_net REQUIRED)
+find_package(SDL2_ttf REQUIRED)
 
 set(SHARED_SOURCE_FILES
 	src/color.h
-	src/protocol.h
-	src/list.h
+	src/io.c
+	src/io.h
 	src/list.c
-	src/logger.h
+	src/list.h
 	src/logger.c
+	src/logger.h
+	src/protocol.h
 	)
 
 set(CLIENT_SOURCE_FILES
 	src/client.c
-	src/renderer.c
-	src/renderer.h
+	src/graphics/renderer.c
+	src/graphics/renderer.h
+	src/graphics/shader.c
+	src/graphics/shader.h
 	src/ui/button.c
 	src/ui/button.h
 	${SHARED_SOURCE_FILES}

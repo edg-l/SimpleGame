@@ -1,5 +1,5 @@
 #include "button.h"
-#include <renderer.h>
+#include <graphics/renderer.h>
 #include <string.h>
 
 Button *button_create(float w, float h, float outline,

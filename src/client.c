@@ -4,10 +4,10 @@
 #include "color.h"
 #include "list.h"
 #include "protocol.h"
-#include "renderer.h"
+#include <graphics/renderer.h>
 #include "logger.h"
 #include "config.h"
-#include "ui/button.h"
+#include <ui/button.h>
 
 static UDPsocket sock;
 static int port = 6666;

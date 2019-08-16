@@ -1,5 +1,8 @@
 #include <stddef.h>
 #include <SDL.h>
+#include <GL/glew.h>
+#include <GL/glu.h>
+#include <SDL_opengl.h>
 #include <SDL_ttf.h>
 #include "renderer.h"
 #include "list.h"
@@ -7,6 +10,7 @@
 #include "logger.h"
 
 static SDL_Window *pWindow = NULL;
+static SDL_GLContext glContext;
 static SDL_Renderer *pRenderer = NULL;
 static List *pFontCache = NULL;
 static List *pTextCache = NULL;
@@ -109,9 +113,14 @@ int render_init(int width, int height, const char *title) {
 		exit(EXIT_FAILURE);
 	}
 
-	pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	if(!pRenderer) {
+	glContext = SDL_GL_CreateContext(pWindow);
+
+	if(!glContext) {
 		log_write(LOG_ERROR, "Error creating renderer: %s\n", SDL_GetError());
 		return 0;
 	}
@@ -120,6 +129,20 @@ int render_init(int width, int height, const char *title) {
 		log_write(LOG_ERROR, "Error initializing SDL_ttf: %s\n", TTF_GetError());
 		return 0;
 	}
+
+	// Initialize GLEW
+	glewExperimental = GL_TRUE; 
+	GLenum glewError = glewInit();
+
+	if(glewError != GLEW_OK) {
+		log_write(LOG_ERROR, "Error initializing GLEW: %s\n", glewGetErrorString(glewError));
+		return 0;
+	}
+
+	// Set vsync
+	SDL_GL_SetSwapInterval(1);
+
+	glClearColor(0, 0, 0, 1);
 
 	pFontCache = list_create_fn(free_font);
 	pTextCache = list_create_fn(free_texture);
@@ -132,6 +155,7 @@ int render_init(int width, int height, const char *title) {
 void render_quit() {
 	list_clear(pFontCache);
 	TTF_Quit();
+	SDL_GL_DeleteContext(glContext);
 	SDL_DestroyRenderer(pRenderer);
 	pRenderer = NULL;
 	SDL_DestroyWindow(pWindow);
@@ -139,11 +163,11 @@ void render_quit() {
 }
 
 void render_clear() {
-	SDL_RenderClear(pRenderer);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void render_present() {
-	SDL_RenderPresent(pRenderer);
+	SDL_GL_SwapWindow(pWindow);
 }
 
 void render_color(int r, int g, int b, int a) {
