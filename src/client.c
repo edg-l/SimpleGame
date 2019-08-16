@@ -7,8 +7,8 @@
 #include "renderer.h"
 #include "logger.h"
 #include "config.h"
+#include "ui/button.h"
 
-static SDL_Window *pWindow = NULL;
 static UDPsocket sock;
 static int port = 6666;
 static int channel;
@@ -31,24 +31,11 @@ int send_packet(int clean) {
 }
 
 int main(int argc, const char* argv[]) {
-	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) == -1) {
-		log_write(LOG_ERROR, "Error initializing SDL2: %s", SDL_GetError());
-		exit(EXIT_FAILURE);
-	}
 
-	pWindow = SDL_CreateWindow("SimpleGame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
-
-	if(!pWindow) {
-		log_write(LOG_ERROR, "Error creating window: %s", SDL_GetError());
-		exit(EXIT_FAILURE);
-	}
-
-
-	if(!render_init(pWindow)) {
+	if(!render_init(1024, 768, "SimpleGame")) {
 		log_write(LOG_ERROR, "Error creating renderer: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
-
 
 	if(SDLNet_Init() == -1) {
 		log_write(LOG_ERROR, "Error initializing SDLNet: %s\n", SDLNet_GetError());
@@ -83,8 +70,14 @@ int main(int argc, const char* argv[]) {
 
 	int nrecv;
 
-	render_text_color(255, 255, 255, 255);
-	int versionTextID = render_create_cached_text(18, STYLE_REGULAR, VERSION_STR);
+	render_text_color(100, 255, 255, 255);
+	int versionTextID = render_create_cached_text(18, STYLE_REGULAR, VERSION_STR, NULL, NULL);
+
+	SDL_Color fg = {0, 255, 0, 255};
+	SDL_Color bg = {200,255,255,255};
+	Button *button = button_create(200, 100, 2, "Hello", DEFAULT_FG, DEFAULT_BG);
+	button->x = 40;
+	button->y = 40;
 
 	while(1) {
 		SDL_Event event;
@@ -110,6 +103,7 @@ int main(int argc, const char* argv[]) {
 		render_clear();
 
 		render_cached_text(versionTextID, 5, height - 30);
+		render_button(button);
 
 		render_present();
 		SDL_Delay(1);
@@ -120,9 +114,7 @@ cleanup:
 	SDLNet_FreePacket(sendPacket);
 	SDLNet_UDP_Unbind(sock, channel);
 	SDLNet_UDP_Close(sock);
-	render_quit();
-	SDL_DestroyWindow(pWindow);
 	SDLNet_Quit();
-	SDL_Quit();
+	render_quit();
 	return EXIT_SUCCESS;
 }

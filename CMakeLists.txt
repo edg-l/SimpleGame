@@ -13,6 +13,9 @@ find_package(SDL2_net REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
+find_package(OpenGL REQUIRED)
+
+find_package(GLEW REQUIRED)
 
 set(SHARED_SOURCE_FILES
 	src/color.h
@@ -27,6 +30,8 @@ set(CLIENT_SOURCE_FILES
 	src/client.c
 	src/renderer.c
 	src/renderer.h
+	src/ui/button.c
+	src/ui/button.h
 	${SHARED_SOURCE_FILES}
 	)
 
@@ -52,7 +57,8 @@ file(COPY resources DESTINATION .)
 
 add_executable(SimpleGame ${CLIENT_SOURCE_FILES})
 
-target_link_libraries(SimpleGame SDL2::Main SDL2::Net SDL2::Mixer SDL2::Image SDL2::TTF)
+target_link_libraries(SimpleGame SDL2::Main SDL2::Net SDL2::Mixer 
+	SDL2::Image SDL2::TTF OpenGL::GL GLEW::GLEW)
 
 add_executable(SimpleGameServer ${SERVER_SOURCE_FILES})
 

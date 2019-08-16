@@ -6,6 +6,7 @@
 #include "color.h"
 #include "logger.h"
 
+static SDL_Window *pWindow = NULL;
 static SDL_Renderer *pRenderer = NULL;
 static List *pFontCache = NULL;
 static List *pTextCache = NULL;
@@ -94,7 +95,20 @@ static CachedFont* search_font(int pt, int style) {
 	return pFontCache->tail->value;
 }
 
-int render_init(SDL_Window *pWindow) {
+int render_init(int width, int height, const char *title) {
+	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) == -1) {
+		log_write(LOG_ERROR, "Error initializing SDL2: %s", SDL_GetError());
+		exit(EXIT_FAILURE);
+	}
+
+	pWindow = SDL_CreateWindow("SimpleGame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+			width, height, SDL_WINDOW_OPENGL);
+
+	if(!pWindow) {
+		log_write(LOG_ERROR, "Error creating window: %s", SDL_GetError());
+		exit(EXIT_FAILURE);
+	}
+
 	pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
 
 	if(!pRenderer) {
@@ -120,6 +134,8 @@ void render_quit() {
 	TTF_Quit();
 	SDL_DestroyRenderer(pRenderer);
 	pRenderer = NULL;
+	SDL_DestroyWindow(pWindow);
+	SDL_Quit();
 }
 
 void render_clear() {
@@ -134,13 +150,16 @@ void render_color(int r, int g, int b, int a) {
 	SDL_SetRenderDrawColor(pRenderer, r, g, b, a);
 }
 
-void render_rect(int x1, int y1, int x2, int y2) {
-	SDL_Rect x = {x1, y1, x2, y2};
-	SDL_RenderDrawRect(pRenderer, &x);
+void render_rect(float x1, float y1, float x2, float y2, int filled) {
+	SDL_FRect x = {x1, y1, x2, y2};
+	if(filled)
+		SDL_RenderFillRectF(pRenderer, &x);
+	else
+		SDL_RenderDrawRectF(pRenderer, &x);
 }
 
-void render_line(int x1, int y1, int x2, int y2) {
-	SDL_RenderDrawLine(pRenderer, x1, y1, x2, y2);
+void render_line(float x1, float y1, float x2, float y2) {
+	SDL_RenderDrawLineF(pRenderer, x1, y1, x2, y2);
 }
 
 void render_text_color(int r, int g, int b, int a) {
@@ -170,7 +189,7 @@ static SDL_Texture *create_text(int pt, int style, const char *text) {
 	return NULL;
 }
 
-int render_create_cached_text(int pt, int style, const char *text) {
+int render_create_cached_text(int pt, int style, const char *text, int *w, int *h) {
 	int cacheId = -1;
 
 	SDL_Texture *t = create_text(pt, style, text);
@@ -181,6 +200,7 @@ int render_create_cached_text(int pt, int style, const char *text) {
 		pCachedTexture->pTexture = t;
 
 		SDL_QueryTexture(t, NULL, NULL, &pCachedTexture->w, &pCachedTexture->h);
+		render_text_size(text, pt, style, w, h);
 
 		list_push_back(pTextCache, pCachedTexture, sizeof(CachedTexture));
 		free(pCachedTexture);
@@ -189,24 +209,24 @@ int render_create_cached_text(int pt, int style, const char *text) {
 	return cacheId;
 }
 
-void render_text(int x, int y, int pt, int style, const char* text) {
+void render_text(float x, float y, int pt, int style, const char* text) {
 	SDL_Texture *t = create_text(pt, style, text);
 
 	if(t) {
 		int w, h;
 		SDL_QueryTexture(t, NULL, NULL, &w, &h);
-		SDL_Rect dst = {x, y, w, h};
-		SDL_RenderCopy(pRenderer, t, NULL, &dst);
+		SDL_FRect dst = {x, y, w, h};
+		SDL_RenderCopyF(pRenderer, t, NULL, &dst);
 		SDL_DestroyTexture(t);
 	}
 }
 
-void render_cached_text(int id, int x, int y) {
+void render_cached_text(int id, float x, float y) {
 	CachedTexture *c = list_get(pTextCache, id);
 
 	if(c) {
-		SDL_Rect dst = {x, y, c->w, c->h};
-		SDL_RenderCopy(pRenderer, c->pTexture, NULL, &dst);
+		SDL_FRect dst = {x, y, c->w, c->h};
+		SDL_RenderCopyF(pRenderer, c->pTexture, NULL, &dst);
 	}
 }
 
