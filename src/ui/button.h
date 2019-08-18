@@ -13,6 +13,7 @@ typedef struct Button {
 	int textSizeW, textSizeH;
 	SDL_Color fg;
 	SDL_Color bg;
+	char *pText;
 } Button;
 
 Button *button_create(float w, float h, float outline, 

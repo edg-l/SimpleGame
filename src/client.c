@@ -98,7 +98,7 @@ int main(int argc, const char* argv[]) {
 		render_rect(20, 20, 400, 40, 0);
 		render_color(20, 46, 206, 255);
 		render_rect(500, 500, 400, 40, 1);
-		render_text_impl(48, STYLE_REGULAR, "hello world", 200, 40);
+		render_text(48, STYLE_BOLD_ITALIC, "hello world", 200, 40);
 
 		render_present();
 		SDL_Delay(1);

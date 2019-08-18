@@ -15,14 +15,17 @@ Button *button_create(float w, float h, float outline,
 	button->fg = fg;
 	button->bg = bg;
 
+	int len = strlen(text) + 1;
+	button->pText = malloc(len);
+	memcpy(button->pText, text, len);
+
 	render_text_color(button->fg.r, button->fg.g, button->fg.b, button->fg.a);
-	button->textID = render_create_cached_text(h / 3, STYLE_REGULAR, text,
-			&button->textSizeW, &button->textSizeH);
 
 	return button;
 }
 
 void button_free(Button *button) {
+	free(button->pText);
 	free(button);
 }
 
@@ -50,7 +53,8 @@ void render_button(Button *button) {
 			button->y + button->h,
 			1);
 
-	render_cached_text(button->textID,
+	render_text_color(button->fg.r, button->fg.g, button->fg.b, button->fg.a);
+	render_text(button->h / 3, STYLE_REGULAR, button->pText,
 			button->x + button->w / 2.f - button->textSizeW / 4.f,
 			button->y + button->h / 2.f - button->textSizeH / 4.f);
 }

@@ -32,9 +32,8 @@ void render_text_color(int r, int g, int b, int a);
 // TODO: Add font style options.
 int render_create_cached_text(int pt, int style, const char *text, int *w, int *h);
 void render_cached_text(int id, float x, float y);
-void render_text(float x, float y, int pt, int style, const char* text);
 void render_clear_text_cache();
 void render_text_size(const char* text, int pt, int style, int *w, int *h);
-void render_text_impl(int pt, int style, const char *text, float x, float y); 
+void render_text(int pt, int style, const char *text, float x, float y); 
 
 #endif

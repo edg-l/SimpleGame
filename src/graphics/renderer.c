@@ -394,7 +394,7 @@ void render_text_color(int r, int g, int b, int a) {
 	glUniform4f(glGetUniformLocation(textShader, "textColor"), r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 }
 
-void render_text_impl(int pt, int style, const char *text, float x, float y) {
+void render_text(int pt, int style, const char *text, float x, float y) {
 	CachedFont *cfont = search_font(pt, style);
 
 	if(!cfont)
@@ -445,99 +445,6 @@ void render_text_impl(int pt, int style, const char *text, float x, float y) {
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-static GLuint create_text(int pt, int style, const char *text, int *w, int *h) {
-	CachedFont *cfont = search_font(pt, style);
-
-	if(cfont && text) {
-	}
-	else
-		log_write(LOG_ERROR, "Tried to render text with either a NULL font or text.\n");
-	return 0;
-}
-
-int render_create_cached_text(int pt, int style, const char *text, int *w, int *h) {
-	int cacheId = -1;
-
-	int ow, oh;
-	GLuint t = create_text(pt, style, text, &ow, &oh);
-
-	if(t) {
-		cacheId = list_size(pTextCache);
-		CachedTexture *pCachedTexture = malloc(sizeof(CachedTexture));
-		pCachedTexture->texID = t;
-		pCachedTexture->w = ow;
-		pCachedTexture->h = oh;
-
-		if(w)
-			*w = ow;
-		if(h)
-			*h = oh;
-
-		list_push_back(pTextCache, pCachedTexture, sizeof(CachedTexture));
-		free(pCachedTexture);
-	}
-
-	return cacheId;
-}
-
-void render_text(float x, float y, int pt, int style, const char* text) {
-	int w, h;
-	GLuint texID = create_text(pt, style, text, &w, &h);
-
-	if(texID) {
-		shader_use(textShader);
-		mat4 model;
-		glm_mat4_identity(model);
-		vec3 pos;
-		pos[0] = x;
-		pos[1] = y;
-		pos[2]= 0;
-		glm_translate(model, pos);
-
-		vec3 scale;
-		scale[0] = w;
-		scale[1] = h;
-		scale[2] = 1;
-		glm_scale(model, scale);
-
-		shader_set_mat4(textShader, "model", model);
-
-		glBindVertexArray(textVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texID);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-	}
-}
-
-void render_cached_text(int id, float x, float y) {
-	CachedTexture *c = list_get(pTextCache, id);
-
-	if(c) {
-		shader_use(textShader);
-		mat4 model;
-		glm_mat4_identity(model);
-		vec3 pos;
-		pos[0] = x;
-		pos[1] = y;
-		pos[2]= 0;
-		glm_translate(model, pos);
-
-		vec3 scale;
-		scale[0] = c->w;
-		scale[1] = c->h;
-		scale[2] = 1;
-		glm_scale(model, scale);
-
-		shader_set_mat4(textShader, "model", model);
-		glBindVertexArray(textVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, c->texID);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-	}
 }
 
 void render_clear_text_cache() {
