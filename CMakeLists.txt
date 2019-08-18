@@ -14,8 +14,8 @@ find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 find_package(SDL2_net REQUIRED)
-find_package(SDL2_ttf REQUIRED)
 find_package(PkgConfig REQUIRED)
+find_package(Freetype REQUIRED)
 
 pkg_check_modules(CGLM cglm REQUIRED)
 
@@ -64,7 +64,7 @@ file(COPY resources DESTINATION .)
 add_executable(SimpleGame ${CLIENT_SOURCE_FILES})
 
 target_link_libraries(SimpleGame SDL2::Main SDL2::Net SDL2::Mixer 
-	SDL2::Image SDL2::TTF OpenGL::GL GLEW::GLEW ${CGLM_LIBRARIES})
+	SDL2::Image OpenGL::GL GLEW::GLEW ${CGLM_LIBRARIES} Freetype::Freetype)
 
 add_executable(SimpleGameServer ${SERVER_SOURCE_FILES})
 

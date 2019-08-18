@@ -70,6 +70,7 @@ int main(int argc, const char* argv[]) {
 
 	int nrecv;
 
+	render_text_color(200, 20, 20, 255);
 
 	while(1) {
 		SDL_Event event;
@@ -94,7 +95,10 @@ int main(int argc, const char* argv[]) {
 		render_color(200, 46, 46, 255);
 		render_clear();
 
-		render_rect(20, 20, 40, 40, 1);
+		render_rect(20, 20, 400, 40, 0);
+		render_color(20, 46, 206, 255);
+		render_rect(500, 500, 400, 40, 1);
+		render_text_impl(48, STYLE_REGULAR, "hello world", 200, 40);
 
 		render_present();
 		SDL_Delay(1);
