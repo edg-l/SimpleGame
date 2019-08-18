@@ -70,14 +70,6 @@ int main(int argc, const char* argv[]) {
 
 	int nrecv;
 
-	render_text_color(100, 255, 255, 255);
-	int versionTextID = render_create_cached_text(18, STYLE_REGULAR, VERSION_STR, NULL, NULL);
-
-	SDL_Color fg = {0, 255, 0, 255};
-	SDL_Color bg = {200,255,255,255};
-	Button *button = button_create(200, 100, 2, "Hello", DEFAULT_FG, DEFAULT_BG);
-	button->x = 40;
-	button->y = 40;
 
 	while(1) {
 		SDL_Event event;
@@ -99,11 +91,10 @@ int main(int argc, const char* argv[]) {
 		}
 
 		// Render
-		render_color(46, 46, 46, 255);
+		render_color(200, 46, 46, 255);
 		render_clear();
 
-		render_cached_text(versionTextID, 5, height - 30);
-		render_button(button);
+		render_rect(20, 20, 40, 40, 1);
 
 		render_present();
 		SDL_Delay(1);

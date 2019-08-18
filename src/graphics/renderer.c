@@ -8,6 +8,8 @@
 #include "list.h"
 #include "color.h"
 #include "logger.h"
+#include "shader.h"
+#include <cglm/cglm.h>
 
 static SDL_Window *pWindow = NULL;
 static SDL_GLContext glContext;
@@ -15,6 +17,24 @@ static SDL_Renderer *pRenderer = NULL;
 static List *pFontCache = NULL;
 static List *pTextCache = NULL;
 static SDL_Color fontColor = {0,0,0,255};
+static Shader quadShader;
+static mat4 projection;
+static RenderID quadVAO;
+
+static const char *pQuadShaderVert = "#version 330 core\n\
+									  layout (location = 0) in vec2 vertex;\n\
+									  uniform mat4 projection;\n\
+									  uniform mat4 model;\n\
+									  void main () {\n\
+										  gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);\n\
+											  //gl_Position = vec4(vertex.xy, 0.0, 1.0);\n\
+									  }";
+static const char *pQuadShaderFrag = "#version 330 core\n\
+									  uniform vec4 quadColor;\n\
+									  out vec4 FragColor;\n\
+									  void main() {\n\
+										  FragColor = quadColor;\n\
+									  }";
 
 typedef struct CachedFont {
 	int pt;
@@ -105,7 +125,7 @@ int render_init(int width, int height, const char *title) {
 		exit(EXIT_FAILURE);
 	}
 
-	pWindow = SDL_CreateWindow("SimpleGame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+	pWindow = SDL_CreateWindow("SimpleGame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 			width, height, SDL_WINDOW_OPENGL);
 
 	if(!pWindow) {
@@ -115,7 +135,7 @@ int render_init(int width, int height, const char *title) {
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	glContext = SDL_GL_CreateContext(pWindow);
@@ -131,13 +151,15 @@ int render_init(int width, int height, const char *title) {
 	}
 
 	// Initialize GLEW
-	glewExperimental = GL_TRUE; 
+	glewExperimental = GL_TRUE;
 	GLenum glewError = glewInit();
 
 	if(glewError != GLEW_OK) {
 		log_write(LOG_ERROR, "Error initializing GLEW: %s\n", glewGetErrorString(glewError));
 		return 0;
 	}
+
+	glViewport(0, 0, width, height);
 
 	// Set vsync
 	SDL_GL_SetSwapInterval(1);
@@ -147,16 +169,46 @@ int render_init(int width, int height, const char *title) {
 	pFontCache = list_create_fn(free_font);
 	pTextCache = list_create_fn(free_texture);
 
+	glm_mat4_identity(projection);
+	glm_ortho(0, width, height, 0, -1, 1, projection);
+
+	quadShader = shader_load_str(pQuadShaderVert, pQuadShaderFrag, NULL);
+	shader_use(quadShader);
+	shader_set_mat4(quadShader, "projection", projection);
+
+	// Setup the quad VAO
+	GLuint vbo;
+
+	GLfloat vertices[] = {
+		0, 1,
+		1, 0,
+		0, 0,
+
+		0, 1,
+		1, 1,
+		1, 0
+	};
+
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &vbo);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindVertexArray(quadVAO);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+
 	log_write(LOG_INFO, "Renderer initialized.\n");
 
 	return 1;
 }
 
+
 void render_quit() {
 	list_clear(pFontCache);
 	TTF_Quit();
 	SDL_GL_DeleteContext(glContext);
-	SDL_DestroyRenderer(pRenderer);
 	pRenderer = NULL;
 	SDL_DestroyWindow(pWindow);
 	SDL_Quit();
@@ -171,15 +223,33 @@ void render_present() {
 }
 
 void render_color(int r, int g, int b, int a) {
-	SDL_SetRenderDrawColor(pRenderer, r, g, b, a);
+	shader_use(quadShader);
+	shader_set_vec4(quadShader, "quadColor", r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 }
 
-void render_rect(float x1, float y1, float x2, float y2, int filled) {
-	SDL_FRect x = {x1, y1, x2, y2};
-	if(filled)
-		SDL_RenderFillRectF(pRenderer, &x);
-	else
-		SDL_RenderDrawRectF(pRenderer, &x);
+void render_rect(float x, float y, float width, float height, int filled) {
+	shader_use(quadShader);
+
+	mat4 model;
+	glm_mat4_identity(model);
+	vec3 pos;
+	pos[0] = x;
+	pos[1] = y;
+	pos[2]= 0;
+	glm_translate(model, pos);
+
+	vec3 scale;
+	scale[0] = width;
+	scale[1] = height;
+	scale[2] = 1;
+	glm_scale(model, scale);
+
+	shader_set_mat4(quadShader, "model", model);
+
+	glBindVertexArray(quadVAO);
+	//glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawArrays(GL_LINE_STRIP, 0, 6);
+	glBindVertexArray(0);
 }
 
 void render_line(float x1, float y1, float x2, float y2) {

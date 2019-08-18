@@ -5,6 +5,8 @@
 
 // Info: https://wiki.libsdl.org/CategoryRender
 
+typedef unsigned int RenderID;
+
 enum {
 	STYLE_LIGHT,
 	STYLE_LIGHT_ITALIC,
@@ -24,7 +26,7 @@ void render_quit();
 void render_clear();
 void render_present();
 void render_color(int r, int g, int b, int a);
-void render_rect(float x1, float y1, float x2, float y2, int filled);
+void render_rect(float x, float y, float width, float height, int filled);
 void render_line(float x1, float y1, float x2, float y2);
 void render_text_color(int r, int g, int b, int a);
 // TODO: Add font style options.
