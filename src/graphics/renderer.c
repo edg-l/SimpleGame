@@ -68,7 +68,7 @@ typedef struct Glyph {
 	vec2 size;
 	vec2 bearing;
 	GLuint advance;
-	char code;
+	FT_ULong code;
 } Glyph;
 
 typedef struct CachedFont {
