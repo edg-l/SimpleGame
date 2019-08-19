@@ -450,3 +450,26 @@ void render_text(int pt, int style, const char *text, float x, float y) {
 void render_clear_text_cache() {
 	list_clear(pTextCache);
 }
+
+void render_text_size(const char* text, int pt, int style, int *w, int *h) {
+	CachedFont *cfont = search_font(pt, style);
+	int len = strlen(text);
+
+	int x = 0;
+	int y = 0;
+
+	for(int i = 0; i < len; i++) {
+		ListValue *current = cfont->pCharList->head;
+		while(current) {
+			Glyph *glyph = current->value;
+			if(glyph->code == text[i]) {
+				if(glyph->size[1] > y)
+					y = glyph->size[1];
+				x += (glyph->advance >> 6);
+			}
+			current = current->next;
+		}
+	}
+	*w = x;
+	*h = y;
+}

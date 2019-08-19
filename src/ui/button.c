@@ -19,7 +19,7 @@ Button *button_create(float w, float h, float outline,
 	button->pText = malloc(len);
 	memcpy(button->pText, text, len);
 
-	render_text_color(button->fg.r, button->fg.g, button->fg.b, button->fg.a);
+	render_text_size(button->pText, h / 3, STYLE_REGULAR, &button->textSizeW, &button->textSizeH);
 
 	return button;
 }
@@ -36,8 +36,8 @@ void render_button(Button *button) {
 		render_color(button->fg.r / 20, button->fg.g / 20, button->fg.b / 20, 255);
 		render_rect(button->x - button->o,
 				button->y - button->o,
-				button->x + button->w + button->o * 2,
-				button->y + button->h + button->o * 2,
+				button->w + button->o * 2,
+				button->h + button->o * 2,
 				1);
 	}
 	int mx, my;
@@ -48,10 +48,7 @@ void render_button(Button *button) {
 		render_color(button->bg.r + 10, button->bg.g + 10, button->bg.b + 10, button->bg.a);
 	else
 		render_color(button->bg.r, button->bg.g, button->bg.b, button->bg.a);
-	render_rect(button->x, button->y,
-			button->x + button->w,
-			button->y + button->h,
-			1);
+	render_rect(button->x, button->y, button->w, button->h,	1);
 
 	render_text_color(button->fg.r, button->fg.g, button->fg.b, button->fg.a);
 	render_text(button->h / 3, STYLE_REGULAR, button->pText,

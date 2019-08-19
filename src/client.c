@@ -71,6 +71,15 @@ int main(int argc, const char* argv[]) {
 	int nrecv;
 
 	render_text_color(200, 20, 20, 255);
+	int ws, hs;
+	render_text_size("hello world", 48, STYLE_BOLD_ITALIC, &ws, &hs);
+	log_write(LOG_INFO, "Size: %d, %d\n", ws, hs);
+
+	SDL_Color fg = {200, 20, 20, 255};
+	SDL_Color bg = {20, 20, 20, 255};
+	Button *button = button_create(200, 50,	1, "Start", fg, bg);
+	button->x = 500;
+	button->y = 300;
 
 	while(1) {
 		SDL_Event event;
@@ -95,10 +104,11 @@ int main(int argc, const char* argv[]) {
 		render_color(200, 46, 46, 255);
 		render_clear();
 
-		render_rect(20, 20, 400, 40, 0);
+		//render_rect(20, 20, 400, 40, 0);
 		render_color(20, 46, 206, 255);
-		render_rect(500, 500, 400, 40, 1);
+		render_rect(200, 40, ws, hs, 0);
 		render_text(48, STYLE_BOLD_ITALIC, "hello world", 200, 40);
+		render_button(button);
 
 		render_present();
 		SDL_Delay(1);
