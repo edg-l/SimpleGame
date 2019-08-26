@@ -46,8 +46,8 @@ static const char *pQuadShaderFrag = "#version 330 core\n\
 
 static const char *pTextShaderVert = "#version 330 core\n\
 									  layout (location = 0) in vec4 vertex;\n\
-									  uniform mat4 projection;\n\
 									  out vec2 TexCoords;\n\
+									  uniform mat4 projection;\n\
 									  void main() {\n\
 										  gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);\n\
 											  TexCoords = vertex.zw;\n\
@@ -56,24 +56,25 @@ static const char *pTextShaderVert = "#version 330 core\n\
 static const char *pTextShaderFrag = "#version 330 core\n\
 									  in vec2 TexCoords;\n\
 									  uniform vec4 textColor;\n\
-									  out vec4 color;\n\
 									  uniform sampler2D text;\n\
 									  void main() {\n\
-										  vec4 sample = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\
-										  color = textColor * sample;\
+										  gl_FragColor = textColor * vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\
 									  }";
 
 typedef struct Glyph {
-	GLuint texID;
-	vec2 size;
-	vec2 bearing;
-	GLuint advance;
 	FT_ULong code;
+	GLuint advance;
+	GLuint bx, by;
+	GLuint width, height;
+	GLuint tx, ty;
 } Glyph;
 
 typedef struct CachedFont {
 	int pt;
 	int style;
+	GLuint tex;
+	GLuint atlas_width;
+	GLuint atlas_height;
 	List *pCharList;
 	FT_Face ft;
 } CachedFont;
@@ -83,17 +84,15 @@ typedef struct CachedTexture {
 	GLuint texID;
 } CachedTexture;
 
+void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, 
+		GLsizei length, const GLchar* message, const void* userParam) {
+	log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_INFO,
+			"OpenGL message type=%d, severity=%d, message: %s\n", type, severity, message);
+}
+
 static void free_font(void* p) {
 	CachedFont *c = p;
-	if(c->pCharList && c->pCharList->head) {
-		ListValue *current = c->pCharList->head;
-
-		while(current) {
-			Glyph *g = current->value;
-			glDeleteTextures(1, &g->texID);
-			current = current->next;
-		}
-	}
+	glDeleteTextures(1, &c->tex);
 	FT_Done_Face(c->ft);
 	list_free(c->pCharList);
 	free(c);
@@ -103,6 +102,18 @@ static void free_texture(void *p) {
 	CachedTexture *pCachedTexture = p;
 	glDeleteTextures(1, &pCachedTexture->texID);
 	free(pCachedTexture);
+}
+
+static unsigned int count_glyphs(FT_Face face) {
+	FT_ULong c;
+	FT_UInt gindex;
+	c = FT_Get_First_Char(face, &gindex);
+	int count = 0;
+	while(gindex != 0) {
+		c = FT_Get_Next_Char(face, c, &gindex);
+		count++;
+	}
+	return count;
 }
 
 static const char* font_path(int style) {
@@ -160,10 +171,30 @@ static CachedFont* search_font(int pt, int style) {
 		}
 
 		FT_Set_Pixel_Sizes(cfont->ft, 0 , pt);
-
-		// 128 glyphs for now
-
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glActiveTexture(GL_TEXTURE0);
+		glGenTextures(1, &cfont->tex);
+		glBindTexture(GL_TEXTURE_2D, cfont->tex);
+
+		// Calculate atlas size
+		int max_dim = (1 + (cfont->ft->size->metrics.height >> 6)) * ceilf(sqrtf(count_glyphs(cfont->ft)));
+		int tex_width = 1;
+		while(tex_width < max_dim) tex_width <<= 1;
+		int tex_height = tex_width;
+
+		cfont->atlas_width = tex_width;
+		cfont->atlas_height = tex_height;
+
+		log_write(LOG_INFO, "Creating texture atlas for a new font with size: %dx%d\n", tex_width, tex_height);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, tex_width, tex_height, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 		FT_ULong c;
 		FT_UInt gindex;
@@ -171,6 +202,12 @@ static CachedFont* search_font(int pt, int style) {
 		c = FT_Get_First_Char(cfont->ft, &gindex);
 
 		int count = 0;
+		int x = 0;
+		int y = 0;
+		int max_row_h = 0;
+
+		FT_GlyphSlot g = cfont->ft->glyph;
+
 		while(gindex != 0) {
 			FT_Error ftcerr = FT_Load_Char(cfont->ft, c, FT_LOAD_RENDER);
 
@@ -179,29 +216,36 @@ static CachedFont* search_font(int pt, int style) {
 				continue;
 			}
 
-			GLuint texID;
-			glGenTextures(1, &texID);
-			glBindTexture(GL_TEXTURE_2D, texID);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, cfont->ft->glyph->bitmap.width,
-					cfont->ft->glyph->bitmap.rows, 0, GL_RED, GL_UNSIGNED_BYTE, cfont->ft->glyph->bitmap.buffer);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			max_row_h = g->bitmap.rows > max_row_h ? g->bitmap.rows : max_row_h;
+
+			if(x + g->bitmap.width + 1 >= tex_width) {
+				y += max_row_h + 1;
+				max_row_h = 0;
+				x = 0;
+			}
+			else {
+				x += g->bitmap.width + 1;
+			}
+
+			glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
 			Glyph *glyph = malloc(sizeof(Glyph));
-			glyph->texID = texID;
-			glyph->size[0] = cfont->ft->glyph->bitmap.width;
-			glyph->size[1] = cfont->ft->glyph->bitmap.rows;
-			glyph->bearing[0] = cfont->ft->glyph->bitmap_left;
-			glyph->bearing[1] = cfont->ft->glyph->bitmap_top;
-			glyph->advance = cfont->ft->glyph->advance.x;
+			glyph->advance = g->advance.x >> 6;
+			glyph->bx = g->bitmap_left;
+			glyph->by = g->bitmap_top;
+			glyph->width = g->bitmap.width;
+			glyph->height = g->bitmap.rows;
+			glyph->tx = (float)x;// / tex_width;
+			glyph->ty = (float)y;// / tex_height;
 			glyph->code = c;
+
 			list_push_back(cfont->pCharList, glyph, sizeof(Glyph));
 			free(glyph);
+
 			c = FT_Get_Next_Char(cfont->ft, c, &gindex);
 			count++;
 		}
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 		list_push_back(pFontCache, cfont, sizeof(CachedFont));
 		log_write(LOG_INFO, "Added font (%dpt, %d glyphs, %d style) to cache\n", cfont->pt, count, cfont->style);
@@ -252,8 +296,9 @@ int render_init(int width, int height, const char *title) {
 		return 0;
 	}
 
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(opengl_message_callback, 0);
 	glEnable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glViewport(0, 0, width, height);
@@ -274,9 +319,7 @@ int render_init(int width, int height, const char *title) {
 
 	textShader = shader_load_str(pTextShaderVert, pTextShaderFrag, NULL);
 	shader_use(textShader);
-	mat4 textProjection;
-	glm_ortho(0, width, 0, height, -1, 1, textProjection);
-	shader_set_mat4(textShader, "projection", textProjection);
+	shader_set_mat4(textShader, "projection", projection);
 
 	{
 		// Setup the quad VAO
@@ -320,7 +363,6 @@ int render_init(int width, int height, const char *title) {
 		glBindVertexArray(textVAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
 
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
@@ -400,51 +442,49 @@ void render_text(int pt, int style, const char *text, float x, float y) {
 	if(!cfont)
 		return;
 
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	shader_use(textShader);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(textVAO);
+	glBindTexture(GL_TEXTURE_2D, cfont->tex);
+	glBindBuffer(GL_ARRAY_BUFFER, textVBO);
 
-	int len = strlen(text);
+	struct point {
+		GLfloat x;
+		GLfloat y;
+		GLfloat tx;
+		GLfloat ty;
+	} coords[6 * strlen(text)];
 
-	for(int i = 0; i < len; i++) {
-		// Search the glyph
-
+	int n = 0;
+	for(const char *c = text; *c; c++) {
 		ListValue *current = cfont->pCharList->head;
 
 		while(current) {
 			Glyph *glyph = current->value;
-			if(glyph->code == text[i]) {
-				GLfloat xpos = x + glyph->bearing[0];
-				GLfloat ypos = y - (glyph->size[1] - glyph->bearing[1]);
+			if(glyph->code == *c && glyph->width && glyph->height) {
+				float ox = x + glyph->bx;
+				float oy = y - (glyph->height - glyph->by);
+				coords[n++] = (struct point){ox, oy, glyph->tx, glyph->ty};
+				coords[n++] = (struct point){ox + glyph->width, oy, glyph->tx + glyph->width, glyph->ty};
+				coords[n++] = (struct point){ox, oy + glyph->height, glyph->tx, glyph->ty + glyph->height};
+				coords[n++] = (struct point){ox, oy + glyph->height, glyph->tx, glyph->ty + glyph->height};
+				coords[n++] = (struct point){ox + glyph->width, oy + glyph->height, glyph->tx + glyph->width, glyph->ty + glyph->height};
+				coords[n++] = (struct point){ox + glyph->width, oy, glyph->tx + glyph->width, glyph->ty};
 
-				GLfloat w = glyph->size[0];
-				GLfloat h = glyph->size[1];
-
-				GLfloat vertices[6][4] = {
-					{xpos, ypos + h, 0, 0},
-					{xpos, ypos, 0, 1},
-					{xpos + w, ypos, 1, 1},
-
-					{xpos, ypos + h, 0, 0},
-					{xpos + w, ypos, 1, 1},
-					{xpos + w, ypos + h, 1, 0}
-				};
-
-				glBindTexture(GL_TEXTURE_2D, glyph->texID);
-
-				glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-				glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				glDrawArrays(GL_TRIANGLES, 0, 6);
-
-				x += (glyph->advance >> 6);
+				x += glyph->advance;
 			}
 			current = current->next;
 		}
 	}
+	glBufferData(GL_ARRAY_BUFFER, sizeof(coords), coords, GL_DYNAMIC_DRAW);
+	glDrawArrays(GL_TRIANGLES, 0, n);
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
 void render_clear_text_cache() {
@@ -452,24 +492,4 @@ void render_clear_text_cache() {
 }
 
 void render_text_size(const char* text, int pt, int style, int *w, int *h) {
-	CachedFont *cfont = search_font(pt, style);
-	int len = strlen(text);
-
-	int x = 0;
-	int y = 0;
-
-	for(int i = 0; i < len; i++) {
-		ListValue *current = cfont->pCharList->head;
-		while(current) {
-			Glyph *glyph = current->value;
-			if(glyph->code == text[i]) {
-				if(glyph->size[1] > y)
-					y = glyph->size[1];
-				x += (glyph->advance >> 6);
-			}
-			current = current->next;
-		}
-	}
-	*w = x;
-	*h = y;
 }
