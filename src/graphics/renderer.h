@@ -5,6 +5,8 @@
 
 // Info: https://wiki.libsdl.org/CategoryRender
 
+#define MAX_GLYPHS (255-32)
+
 typedef unsigned int RenderID;
 
 enum {

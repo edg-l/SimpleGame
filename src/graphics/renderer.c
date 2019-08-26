@@ -64,7 +64,7 @@ static const char *pTextShaderFrag = "#version 330 core\n\
 typedef struct Glyph {
 	FT_ULong code;
 	GLuint advance;
-	GLuint bx, by;
+	GLuint bl, bt;
 	GLuint width, height;
 	GLuint tx, ty;
 } Glyph;
@@ -86,7 +86,7 @@ typedef struct CachedTexture {
 
 void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, 
 		GLsizei length, const GLchar* message, const void* userParam) {
-	log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_INFO,
+	log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_DEBUG,
 			"OpenGL message type=%d, severity=%d, message: %s\n", type, severity, message);
 }
 
@@ -157,6 +157,11 @@ static CachedFont* search_font(int pt, int style) {
 		pCurrent = pCurrent->next;
 	}
 
+	if(glIsEnabled(GL_BLEND) == GL_FALSE) {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
 	if(!pCurrent) {
 		// Font is not cached, load it.
 		CachedFont *cfont = malloc(sizeof(CachedFont));
@@ -172,13 +177,12 @@ static CachedFont* search_font(int pt, int style) {
 
 		FT_Set_Pixel_Sizes(cfont->ft, 0 , pt);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glActiveTexture(GL_TEXTURE0);
 		glGenTextures(1, &cfont->tex);
 		glBindTexture(GL_TEXTURE_2D, cfont->tex);
 
 		// Calculate atlas size
+
 		int max_dim = (1 + (cfont->ft->size->metrics.height >> 6)) * ceilf(sqrtf(count_glyphs(cfont->ft)));
 		int tex_width = 1;
 		while(tex_width < max_dim) tex_width <<= 1;
@@ -218,30 +222,28 @@ static CachedFont* search_font(int pt, int style) {
 
 			max_row_h = g->bitmap.rows > max_row_h ? g->bitmap.rows : max_row_h;
 
-			if(x + g->bitmap.width + 1 >= tex_width) {
+			if(x + g->bitmap.width + 1 > tex_width) {
 				y += max_row_h + 1;
 				max_row_h = 0;
 				x = 0;
-			}
-			else {
-				x += g->bitmap.width + 1;
 			}
 
 			glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, g->bitmap.width, g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
 			Glyph *glyph = malloc(sizeof(Glyph));
 			glyph->advance = g->advance.x >> 6;
-			glyph->bx = g->bitmap_left;
-			glyph->by = g->bitmap_top;
+			glyph->bl = g->bitmap_left;
+			glyph->bt = g->bitmap_top;
 			glyph->width = g->bitmap.width;
 			glyph->height = g->bitmap.rows;
-			glyph->tx = (float)x;// / tex_width;
-			glyph->ty = (float)y;// / tex_height;
+			glyph->tx = x;
+			glyph->ty = y;
 			glyph->code = c;
 
 			list_push_back(cfont->pCharList, glyph, sizeof(Glyph));
 			free(glyph);
 
+			x += g->bitmap.width + 1;
 			c = FT_Get_Next_Char(cfont->ft, c, &gindex);
 			count++;
 		}
@@ -459,23 +461,47 @@ void render_text(int pt, int style, const char *text, float x, float y) {
 		GLfloat ty;
 	} coords[6 * strlen(text)];
 
+	int startx = x;
+
 	int n = 0;
+	float firstBottom = -1;
 	for(const char *c = text; *c; c++) {
 		ListValue *current = cfont->pCharList->head;
 
 		while(current) {
 			Glyph *glyph = current->value;
 			if(glyph->code == *c && glyph->width && glyph->height) {
-				float ox = x + glyph->bx;
-				float oy = y - (glyph->height - glyph->by);
-				coords[n++] = (struct point){ox, oy, glyph->tx, glyph->ty};
-				coords[n++] = (struct point){ox + glyph->width, oy, glyph->tx + glyph->width, glyph->ty};
-				coords[n++] = (struct point){ox, oy + glyph->height, glyph->tx, glyph->ty + glyph->height};
-				coords[n++] = (struct point){ox, oy + glyph->height, glyph->tx, glyph->ty + glyph->height};
-				coords[n++] = (struct point){ox + glyph->width, oy + glyph->height, glyph->tx + glyph->width, glyph->ty + glyph->height};
-				coords[n++] = (struct point){ox + glyph->width, oy, glyph->tx + glyph->width, glyph->ty};
+				float ox = x + glyph->bl;
+				float oy = y - (glyph->height - glyph->bt);
+				if(firstBottom == -1) {
+					firstBottom = oy + glyph->height;
+				} else {
+					oy = (firstBottom - glyph->height) + (glyph->height - glyph->bt);
+				}
+				float tx = (float)glyph->tx / cfont->atlas_width;
+				float ty = (float)glyph->ty / cfont->atlas_height;
+				float tw = (float)glyph->width / cfont->atlas_width;
+				float th = (float)glyph->height / cfont->atlas_height;
+				float h = glyph->height;
+				float w = glyph->width;
+
+
+				coords[n++] = (struct point){ox, oy, tx, ty};
+				coords[n++] = (struct point){ox + w, oy, tx + tw, ty};
+				coords[n++] = (struct point){ox, oy + h, tx, ty + th};
+
+				coords[n++] = (struct point){ox + w, oy, tx + tw, ty};
+				coords[n++] = (struct point){ox, oy + h, tx, ty + th};
+				coords[n++] = (struct point){ox + w, oy + h, tx + tw, ty + th};
 
 				x += glyph->advance;
+			}
+			else if(glyph->code == ' ' && glyph->advance) {
+				x += glyph->advance;
+			}
+			else if(glyph->code == '\n') {
+				y += cfont->ft->size->metrics.height;
+				x = startx; 
 			}
 			current = current->next;
 		}

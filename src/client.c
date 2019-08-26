@@ -102,7 +102,7 @@ int main(int argc, const char* argv[]) {
 		render_clear();
 
 		//render_rect(20, 20, 400, 40, 0);
-		render_text(48, STYLE_REGULAR, "hello world", 200, 40);
+		render_text(48, STYLE_REGULAR, "hello gwogrld", 0, 0);
 
 		render_present();
 		SDL_Delay(1);
