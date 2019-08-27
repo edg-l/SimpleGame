@@ -27,6 +27,8 @@ set(ENGINE_SHARED_SOURCES
 	src/engine/list.h
 	src/engine/logger.c
 	src/engine/logger.h
+	src/engine/settings.c
+	src/engine/settings.h
 	)
 
 set(ENGINE_CLIENT_SOURCES

@@ -7,7 +7,9 @@
 #include "renderer.h"
 #include <engine/list.h>
 #include <engine/logger.h>
+#include <engine/io.h>
 #include "shader.h"
+#include <engine/settings.h>
 #include <cglm/cglm.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -266,13 +268,28 @@ int render_init(int width, int height, const char *title) {
 		exit(EXIT_FAILURE);
 	}
 
+	settings_init();
+
+	settings_add_int("window_width", 1024, 5, 5000);
+	settings_add_int("window_height", 768, 5, 5000);
+
+	settings_add_int("msaa_enable", 1, 0, 1);
+	settings_add_int("msaa_value", 2, 0, 4);
+
+	// TODO: fix this
+	//if(!io_file_exists("settings.ini"))
+	//	settings_save("settings.ini");
+	//settings_load("settings.ini");
+
 	pWindow = SDL_CreateWindow("SimpleGame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			width, height, SDL_WINDOW_OPENGL);
+			settings_get_int("window_width"), 
+			settings_get_int("window_height"), SDL_WINDOW_OPENGL);
 
 	if(!pWindow) {
 		log_write(LOG_ERROR, "Error creating window: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
+
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -286,8 +303,8 @@ int render_init(int width, int height, const char *title) {
 
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, settings_get_int("msaa_enable"));
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, settings_get_int("msaa_value"));
 
 	glContext = SDL_GL_CreateContext(pWindow);
 
@@ -567,4 +584,42 @@ void render_clear_text_cache() {
 }
 
 void render_text_size(const char* text, int pt, int style, int *w, int *h) {
+	CachedFont *cfont = search_font(pt, style);
+
+	*w = 0;
+	*h = 0;
+
+	int row_width = 0;
+	int row_height = 0;
+
+	// TODO: Fix width not being calcualated correctly.
+
+	for(const char *c = text; *c; c++) {
+		ListValue *current = cfont->pCharList->head;
+
+		while(current) {
+			Glyph *glyph = current->value;
+			if(glyph->code == *c && glyph->width && glyph->height) {
+				row_width += glyph->advance;
+				row_height = glyph->height > row_height ? glyph->height : row_height;
+				break;
+			}
+			else if(glyph->code == *c && *c == ' ' && glyph->advance) {
+				row_width += glyph->advance;
+				break;
+			}
+			else if(*c == '\n') {
+				*h += row_height;
+				row_height = 0;
+				*h += (float)(cfont->ft->size->metrics.height >> 6) / 2;
+				*w = *w > row_width ? *w : row_width;
+				row_width = 0;
+				break;
+			}
+
+			current = current->next;
+		}
+	}
+	*w += row_width;
+	*h += row_height;
 }

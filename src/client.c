@@ -8,6 +8,7 @@
 #include <engine/logger.h>
 #include "config.h"
 #include <engine/ui/button.h>
+#include <engine/settings.h>
 
 static UDPsocket sock;
 static int port = 6666;
@@ -42,6 +43,7 @@ int main(int argc, const char* argv[]) {
 		return EXIT_FAILURE;
 	}
 
+
 	sock = SDLNet_UDP_Open(0);
 
 	if(!sock) {
@@ -72,7 +74,7 @@ int main(int argc, const char* argv[]) {
 
 	render_text_color(20, 20, 200, 255);
 	int ws, hs;
-	render_text_size("hello world", 48, STYLE_BOLD_ITALIC, &ws, &hs);
+	render_text_size("hello world\ntest\ntest2", 38, STYLE_REGULAR, &ws, &hs);
 	log_write(LOG_INFO, "Size: %d, %d\n", ws, hs);
 
 	SDL_Color fg = {200, 20, 20, 255};
@@ -101,18 +103,20 @@ int main(int argc, const char* argv[]) {
 		render_color(200, 46, 46, 255);
 		render_clear();
 
-		//render_rect(20, 20, 400, 40, 0);
-		render_text(48, STYLE_REGULAR, "hello gwogrld\nthis worksg?", 20, 200);
+		render_rect(20, 200, ws, hs, 0);
+		render_text(38, STYLE_REGULAR, "hello world\ntest\ntest2", 20, 200);
 
 		render_present();
 		SDL_Delay(1);
 	}
 
 cleanup:
+	settings_save("settings.ini");
 	SDLNet_FreePacket(packet);
 	SDLNet_FreePacket(sendPacket);
 	SDLNet_UDP_Unbind(sock, channel);
 	SDLNet_UDP_Close(sock);
+	settings_quit();
 	SDLNet_Quit();
 	render_quit();
 	return EXIT_SUCCESS;
