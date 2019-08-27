@@ -5,9 +5,8 @@
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 #include "renderer.h"
-#include "list.h"
-#include "color.h"
-#include "logger.h"
+#include <engine/list.h>
+#include <engine/logger.h>
 #include "shader.h"
 #include <cglm/cglm.h>
 #include <ft2build.h>
@@ -24,42 +23,46 @@ static SDL_Color fontColor = {0,0,0,255};
 static Shader quadShader;
 static Shader textShader;
 static mat4 projection;
-static RenderID quadVAO;
-static RenderID textVAO;
+static GLuint quadVAO;
+static GLuint textVAO;
 static GLuint textVBO;
 
-static const char *pQuadShaderVert = "#version 330 core\n\
-									  layout (location = 0) in vec2 vertex;\n\
-									  uniform mat4 projection;\n\
-									  uniform mat4 model;\n\
-									  void main () {\n\
-										  gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);\n\
-											  //gl_Position = vec4(vertex.xy, 0.0, 1.0);\n\
-									  }";
+static const char *pQuadShaderVert = "#version 330 core\n"
+"layout (location = 0) in vec4 vertex;\n"
+"out vec2 TexCoords;\n"
+"uniform mat4 projection;\n"
+"uniform mat4 model;\n"
+"void main () {\n"
+"	TexCoords = vertex.zw;\n"
+"	gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);\n"
+"}";
 
-static const char *pQuadShaderFrag = "#version 330 core\n\
-									  uniform vec4 quadColor;\n\
-									  out vec4 FragColor;\n\
-									  void main() {\n\
-										  FragColor = quadColor;\n\
-									  }";
+static const char *pQuadShaderFrag = "#version 330 core\n"
+"in vec2 TexCoords;\n"
+"uniform vec4 quadColor;\n"
+"uniform int useSampler;\n"
+"uniform sampler2D tex;\n"
+"void main() {\n"
+"	if(useSampler != 0) gl_FragColor = texture(tex, TexCoords);\n"
+"	else gl_FragColor = quadColor;\n"
+"}";
 
-static const char *pTextShaderVert = "#version 330 core\n\
-									  layout (location = 0) in vec4 vertex;\n\
-									  out vec2 TexCoords;\n\
-									  uniform mat4 projection;\n\
-									  void main() {\n\
-										  gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);\n\
-											  TexCoords = vertex.zw;\n\
-									  }";
+static const char *pTextShaderVert = "#version 330 core\n"
+"layout (location = 0) in vec4 vertex;\n"
+"out vec2 TexCoords;\n"
+"uniform mat4 projection;\n"
+"void main() {\n"
+"	gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);\n"
+"	TexCoords = vertex.zw;\n"
+"}";
 
-static const char *pTextShaderFrag = "#version 330 core\n\
-									  in vec2 TexCoords;\n\
-									  uniform vec4 textColor;\n\
-									  uniform sampler2D text;\n\
-									  void main() {\n\
-										  gl_FragColor = textColor * vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\
-									  }";
+static const char *pTextShaderFrag = "#version 330 core\n"
+"in vec2 TexCoords;\n"
+"uniform vec4 textColor;\n"
+"uniform sampler2D text;\n"
+"void main() {\n"
+"	gl_FragColor = textColor * vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);"
+"}";
 
 typedef struct Glyph {
 	FT_ULong code;
@@ -84,7 +87,7 @@ typedef struct CachedTexture {
 	GLuint tex;
 } CachedTexture;
 
-void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, 
+void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity,
 		GLsizei length, const GLchar* message, const void* userParam) {
 	log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_DEBUG,
 			"OpenGL message type=%d, severity=%d, message: %s\n", type, severity, message);
@@ -222,8 +225,8 @@ static CachedFont* search_font(int pt, int style) {
 
 			max_row_h = g->bitmap.rows > max_row_h ? g->bitmap.rows : max_row_h;
 
-			if(x + g->bitmap.width + 1 > tex_width) {
-				y += max_row_h + 1;
+			if(x + g->bitmap.width  > tex_width) {
+				y += max_row_h;
 				max_row_h = 0;
 				x = 0;
 			}
@@ -243,7 +246,7 @@ static CachedFont* search_font(int pt, int style) {
 			list_push_back(cfont->pCharList, glyph, sizeof(Glyph));
 			free(glyph);
 
-			x += g->bitmap.width + 1;
+			x += g->bitmap.width;
 			c = FT_Get_Next_Char(cfont->ft, c, &gindex);
 			count++;
 		}
@@ -276,6 +279,16 @@ int render_init(int width, int height, const char *title) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 2);
+
 	glContext = SDL_GL_CreateContext(pWindow);
 
 	if(!glContext) {
@@ -298,6 +311,7 @@ int render_init(int width, int height, const char *title) {
 		return 0;
 	}
 
+	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(opengl_message_callback, 0);
 	glEnable(GL_BLEND);
@@ -318,6 +332,7 @@ int render_init(int width, int height, const char *title) {
 	quadShader = shader_load_str(pQuadShaderVert, pQuadShaderFrag, NULL);
 	shader_use(quadShader);
 	shader_set_mat4(quadShader, "projection", projection);
+	shader_set_int(quadShader, "useSampler", 0);
 
 	textShader = shader_load_str(pTextShaderVert, pTextShaderFrag, NULL);
 	shader_use(textShader);
@@ -329,10 +344,10 @@ int render_init(int width, int height, const char *title) {
 		GLuint ebo;
 
 		GLfloat vertices[] = {
-			0, 1, // top left
-			1, 1, // top right
-			1, 0, // bottom right
-			0, 0, // bottom left
+			0, 1, 0, 1, // top left
+			1, 1, 1, 1, // top right
+			1, 0, 1, 0, // bottom right
+			0, 0, 0, 0 // bottom left
 		};
 
 		GLuint indices[] = {
@@ -352,7 +367,7 @@ int render_init(int width, int height, const char *title) {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
 		glEnableVertexAttribArray(0);
 
 		glBindVertexArray(0);
@@ -403,6 +418,7 @@ void render_color(int r, int g, int b, int a) {
 
 void render_rect(float x, float y, float width, float height, int filled) {
 	shader_use(quadShader);
+	shader_set_int(quadShader, "useSampler", 0);
 
 	mat4 model;
 	glm_mat4_identity(model);
@@ -429,6 +445,35 @@ void render_rect(float x, float y, float width, float height, int filled) {
 	glBindVertexArray(0);
 }
 
+void render_texture2D(float x, float y, float width, float height, unsigned int tex) {
+	CachedFont *cfont = search_font(48, STYLE_REGULAR);
+	shader_use(quadShader);
+	shader_set_int(quadShader, "useSampler", 1);
+
+	mat4 model;
+	glm_mat4_identity(model);
+	vec3 pos;
+	pos[0] = x;
+	pos[1] = y;
+	pos[2]= 0;
+	glm_translate(model, pos);
+
+	vec3 scale;
+	scale[0] = width;
+	scale[1] = height;
+	scale[2] = 1;
+	glm_scale(model, scale);
+
+	shader_set_mat4(quadShader, "model", model);
+
+	glBindVertexArray(quadVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
 void render_line(float x1, float y1, float x2, float y2) {
 	// TODO: do this
 }
@@ -495,14 +540,17 @@ void render_text(int pt, int style, const char *text, float x, float y) {
 				coords[n++] = (struct point){ox + w, oy + h, tx + tw, ty + th};
 
 				x += glyph->advance;
+				break;
 			}
 			else if(glyph->code == *c && *c == ' ' && glyph->advance) {
 				x += glyph->advance;
+				break;
 			}
 			else if(*c == '\n') {
-				y = firstBottom + (float)(cfont->ft->size->metrics.height >> 6);
+				y += (float)(cfont->ft->size->metrics.height >> 6);
 				firstBottom = -1;
-				x = startx; 
+				x = startx;
+				break;
 			}
 			current = current->next;
 		}

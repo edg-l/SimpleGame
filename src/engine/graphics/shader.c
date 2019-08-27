@@ -2,8 +2,8 @@
 #include <GL/glew.h>
 #include <SDL_rwops.h>
 #include <string.h>
-#include <io.h>
-#include <logger.h>
+#include <engine/io.h>
+#include <engine/logger.h>
 
 static Shader last_shader_used = -1;
 

@@ -19,31 +19,35 @@ find_package(Freetype REQUIRED)
 
 pkg_check_modules(CGLM cglm REQUIRED)
 
+set(ENGINE_SHARED_SOURCES
+	src/engine/color.h
+	src/engine/io.c
+	src/engine/io.h
+	src/engine/list.c
+	src/engine/list.h
+	src/engine/logger.c
+	src/engine/logger.h
+	)
+
+set(ENGINE_CLIENT_SOURCES
+	src/engine/graphics/renderer.c
+	src/engine/graphics/renderer.h
+	src/engine/graphics/shader.c
+	src/engine/graphics/shader.h
+	src/engine/ui/button.c
+	src/engine/ui/button.h
+	)
+
 set(SHARED_SOURCE_FILES
-	src/color.h
-	src/io.c
-	src/io.h
-	src/list.c
-	src/list.h
-	src/logger.c
-	src/logger.h
 	src/protocol.h
 	)
 
 set(CLIENT_SOURCE_FILES
 	src/client.c
-	src/graphics/renderer.c
-	src/graphics/renderer.h
-	src/graphics/shader.c
-	src/graphics/shader.h
-	src/ui/button.c
-	src/ui/button.h
-	${SHARED_SOURCE_FILES}
 	)
 
 set(SERVER_SOURCE_FILES
 	src/server.c
-	${SHARED_SOURCE_FILES}
 	)
 
 
@@ -59,13 +63,20 @@ configure_file(config.h.in src/config.h)
 include_directories(src ${CGLM_INCLUDE_DIRS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/src)
 
-file(COPY resources DESTINATION .)
+add_library(ClientEngine STATIC ${ENGINE_SHARED_SOURCES} ${ENGINE_CLIENT_SOURCES})
+add_library(ServerEngine STATIC ${ENGINE_SHARED_SOURCES})
 
-add_executable(SimpleGame ${CLIENT_SOURCE_FILES})
-
-target_link_libraries(SimpleGame SDL2::Main SDL2::Net SDL2::Mixer 
+target_link_libraries(ClientEngine SDL2::Main SDL2::Net SDL2::Mixer 
 	SDL2::Image OpenGL::GL GLEW::GLEW ${CGLM_LIBRARIES} Freetype::Freetype)
 
-add_executable(SimpleGameServer ${SERVER_SOURCE_FILES})
+target_link_libraries(ServerEngine SDL2::Main SDL2::Net)
 
-target_link_libraries(SimpleGameServer SDL2::Main SDL2::Net)
+file(COPY resources DESTINATION .)
+
+add_executable(SimpleGame ${CLIENT_SOURCE_FILES} ${SHARED_SOURCE_FILES})
+
+target_link_libraries(SimpleGame ClientEngine ${CGLM_LIBRARIES})
+
+add_executable(SimpleGameServer ${SERVER_SOURCE_FILES} ${SHARED_SOURCE_FILES})
+
+target_link_libraries(SimpleGameServer ServerEngine)

@@ -5,8 +5,8 @@
 #include <SDL_net.h>
 #include <unistd.h>
 #include "protocol.h"
-#include "color.h"
-#include "logger.h"
+#include <engine/color.h>
+#include <engine/logger.h>
 
 static volatile int keepRunning = 1;
 static UDPsocket sock;

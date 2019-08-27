@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_net.h>
-#include "color.h"
-#include "list.h"
+#include <engine/color.h>
+#include <engine/list.h>
 #include "protocol.h"
-#include <graphics/renderer.h>
-#include "logger.h"
+#include <engine/graphics/renderer.h>
+#include <engine/logger.h>
 #include "config.h"
-#include <ui/button.h>
+#include <engine/ui/button.h>
 
 static UDPsocket sock;
 static int port = 6666;
@@ -102,7 +102,7 @@ int main(int argc, const char* argv[]) {
 		render_clear();
 
 		//render_rect(20, 20, 400, 40, 0);
-		render_text(48, STYLE_REGULAR, "hello gwogrld\nthis worksg?", 0, 0);
+		render_text(48, STYLE_REGULAR, "hello gwogrld\nthis worksg?", 20, 200);
 
 		render_present();
 		SDL_Delay(1);
