@@ -81,7 +81,7 @@ typedef struct CachedFont {
 
 typedef struct CachedTexture {
 	int w, h;
-	GLuint texID;
+	GLuint tex;
 } CachedTexture;
 
 void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, 
@@ -100,7 +100,7 @@ static void free_font(void* p) {
 
 static void free_texture(void *p) {
 	CachedTexture *pCachedTexture = p;
-	glDeleteTextures(1, &pCachedTexture->texID);
+	glDeleteTextures(1, &pCachedTexture->tex);
 	free(pCachedTexture);
 }
 
@@ -496,11 +496,12 @@ void render_text(int pt, int style, const char *text, float x, float y) {
 
 				x += glyph->advance;
 			}
-			else if(glyph->code == ' ' && glyph->advance) {
+			else if(glyph->code == *c && *c == ' ' && glyph->advance) {
 				x += glyph->advance;
 			}
-			else if(glyph->code == '\n') {
-				y += cfont->ft->size->metrics.height;
+			else if(*c == '\n') {
+				y = firstBottom + (float)(cfont->ft->size->metrics.height >> 6);
+				firstBottom = -1;
 				x = startx; 
 			}
 			current = current->next;
