@@ -33,6 +33,8 @@ set(ENGINE_SOURCES
 	src/engine/settings.h
 	src/engine/ui/button.c
 	src/engine/ui/button.h
+	src/engine/util.c
+	src/engine/util.h
 	)
 
 set(CLIENT_SOURCE_FILES

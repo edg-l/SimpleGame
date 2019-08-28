@@ -4,8 +4,9 @@
 #include <engine/logger.h>
 #include <engine/ui/button.h>
 #include <engine/settings.h>
+#include <SDL.h>
+#include <stdlib.h>
 #include "config.h"
-#include "protocol.h"
 
 int main(int argc, const char* argv[]) {
 
@@ -18,6 +19,13 @@ int main(int argc, const char* argv[]) {
 	int ws, hs;
 	render_text_size("hello world\ntest\ntest2", 38, STYLE_REGULAR, &ws, &hs);
 
+	int x, y;
+
+	Button *button = button_create(200, 100, "Test", 
+			util_color(255, 255, 255, 255), util_color(100, 50, 0, 255));
+	button->rect.x = 600;
+	button->rect.y = 400;
+
 	while(1) {
 		// TODO: wrap this
 		SDL_Event event;
@@ -28,7 +36,7 @@ int main(int argc, const char* argv[]) {
 		}
 
 		// Update
-
+		SDL_GetMouseState(&x, &y);
 
 		// Render
 		render_color(200, 46, 46, 255);
@@ -36,6 +44,12 @@ int main(int argc, const char* argv[]) {
 
 		render_rect(20, 200, ws, hs, 0);
 		render_text(38, STYLE_REGULAR, "hello world\ntest\ntest2", 20, 200);
+
+		render_line(20, 20, x, y);
+
+		render_text(24, STYLE_SEMIBOLD_ITALIC, VERSION_STR, 10, 10);
+
+		render_button(button);
 
 		render_present();
 		SDL_Delay(1);

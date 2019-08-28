@@ -26,6 +26,7 @@ static Shader quadShader;
 static Shader textShader;
 static mat4 projection;
 static GLuint quadVAO;
+static GLuint lineVAO;
 static GLuint textVAO;
 static GLuint textVBO;
 
@@ -392,6 +393,31 @@ int render_init(int width, int height, const char *title) {
 	}
 
 	{
+		// Setup the line VAO
+		GLuint vbo;
+		GLuint ebo;
+
+		GLfloat vertices[] = {
+			0, 0, 0, 0, 
+			1, 1, 0, 0,
+		};
+
+		glGenVertexArrays(1, &lineVAO);
+		glGenBuffers(1, &vbo);
+		glGenBuffers(1, &ebo);
+
+		glBindVertexArray(lineVAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
+		glEnableVertexAttribArray(0);
+
+		glBindVertexArray(0);
+	}
+
+	{
 		glGenVertexArrays(1, &textVAO);
 		glGenBuffers(1, &textVBO);
 
@@ -434,6 +460,10 @@ void render_color(int r, int g, int b, int a) {
 	shader_set_vec4(quadShader, "quadColor", r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 }
 
+void render_color_s(Color color) {
+	render_color(color.r, color.g, color.b, color.a);
+}
+
 void render_rect(float x, float y, float width, float height, int filled) {
 	shader_use(quadShader);
 	shader_set_int(quadShader, "useSampler", 0);
@@ -461,6 +491,10 @@ void render_rect(float x, float y, float width, float height, int filled) {
 	else
 		glDrawElements(GL_LINE_STRIP, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+void render_rect_s(Rect *rect, int filled) {
+	render_rect(rect->x, rect->y, rect->w, rect->h, filled);
 }
 
 void render_texture2D(float x, float y, float width, float height, unsigned int tex) {
@@ -493,12 +527,38 @@ void render_texture2D(float x, float y, float width, float height, unsigned int 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 void render_line(float x1, float y1, float x2, float y2) {
-	// TODO: do this
+	shader_use(quadShader);
+	shader_set_int(quadShader, "useSampler", 0);
+
+	mat4 model;
+	glm_mat4_identity(model);
+	vec3 pos;
+	pos[0] = x1;
+	pos[1] = y1;
+	pos[2]= 0;
+	glm_translate(model, pos);
+
+	vec3 scale;
+	scale[0] = x2 - x1;
+	scale[1] = y2 - y1;
+	scale[2] = 1;
+	glm_scale(model, scale);
+
+	shader_set_mat4(quadShader, "model", model);
+
+	glBindVertexArray(lineVAO);
+
+	glDrawArrays(GL_LINES, 0, 2);
+	glBindVertexArray(0);
 }
 
 void render_text_color(int r, int g, int b, int a) {
 	shader_use(textShader);
 	glUniform4f(glGetUniformLocation(textShader, "textColor"), r / 255.f, g / 255.f, b / 255.f, a / 255.f);
+}
+
+void render_text_color_s(Color color) {
+	render_text_color(color.r, color.g, color.b, color.a);
 }
 
 void render_text(int pt, int style, const char *text, float x, float y) {
