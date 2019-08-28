@@ -276,10 +276,11 @@ int render_init(int width, int height, const char *title) {
 	settings_add_int("msaa_enable", 1, 0, 1);
 	settings_add_int("msaa_value", 2, 0, 4);
 
-	// TODO: fix this
-	//if(!io_file_exists("settings.ini"))
-	//	settings_save("settings.ini");
-	//settings_load("settings.ini");
+	if(!io_file_exists("settings.ini")) {
+		log_write(LOG_INFO, "Settings doesn't exist, creating it.\n");
+		settings_save("settings.ini");
+	}
+	settings_load("settings.ini");
 
 	pWindow = SDL_CreateWindow("SimpleGame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 			settings_get_int("window_width"), 

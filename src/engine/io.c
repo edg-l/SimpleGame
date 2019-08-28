@@ -93,15 +93,7 @@ int io_file_exists(const char *path) {
 	free(combined_path);
 
 	if(!file) {
-		log_write(LOG_INFO, "called\n");
 		SDL_GetError();
-		return 0;
-	}
-
-	int size = SDL_RWtell(file);
-
-	if(!size) {
-		log_write(LOG_INFO, "size: %d\n", size);
 		return 0;
 	}
 

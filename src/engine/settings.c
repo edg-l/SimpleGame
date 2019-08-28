@@ -103,6 +103,7 @@ Setting *settings_get(const char *name) {
 
 
 void settings_save(const char *name) {
+	log_write(LOG_INFO, "Saving settings.\n");
 	int current_size = 512;
 	int used_size = 0;
 
@@ -197,14 +198,13 @@ char *settings_get_str(const char *name) {
 void settings_load(const char *name) {
 	char *s = io_load_app(name);
 
-	log_write(LOG_INFO, "Loading: %s\n", s);
+	log_write(LOG_INFO, "Loading settings.\n");
 
 	char *sname = strtok(s, ":");
 	while(sname) {
 		char *stype = strtok(NULL, "=");
 		char *svalue = strtok(NULL, "\n");
 
-		log_write(LOG_INFO, "sname=%s, stype=%s, svalue=%s\n", sname, stype, svalue);
 		int type = atoi(stype);
 
 		if(type == INTEGER) {
@@ -220,7 +220,6 @@ void settings_load(const char *name) {
 		}
 
 		sname = strtok(NULL, ":");
-		log_write(LOG_INFO, "sname: %s\n", sname);
 	}
 
 	free(s);
