@@ -593,8 +593,6 @@ void render_text_size(const char* text, int pt, int style, int *w, int *h) {
 	int row_width = 0;
 	int row_height = 0;
 
-	// TODO: Fix width not being calcualated correctly.
-
 	for(const char *c = text; *c; c++) {
 		ListValue *current = cfont->pCharList->head;
 
@@ -621,6 +619,6 @@ void render_text_size(const char* text, int pt, int style, int *w, int *h) {
 			current = current->next;
 		}
 	}
-	*w += row_width;
+	*w = *w > row_width ? *w : row_width;
 	*h += row_height;
 }
