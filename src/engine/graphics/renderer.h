@@ -1,12 +1,6 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include <SDL.h>
-
-// Info: https://wiki.libsdl.org/CategoryRender
-
-typedef unsigned int RenderID;
-
 enum {
 	STYLE_LIGHT,
 	STYLE_LIGHT_ITALIC,

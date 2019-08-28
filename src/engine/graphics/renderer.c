@@ -283,7 +283,7 @@ int render_init(int width, int height, const char *title) {
 	settings_load("settings.ini");
 
 	pWindow = SDL_CreateWindow("SimpleGame", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-			settings_get_int("window_width"), 
+			settings_get_int("window_width"),
 			settings_get_int("window_height"), SDL_WINDOW_OPENGL);
 
 	if(!pWindow) {
