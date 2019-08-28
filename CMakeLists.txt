@@ -68,8 +68,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/src)
 add_library(ClientEngine STATIC ${ENGINE_SHARED_SOURCES} ${ENGINE_CLIENT_SOURCES})
 add_library(ServerEngine STATIC ${ENGINE_SHARED_SOURCES})
 
-target_link_libraries(ClientEngine SDL2::Main SDL2::Net SDL2::Mixer 
-	SDL2::Image OpenGL::GL GLEW::GLEW ${CGLM_LIBRARIES} Freetype::Freetype)
+target_link_libraries(ClientEngine SDL2::Main SDL2::Mixer OpenGL::GL GLEW::GLEW ${CGLM_LIBRARIES} Freetype::Freetype)
 
 target_link_libraries(ServerEngine SDL2::Main SDL2::Net)
 
@@ -77,7 +76,7 @@ file(COPY resources DESTINATION .)
 
 add_executable(SimpleGame ${CLIENT_SOURCE_FILES} ${SHARED_SOURCE_FILES})
 
-target_link_libraries(SimpleGame ClientEngine ${CGLM_LIBRARIES})
+target_link_libraries(SimpleGame ClientEngine)
 
 add_executable(SimpleGameServer ${SERVER_SOURCE_FILES} ${SHARED_SOURCE_FILES})
 

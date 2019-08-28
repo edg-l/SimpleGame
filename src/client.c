@@ -4,7 +4,6 @@
 #include <engine/logger.h>
 #include <engine/ui/button.h>
 #include <engine/settings.h>
-#include <engine/network/netclient.h>
 #include "config.h"
 #include "protocol.h"
 
@@ -14,8 +13,6 @@ int main(int argc, const char* argv[]) {
 		log_write(LOG_ERROR, "Error creating renderer: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
-
-	netclient_init(1024);
 
 	render_text_color(20, 20, 200, 255);
 	int ws, hs;
@@ -47,7 +44,6 @@ int main(int argc, const char* argv[]) {
 cleanup:
 	settings_save("settings.ini");
 	settings_quit();
-	netclient_quit();
 	render_quit();
 	return EXIT_SUCCESS;
 }
