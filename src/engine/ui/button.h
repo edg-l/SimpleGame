@@ -3,9 +3,6 @@
 
 #include <engine/graphics/renderer.h>
 
-#define DEFAULT_FG (SDL_Color){255,255,255,255}
-#define DEFAULT_BG (SDL_Color){70, 70, 70, 255}
-
 typedef struct Button {
 	Rect rect;
 	int textSizeW, textSizeH;

@@ -3,6 +3,8 @@
 #include <engine/graphics/renderer.h>
 #include <engine/logger.h>
 #include <engine/ui/button.h>
+#include <engine/ui/switch.h>
+#include <engine/ui/textbox.h>
 #include <engine/settings.h>
 #include <SDL.h>
 #include <stdlib.h>
@@ -34,6 +36,21 @@ int main(int argc, const char* argv[]) {
 
 
 	util_rect_center(&screen, &button->rect);
+	button->rect.y += 300;
+
+	Switch *s = switch_create(100, 50, util_color(63, 45, 31, 255), 
+			util_color(210, 210, 210, 255),
+			util_color(134, 96, 60, 255));
+	util_rect_center(&screen, &s->rect);
+
+	char aBuf[64];
+	memset(aBuf, 0, sizeof(aBuf));
+
+	Textbox *tb = textbox_create(200, 50, 20, 30, util_color(255, 255, 255, 255),
+			util_color(0, 100, 0, 255),
+			util_color(255, 255, 255, 255));
+	tb->rect.x = 100;
+	tb->rect.y = 400;
 
 	while(1) {
 		// TODO: wrap this
@@ -41,6 +58,9 @@ int main(int argc, const char* argv[]) {
 		while(SDL_PollEvent(&event)) {
 			if(event.type == SDL_QUIT) {
 				goto cleanup;
+			}
+			else if(event.type == SDL_TEXTINPUT) {
+				textbox_on_textinput(tb, event.text.text);
 			}
 		}
 
@@ -50,6 +70,11 @@ int main(int argc, const char* argv[]) {
 
 		if(button_is_pressed(button))
 			goto cleanup;
+
+		switch_update(s);
+		sprintf(aBuf, "Switch: %s", s->value ? "On": "Off");
+
+		textbox_update(tb);
 
 		// Render
 		render_color(200, 46, 46, 255);
@@ -63,13 +88,10 @@ int main(int argc, const char* argv[]) {
 		render_text(24, STYLE_SEMIBOLD_ITALIC, VERSION_STR, 10, 10);
 
 		render_button(button);
+		render_text(24, STYLE_REGULAR, aBuf, 400, 200);
+		render_switch(s);
 
-		render_color(0, 200, 0, 255);
-		render_rect_s(&rect1, 1);
-		render_color(200, 0, 0, 255);
-		render_rect_s(&rect2, 1);
-		render_color(0, 0, 200, 255);
-		render_rect_s(&rect3, 1);
+		render_textbox(tb);
 
 		render_present();
 		SDL_Delay(1);

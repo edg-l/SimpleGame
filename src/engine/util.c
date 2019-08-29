@@ -5,7 +5,12 @@
 
 static Uint32 prev_mouse_state;
 static Uint32 mouse_state;
+static Uint8 *prev_keyboard_status = NULL;
+static Uint8 *keyboard_status = NULL;
+static int keyboard_status_length = 0;
 static Point mouse_pos;
+static double last_time = 0;
+static double now_time = 0;
 
 Color util_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
 	return (Color) {r, g, b, a};
@@ -21,6 +26,13 @@ Point util_point(int x, int y) {
 
 Point util_mouse_pos() {
 	return mouse_pos;
+}
+
+void util_rect_outline(Rect *outline, Rect *rect, int outline_size) {
+	outline->x = rect->x - outline_size;
+	outline->y = rect->y - outline_size;
+	outline->w = rect->w + outline_size * 2;
+	outline->h = rect->h + outline_size * 2;
 }
 
 int util_point_in_rect(Rect *rect, Point *point) {
@@ -68,9 +80,44 @@ int min(int x, int y) {
 void util_update() {
 	prev_mouse_state = mouse_state;
 	mouse_state = SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
+	last_time = now_time;
+	now_time = SDL_GetPerformanceCounter();
+
+	// TODO: Fix this.
+	if(keyboard_status) {
+		free(prev_keyboard_status);
+		prev_keyboard_status = malloc(keyboard_status_length);
+		memcpy(prev_keyboard_status, keyboard_status, keyboard_status_length);
+	}
+
+	keyboard_status = (Uint8*)SDL_GetKeyboardState(&keyboard_status_length);
+	if(prev_keyboard_status)
+		log_write(LOG_INFO, "pressed: %d, %d\n", keyboard_status[SDL_SCANCODE_A],
+					prev_keyboard_status[SDL_SCANCODE_A]);
 }
 
 int util_is_mouse_click(MouseButton button) {
 	return (prev_mouse_state & SDL_BUTTON(button)) && !(mouse_state & SDL_BUTTON(button));
+}
 
+int util_is_key_click(int code) {
+	if(!prev_keyboard_status)
+		return 0;
+	return prev_keyboard_status[code] && !keyboard_status[code];
+}
+
+Uint32 util_tick() {
+	return SDL_GetTicks();
+}
+
+int util_tick_passed(Uint32 a) {
+	return SDL_TICKS_PASSED(util_tick(), a);
+}
+
+int util_mouse_in_rect(Rect *rect) {
+	return util_point_in_rect(rect, &mouse_pos);
+}
+
+double util_delta_time() {
+	return now_time - last_time;
 }

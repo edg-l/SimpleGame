@@ -33,6 +33,10 @@ set(ENGINE_SOURCES
 	src/engine/settings.h
 	src/engine/ui/button.c
 	src/engine/ui/button.h
+	src/engine/ui/switch.c
+	src/engine/ui/switch.h
+	src/engine/ui/textbox.c
+	src/engine/ui/textbox.h
 	src/engine/util.c
 	src/engine/util.h
 	)
