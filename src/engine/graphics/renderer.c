@@ -398,7 +398,7 @@ int render_init(int width, int height, const char *title) {
 		GLuint ebo;
 
 		GLfloat vertices[] = {
-			0, 0, 0, 0, 
+			0, 0, 0, 0,
 			1, 1, 0, 0,
 		};
 
@@ -552,6 +552,10 @@ void render_line(float x1, float y1, float x2, float y2) {
 	glBindVertexArray(0);
 }
 
+void render_line_s(Point p1, Point p2) {
+	render_line(p1.x, p1.y, p2.x, p2.y);
+}
+
 void render_text_color(int r, int g, int b, int a) {
 	shader_use(textShader);
 	glUniform4f(glGetUniformLocation(textShader, "textColor"), r / 255.f, g / 255.f, b / 255.f, a / 255.f);
@@ -640,6 +644,10 @@ void render_text(int pt, int style, const char *text, float x, float y) {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
+void render_text_s(int pt, int style, const char *text, Point point) {
+	render_text(pt, style, text, point.x, point.y);
+}
+
 void render_clear_text_cache() {
 	list_clear(pTextCache);
 }
@@ -681,4 +689,8 @@ void render_text_size(const char* text, int pt, int style, int *w, int *h) {
 	}
 	*w = *w > row_width ? *w : row_width;
 	*h += row_height;
+}
+
+void render_text_size_s(const char* text, int pt, int style, Point *point) {
+	render_text_size(text, pt, style, &point->x, &point->y);
 }

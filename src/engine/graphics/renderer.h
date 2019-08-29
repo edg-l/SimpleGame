@@ -28,9 +28,12 @@ void render_rect(float x, float y, float width, float height, int filled);
 void render_rect_s(Rect *rect, int filled);
 void render_texture2D(float x, float y, float width, float height, unsigned int tex);
 void render_line(float x1, float y1, float x2, float y2);
+void render_line_s(Point p1, Point p2);
 void render_text_color(int r, int g, int b, int a);
 void render_text_color_s(Color color);
 void render_text_size(const char* text, int pt, int style, int *w, int *h);
+void render_text_size_s(const char* text, int pt, int style, Point *point);
 void render_text(int pt, int style, const char *text, float x, float y);
+void render_text_s(int pt, int style, const char *text, Point point);
 
 #endif

@@ -3,6 +3,9 @@
 #include <SDL.h>
 #include <engine/logger.h>
 
+static Uint32 prev_mouse_state;
+static Uint32 mouse_state;
+static Point mouse_pos;
 
 Color util_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
 	return (Color) {r, g, b, a};
@@ -17,9 +20,7 @@ Point util_point(int x, int y) {
 }
 
 Point util_mouse_pos() {
-	Point a;
-	SDL_GetMouseState(&a.x, &a.y);
-	return a;
+	return mouse_pos;
 }
 
 int util_point_in_rect(Rect *rect, Point *point) {
@@ -62,4 +63,14 @@ int max(int x, int y) {
 
 int min(int x, int y) {
 	return x < y ? x : y;
+}
+
+void util_update() {
+	prev_mouse_state = mouse_state;
+	mouse_state = SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
+}
+
+int util_is_mouse_click(MouseButton button) {
+	return (prev_mouse_state & SDL_BUTTON(button)) && !(mouse_state & SDL_BUTTON(button));
+
 }
