@@ -2,6 +2,9 @@
 #define ENGINE_UTIL_H
 
 #include <SDL.h>
+#include "util_colors.h"
+
+typedef Uint32 Tick;
 
 typedef struct Color {
 	unsigned char r, g, b, a;
@@ -47,11 +50,15 @@ void util_rect_outline(Rect *outline, Rect *rect, int outline_size);
 int max(int x, int y);
 int min(int x, int y);
 
+void util_init();
+void util_quit();
 void util_update();
+void util_update_keyboard();
 
 Point util_mouse_pos();
 int util_is_mouse_click(MouseButton button);
-int util_is_key_click(int code);
+int util_is_keyup(int code);
+int util_is_keypress(int code);
 
 // In ms
 Uint32 util_tick();

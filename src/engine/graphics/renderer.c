@@ -177,7 +177,7 @@ static CachedFont* search_font(int pt, int style) {
 		FT_Error fterr = FT_New_Face(ft, font_path(style), 0, &cfont->ft);
 
 		if(fterr) {
-			log_write(LOG_ERROR, "Error initializing Freetype: %s\n", FT_Error_String(fterr));
+			log_error("Error initializing Freetype: %s\n", FT_Error_String(fterr));
 			return NULL;
 		}
 
@@ -197,7 +197,7 @@ static CachedFont* search_font(int pt, int style) {
 		cfont->atlas_width = tex_width;
 		cfont->atlas_height = tex_height;
 
-		log_write(LOG_INFO, "Creating texture atlas for a new font with size: %dx%d\n", tex_width, tex_height);
+		log_info("Creating texture atlas for a new font with size: %dx%d\n", tex_width, tex_height);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, tex_width, tex_height, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
 
@@ -222,7 +222,7 @@ static CachedFont* search_font(int pt, int style) {
 			FT_Error ftcerr = FT_Load_Char(cfont->ft, c, FT_LOAD_RENDER);
 
 			if(ftcerr) {
-				log_write(LOG_ERROR, "Error loading char (%c): %s\n", c, FT_Error_String(fterr));
+				log_error("Error loading char (%c): %s\n", c, FT_Error_String(fterr));
 				continue;
 			}
 
@@ -256,7 +256,7 @@ static CachedFont* search_font(int pt, int style) {
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 		list_push_back(pFontCache, cfont, sizeof(CachedFont));
-		log_write(LOG_INFO, "Added font (%dpt, %d glyphs, %d style) to cache\n", cfont->pt, count, cfont->style);
+		log_info("Added font (%dpt, %d glyphs, %d style) to cache\n", cfont->pt, count, cfont->style);
 		free(cfont);
 	}
 
@@ -265,7 +265,7 @@ static CachedFont* search_font(int pt, int style) {
 
 int render_init(int width, int height, const char *title) {
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) == -1) {
-		log_write(LOG_ERROR, "Error initializing SDL2: %s", SDL_GetError());
+		log_error("Error initializing SDL2: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
@@ -278,7 +278,7 @@ int render_init(int width, int height, const char *title) {
 	settings_add_int("msaa_value", 2, 0, 4);
 
 	if(!io_file_exists("settings.ini")) {
-		log_write(LOG_INFO, "Settings doesn't exist, creating it.\n");
+		log_info("Settings doesn't exist, creating it.\n");
 		settings_save("settings.ini");
 	}
 	settings_load("settings.ini");
@@ -288,7 +288,7 @@ int render_init(int width, int height, const char *title) {
 			settings_get_int("window_height"), SDL_WINDOW_OPENGL);
 
 	if(!pWindow) {
-		log_write(LOG_ERROR, "Error creating window: %s", SDL_GetError());
+		log_error("Error creating window: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
@@ -311,13 +311,13 @@ int render_init(int width, int height, const char *title) {
 	glContext = SDL_GL_CreateContext(pWindow);
 
 	if(!glContext) {
-		log_write(LOG_ERROR, "Error creating renderer: %s\n", SDL_GetError());
+		log_error("Error creating renderer: %s\n", SDL_GetError());
 		return 0;
 	}
 
 	FT_Error fterr = FT_Init_FreeType(&ft);
 	if(fterr) {
-		log_write(LOG_ERROR, "Error initializing Freetype: %s\n", FT_Error_String(fterr));
+		log_error("Error initializing Freetype: %s\n", FT_Error_String(fterr));
 		return 0;
 	}
 
@@ -326,7 +326,7 @@ int render_init(int width, int height, const char *title) {
 	GLenum glewError = glewInit();
 
 	if(glewError != GLEW_OK) {
-		log_write(LOG_ERROR, "Error initializing GLEW: %s\n", glewGetErrorString(glewError));
+		log_error("Error initializing GLEW: %s\n", glewGetErrorString(glewError));
 		return 0;
 	}
 
@@ -432,7 +432,7 @@ int render_init(int width, int height, const char *title) {
 		glBindVertexArray(0);
 	}
 
-	log_write(LOG_INFO, "Renderer initialized.\n");
+	log_info("Renderer initialized.\n");
 
 	return 1;
 }
@@ -689,6 +689,13 @@ void render_text_size(const char* text, int pt, int style, int *w, int *h) {
 	}
 	*w = *w > row_width ? *w : row_width;
 	*h += row_height;
+}
+
+void render_text_size_len(const char* text, int pt, int style, Point *point, size_t len) {
+	char *buf = malloc(len);
+	strncpy(buf, text, len);
+	render_text_size_s(buf, pt, style, point);
+	free(buf);
 }
 
 void render_text_size_s(const char* text, int pt, int style, Point *point) {

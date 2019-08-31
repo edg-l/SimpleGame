@@ -31,6 +31,8 @@ set(ENGINE_SOURCES
 	src/engine/logger.h
 	src/engine/settings.c
 	src/engine/settings.h
+	src/engine/tilemap.c
+	src/engine/tilemap.h
 	src/engine/ui/button.c
 	src/engine/ui/button.h
 	src/engine/ui/switch.c
@@ -39,6 +41,7 @@ set(ENGINE_SOURCES
 	src/engine/ui/textbox.h
 	src/engine/util.c
 	src/engine/util.h
+	src/engine/util_colors.h
 	)
 
 set(CLIENT_SOURCE_FILES

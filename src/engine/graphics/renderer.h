@@ -33,6 +33,7 @@ void render_text_color(int r, int g, int b, int a);
 void render_text_color_s(Color color);
 void render_text_size(const char* text, int pt, int style, int *w, int *h);
 void render_text_size_s(const char* text, int pt, int style, Point *point);
+void render_text_size_len(const char* text, int pt, int style, Point *point, size_t len);
 void render_text(int pt, int style, const char *text, float x, float y);
 void render_text_s(int pt, int style, const char *text, Point point);
 

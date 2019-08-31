@@ -6,11 +6,21 @@
 static Uint32 prev_mouse_state;
 static Uint32 mouse_state;
 static Uint8 *prev_keyboard_status = NULL;
-static Uint8 *keyboard_status = NULL;
+static const Uint8 *keyboard_status = NULL;
 static int keyboard_status_length = 0;
 static Point mouse_pos;
 static double last_time = 0;
 static double now_time = 0;
+
+void util_init() {
+	keyboard_status = SDL_GetKeyboardState(&keyboard_status_length);
+	prev_keyboard_status = malloc(keyboard_status_length);
+	util_update();
+}
+
+void util_quit() {
+	free(prev_keyboard_status);
+}
 
 Color util_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
 	return (Color) {r, g, b, a};
@@ -82,28 +92,26 @@ void util_update() {
 	mouse_state = SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
 	last_time = now_time;
 	now_time = SDL_GetPerformanceCounter();
+}
 
-	// TODO: Fix this.
+void util_update_keyboard() {
 	if(keyboard_status) {
-		free(prev_keyboard_status);
-		prev_keyboard_status = malloc(keyboard_status_length);
 		memcpy(prev_keyboard_status, keyboard_status, keyboard_status_length);
 	}
-
-	keyboard_status = (Uint8*)SDL_GetKeyboardState(&keyboard_status_length);
-	if(prev_keyboard_status)
-		log_write(LOG_INFO, "pressed: %d, %d\n", keyboard_status[SDL_SCANCODE_A],
-					prev_keyboard_status[SDL_SCANCODE_A]);
 }
 
 int util_is_mouse_click(MouseButton button) {
 	return (prev_mouse_state & SDL_BUTTON(button)) && !(mouse_state & SDL_BUTTON(button));
 }
 
-int util_is_key_click(int code) {
+int util_is_keyup(int code) {
 	if(!prev_keyboard_status)
 		return 0;
 	return prev_keyboard_status[code] && !keyboard_status[code];
+}
+
+int util_is_keypress(int code) {
+	return keyboard_status[code];
 }
 
 Uint32 util_tick() {

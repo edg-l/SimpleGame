@@ -14,7 +14,11 @@ typedef struct Textbox {
 	int outline_size;
 	int focused;
 	int cursor_pos;
+	int update_cursor_x;
+	int cursor_x;
 	int text_pt;
+	Tick cursor_blink_tick;
+	int cursor_blink;
 } Textbox;
 
 Textbox *textbox_create(int w, int h, int pt, int text_length, Color fg, Color bg, Color outline);

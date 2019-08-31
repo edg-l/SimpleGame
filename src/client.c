@@ -17,7 +17,7 @@ int main(int argc, const char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 
-	util_update();
+	util_init();
 
 	Rect screen = util_rect(0, 0, settings_get_int("window_width"),
 			settings_get_int("window_height"));
@@ -38,7 +38,7 @@ int main(int argc, const char* argv[]) {
 	util_rect_center(&screen, &button->rect);
 	button->rect.y += 300;
 
-	Switch *s = switch_create(100, 50, util_color(63, 45, 31, 255), 
+	Switch *s = switch_create(100, 50, util_color(63, 45, 31, 255),
 			util_color(210, 210, 210, 255),
 			util_color(134, 96, 60, 255));
 	util_rect_center(&screen, &s->rect);
@@ -54,6 +54,7 @@ int main(int argc, const char* argv[]) {
 
 	while(1) {
 		// TODO: wrap this
+		util_update_keyboard();
 		SDL_Event event;
 		while(SDL_PollEvent(&event)) {
 			if(event.type == SDL_QUIT) {
@@ -80,15 +81,14 @@ int main(int argc, const char* argv[]) {
 		render_color(200, 46, 46, 255);
 		render_clear();
 
-		render_rect(20, 200, ws, hs, 0);
-		render_text(38, STYLE_REGULAR, "hello world\ntest\ntest2", 20, 200);
+		render_text_color_s(COLOR_GOLD);
+		render_text(78, STYLE_EXTRABOLD_ITALIC, "Hello twitch!", 20, 200);
 
-		render_line(20, 20, mouse.x, mouse.y);
-
-		render_text(24, STYLE_SEMIBOLD_ITALIC, VERSION_STR, 10, 10);
+		render_text_color_s(COLOR_CYAN);
+		render_text(24, STYLE_BOLD, VERSION_STR, 10, 10);
 
 		render_button(button);
-		render_text(24, STYLE_REGULAR, aBuf, 400, 200);
+		render_text(24, STYLE_REGULAR, aBuf, 400, 480);
 		render_switch(s);
 
 		render_textbox(tb);
@@ -98,6 +98,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 cleanup:
+	util_quit();
 	settings_save("settings.ini");
 	settings_quit();
 	render_quit();
