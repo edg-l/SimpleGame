@@ -86,6 +86,7 @@ int main(int argc, const char* argv[]) {
 		render_color(200, 46, 46, 255);
 		render_clear();
 
+		render_tilemap(t);
 		render_text_color_s(COLOR_GOLD);
 		render_text(78, STYLE_EXTRABOLD_ITALIC, "Hello twitch!", 20, 200);
 
@@ -97,7 +98,6 @@ int main(int argc, const char* argv[]) {
 		render_switch(s);
 
 		render_textbox(tb);
-		render_tilemap(t);
 
 		render_present();
 		SDL_Delay(1);

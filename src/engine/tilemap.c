@@ -66,7 +66,7 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 		shader_set_mat4(shader, "projection", projection);
 		mat4 view;
 		glm_mat4_identity(view);
-		shader_set_mat4(shader, "view", projection);
+		shader_set_mat4(shader, "view", view);
 	}
 
 	return t;
@@ -105,7 +105,7 @@ void tilemap_set(Tilemap *t, int x, int y, TileType type) {
 
 	glBindVertexArray(t->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, t->vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, (t->w*y + x) * 6 * (2 * sizeof(GLfloat) + sizeof(GLint)), 
+	glBufferSubData(GL_ARRAY_BUFFER, (t->w*y + x) * 6 * (2 * sizeof(GLfloat) + sizeof(GLint)),
 			sizeof(vertices), vertices);
 }
 
