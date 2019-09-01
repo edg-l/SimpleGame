@@ -263,6 +263,11 @@ static CachedFont* search_font(int pt, int style) {
 	return pFontCache->tail->value;
 }
 
+void render_projection(mat4 m) {
+	glm_ortho(0, settings_get_int("window_width"), settings_get_int("window_height"),
+			0, -1, 1, m);
+}
+
 int render_init(int width, int height, const char *title) {
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) == -1) {
 		log_error("Error initializing SDL2: %s", SDL_GetError());

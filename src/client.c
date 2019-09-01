@@ -6,6 +6,7 @@
 #include <engine/ui/switch.h>
 #include <engine/ui/textbox.h>
 #include <engine/settings.h>
+#include <engine/tilemap.h>
 #include <SDL.h>
 #include <stdlib.h>
 #include "config.h"
@@ -52,6 +53,9 @@ int main(int argc, const char* argv[]) {
 	tb->rect.x = 100;
 	tb->rect.y = 400;
 
+	Tilemap *t = tilemap_create(20, 20, 16, TILE_AIR);
+	tilemap_set_rect(t, util_rect(4, 4, 2, 2), TILE_WALL);
+
 	while(1) {
 		// TODO: wrap this
 		util_update_keyboard();
@@ -92,6 +96,7 @@ int main(int argc, const char* argv[]) {
 		render_switch(s);
 
 		render_textbox(tb);
+		render_tilemap(t);
 
 		render_present();
 		SDL_Delay(1);
