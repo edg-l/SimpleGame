@@ -53,8 +53,9 @@ int main(int argc, const char* argv[]) {
 	tb->rect.x = 100;
 	tb->rect.y = 400;
 
-	Tilemap *t = tilemap_create(20, 20, 16, TILE_AIR);
-	tilemap_set_rect(t, util_rect(4, 4, 2, 2), TILE_WALL);
+	Tilemap *t = tilemap_create(20, 20, 32, TILE_AIR);
+	//tilemap_set(t, 11, 10, TILE_WALL);
+	tilemap_set_rect(t, util_rect(4, 4, 5, 2), TILE_WALL);
 
 	while(1) {
 		// TODO: wrap this

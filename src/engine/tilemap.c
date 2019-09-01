@@ -8,24 +8,6 @@
 #include <cglm/cglm.h>
 
 static Shader shader;
-static const char* vertShader = "#version 330 core\n"
-"layout (location = 0) in vec2 vertex;\n"
-"layout (location = 1) in int inTileType;\n"
-"flat out int tileType;\n"
-"uniform mat4 projection;\n"
-"uniform mat4 view;\n"
-"void main() {\n"
-"	gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);\n"
-"	tileType = inTileType;"
-"}";
-static const char *fragShader = "#version 330 core\n"
-"flat in int tileType;\n"
-"//uniform vec4 colors[2];\n"
-"void main() {\n"
-"	//gl_FragColor = colors[tileType];\n"
-"	if(tileType == 0) gl_FragColor = vec4(1, 0, 0, 1);\n"
-"	else gl_FragColor = vec4(0, 1, 0, 1);\n"
-"}";
 
 Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 	Tilemap *t = malloc(sizeof(Tilemap));
@@ -77,7 +59,7 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 	glBindVertexArray(0);
 
 	if(!shader) {
-		shader = shader_load_str(vertShader, fragShader, NULL);
+		shader = shader_load("resources/shaders/tilemap.vert", "resources/shaders/tilemap.frag", NULL);
 		shader_use(shader);
 		mat4 projection;
 		render_projection(projection);
@@ -102,6 +84,29 @@ void tilemap_free(Tilemap *t) {
 
 void tilemap_set(Tilemap *t, int x, int y, TileType type) {
 	t->tiles[y][x].type = type;
+
+	struct vertex {
+		GLfloat x;
+		GLfloat y;
+		GLint type;
+	} vertices[6];
+
+	int ox = x * t->tileSize;
+	int oy = y * t->tileSize;
+	int s = t->tileSize;
+
+	vertices[0] = (struct vertex){ox, oy, type};
+	vertices[1] = (struct vertex){ox + s, oy, type};
+	vertices[2] = (struct vertex){ox, oy + s, type};
+
+	vertices[3] = (struct vertex){ox + s, oy, type};
+	vertices[4] = (struct vertex){ox + s, oy + s, type};
+	vertices[5] = (struct vertex){ox, oy + s, type};
+
+	glBindVertexArray(t->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, t->vbo);
+	glBufferSubData(GL_ARRAY_BUFFER, (t->w*y + x) * 6 * (2 * sizeof(GLfloat) + sizeof(GLint)), 
+			sizeof(vertices), vertices);
 }
 
 void tilemap_set_rect(Tilemap *t, Rect r, TileType type) {
