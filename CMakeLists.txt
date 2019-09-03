@@ -19,6 +19,8 @@ pkg_check_modules(CGLM cglm REQUIRED)
 
 set(ENGINE_SOURCES
 	src/engine/color.h
+	src/engine/camera.h
+	src/engine/camera.c
 	src/engine/graphics/renderer.c
 	src/engine/graphics/renderer.h
 	src/engine/graphics/shader.c

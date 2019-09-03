@@ -127,5 +127,5 @@ int util_mouse_in_rect(Rect *rect) {
 }
 
 double util_delta_time() {
-	return now_time - last_time;
+	return (double)((now_time - last_time) * 1000) / SDL_GetPerformanceFrequency();
 }

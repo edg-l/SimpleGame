@@ -2,6 +2,7 @@
 #define GRAPHICS_SHADER_H
 
 #include <cglm/cglm.h>
+#include <engine/camera.h>
 
 typedef int Shader;
 
@@ -11,6 +12,7 @@ Shader shader_load_str(const char *vertexSrc, const char *fragmentSrc, const cha
 
 void shader_use(Shader shader);
 void shader_delete(Shader shader);
+void shader_update_camera(Camera *c);
 
 void shader_set_int(Shader shader, const char *name, int x);
 void shader_set_float(Shader shader, const char *name, float x);

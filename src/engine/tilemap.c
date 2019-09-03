@@ -66,6 +66,11 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 		shader_set_mat4(shader, "projection", projection);
 		mat4 view;
 		glm_mat4_identity(view);
+		vec3 v;
+		v[0] = 0;
+		v[1] = 40;
+		v[2] = 0;
+		//glm_translate(view, v);
 		shader_set_mat4(shader, "view", view);
 	}
 

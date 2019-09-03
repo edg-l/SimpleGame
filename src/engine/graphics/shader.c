@@ -4,8 +4,10 @@
 #include <string.h>
 #include <engine/io.h>
 #include <engine/logger.h>
+#include <engine/list.h>
 
 static Shader last_shader_used = -1;
+static List *shaders;
 
 static void check_errors(GLuint id, int is_program) {
 	int success;
@@ -65,6 +67,15 @@ static int load_shader_from_src(const char *vertS, const char *fragS, const char
 	if(geoS)
 		glDeleteShader(geo);
 
+	if(!shaders) {
+		shaders = list_create();
+	}
+
+	int *proc = malloc(sizeof(int));
+	*proc = program;
+
+	list_push_back(shaders, proc, sizeof(int));
+
 	return program;
 }
 
@@ -98,6 +109,17 @@ void shader_delete(Shader shader) {
 void shader_use(Shader shader) {
 	glUseProgram(shader);
 	last_shader_used = shader;
+}
+
+void shader_update_camera(Camera *c) {
+	ListValue *current = shaders->head;
+
+	while(current) {
+		int *val = current->value;
+		shader_set_mat4(*val, "view", c->mat);
+		current = current->next;
+	}
+	c->should_update = 0;
 }
 
 void shader_set_int(Shader shader, const char *name, int x) {

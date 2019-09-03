@@ -11,7 +11,7 @@ typedef struct Switch {
 	int value;
 	int clicked_tick;
 	int padding;
-	int animation_time; // in ms
+	double animation_time; // in ms
 } Switch;
 
 Switch *switch_create(int w, int h, Color bg, Color offColor, Color onColor);
