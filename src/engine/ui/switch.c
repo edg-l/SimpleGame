@@ -11,16 +11,26 @@ Switch *switch_create(int w, int h, Color bg, Color offColor, Color onColor) {
 	s->off_color = offColor;
 	s->on_color = onColor;
 	s->value = 0;
-	s->clicked_tick = -1000;
 	s->padding = 4;
-	s->animation_time = 350;
+	s->total_animation_time = 350;
+	s->current_animation_time = 0;
+	s->animate = 0;
 	return s;
 }
 
 void switch_update(Switch *s) {
-	if(util_mouse_in_rect(&s->rect) && util_is_mouse_click(BUTTON_LEFT) && util_tick_passed(s->clicked_tick)) {
-		s->clicked_tick = util_tick();
+	if(util_mouse_in_rect(&s->rect) && util_is_mouse_click(BUTTON_LEFT)) {
+		s->animate = 1;
 		s->value = !s->value;
+		if(s->current_animation_time > 0)
+			s->current_animation_time = s->total_animation_time - s->current_animation_time;
+	}
+	else if(s->animate) {
+		s->current_animation_time += util_delta_time();
+		if(s->current_animation_time >= s->total_animation_time) {
+			s->animate = 0;
+			s->current_animation_time = 0;
+		}
 	}
 }
 
@@ -32,7 +42,7 @@ void render_switch(Switch *s) {
 	render_color_s(s->bg);
 	render_rect_s(&s->rect, 1);
 
-	if(util_tick_passed(s->clicked_tick + s->animation_time)) {
+	if(!s->animate) {
 		if(!s->value) {
 			Rect r = util_rect(s->rect.x + s->padding, s->rect.y + s->padding,
 					s->rect.w / 2 - s->padding, s->rect.h - s->padding * 2);
@@ -47,8 +57,8 @@ void render_switch(Switch *s) {
 		}
 	}
 	else {
-		float percent = (util_tick() - s->clicked_tick) / (float)(s->animation_time);
-		int diff = s->rect.w / 2;
+		double percent = s->current_animation_time / s->total_animation_time;
+		double diff = (double)s->rect.w / 2;
 		int current = round(diff * percent);
 		if(s->value) {
 			Color c;

@@ -9,9 +9,10 @@ typedef struct Switch {
 	Color off_color;
 	Color on_color;
 	int value;
-	int clicked_tick;
 	int padding;
-	double animation_time; // in ms
+	int animate;
+	double current_animation_time;
+	double total_animation_time; // in ms
 } Switch;
 
 Switch *switch_create(int w, int h, Color bg, Color offColor, Color onColor);

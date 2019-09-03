@@ -38,7 +38,10 @@ int main(int argc, const char* argv[]) {
 	Tilemap *t = tilemap_create(50, 50, 16, TILE_AIR);
 	tilemap_set(t, 11, 10, TILE_WALL);
 	//tilemap_set_rect(t, util_rect(4, 4, 5, 2), TILE_WALL);
-	// use deltatime
+
+	Switch *c = switch_create(200, 50, COLOR_RED, COLOR_WHITE, COLOR_BLUE);
+	c->rect.x = 200;
+	c->rect.y = 200;
 
 	while(1) {
 		// TODO: wrap this
@@ -53,20 +56,24 @@ int main(int argc, const char* argv[]) {
 		// Update
 		util_update();
 		double delta = util_delta_time();
-		log_info("Delta: %f ms\n", delta);
+
 		mouse = util_mouse_pos();
+		Point coords;
+		screen_to_coords(camera, t, mouse, &coords);
+
 		if(util_is_keyup(SDL_SCANCODE_D))
 			camera_move(camera, 5, 0);
 
+		switch_update(c);
+
 		shader_update_camera(camera);
-		Point out;
-		screen_to_coords(camera, t, mouse, &out);
 
 		// Render
 		render_color(200, 46, 46, 255);
 		render_clear();
 
-		render_tilemap(t);
+		//render_tilemap(t);
+		render_switch(c);
 
 		render_present();
 		SDL_Delay(1);
