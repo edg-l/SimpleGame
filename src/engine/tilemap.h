@@ -5,7 +5,8 @@
 
 typedef enum TileType {
 	TILE_AIR,
-	TILE_WALL
+	TILE_WALL,
+	NUM_TILE_TYPES
 } TileType;
 
 typedef struct Tile {

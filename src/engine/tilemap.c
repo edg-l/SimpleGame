@@ -9,6 +9,11 @@
 
 static Shader shader;
 
+static Color tileColors[NUM_TILE_TYPES] = {
+	(Color){0, 0, 200, 255},
+	(Color){0, 200, 0, 255},
+};
+
 Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 	Tilemap *t = malloc(sizeof(Tilemap));
 
@@ -20,8 +25,10 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 	struct vertex {
 		GLfloat x;
 		GLfloat y;
-		GLint type;
+		GLint r,g,b,a;
 	} vertices[w*h * 6];
+
+	Color c = tileColors[fill];
 
 	int s = tile_size;
 	int n = 0;
@@ -31,13 +38,13 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 			t->tiles[y][x].type = fill;
 			int ox = x * s;
 			int oy = y * s;
-			vertices[n++] = (struct vertex){ox, oy, TILE_AIR};
-			vertices[n++] = (struct vertex){ox + s, oy, TILE_AIR};
-			vertices[n++] = (struct vertex){ox, oy + s, TILE_AIR};
+			vertices[n++] = (struct vertex){ox, oy, c.r, c.g, c.b, c.a};
+			vertices[n++] = (struct vertex){ox + s, oy, c.r, c.g, c.b, c.a};
+			vertices[n++] = (struct vertex){ox, oy + s, c.r, c.g, c.b, c.a};
 
-			vertices[n++] = (struct vertex){ox + s, oy, TILE_AIR};
-			vertices[n++] = (struct vertex){ox + s, oy + s, TILE_AIR};
-			vertices[n++] = (struct vertex){ox, oy + s, TILE_AIR};
+			vertices[n++] = (struct vertex){ox + s, oy, c.r, c.g, c.b, c.a};
+			vertices[n++] = (struct vertex){ox + s, oy + s, c.r, c.g, c.b, c.a};
+			vertices[n++] = (struct vertex){ox, oy + s, c.r, c.g, c.b, c.a};
 		}
 	}
 
@@ -50,10 +57,10 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat) + sizeof(GLint), 0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat) + 4 * sizeof(GLint), 0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 1, GL_INT, GL_FALSE,
-			2 * sizeof(GLfloat) + sizeof(GLint), (void*)(2 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 4, GL_INT, GL_FALSE,
+			2 * sizeof(GLfloat) + 4 * sizeof(GLint), (void*)(2 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
@@ -88,24 +95,26 @@ void tilemap_set(Tilemap *t, int x, int y, TileType type) {
 	struct vertex {
 		GLfloat x;
 		GLfloat y;
-		GLint type;
+		GLint r,g,b,a;
 	} vertices[6];
 
 	int ox = x * t->tileSize;
 	int oy = y * t->tileSize;
 	int s = t->tileSize;
 
-	vertices[0] = (struct vertex){ox, oy, type};
-	vertices[1] = (struct vertex){ox + s, oy, type};
-	vertices[2] = (struct vertex){ox, oy + s, type};
+	Color c = tileColors[type];
 
-	vertices[3] = (struct vertex){ox + s, oy, type};
-	vertices[4] = (struct vertex){ox + s, oy + s, type};
-	vertices[5] = (struct vertex){ox, oy + s, type};
+	vertices[0] = (struct vertex){ox, oy, c.r, c.g, c.b, c.a};
+	vertices[1] = (struct vertex){ox + s, oy, c.r, c.g, c.b, c.a};
+	vertices[2] = (struct vertex){ox, oy + s, c.r, c.g, c.b, c.a};
+
+	vertices[3] = (struct vertex){ox + s, oy, c.r, c.g, c.b, c.a};
+	vertices[4] = (struct vertex){ox + s, oy + s, c.r, c.g, c.b, c.a};
+	vertices[5] = (struct vertex){ox, oy + s, c.r, c.g, c.b, c.a};
 
 	glBindVertexArray(t->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, t->vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, (t->w*y + x) * 6 * (2 * sizeof(GLfloat) + sizeof(GLint)),
+	glBufferSubData(GL_ARRAY_BUFFER, (t->w*y + x) * 6 * (2 * sizeof(GLfloat) + 4 * sizeof(GLint)),
 			sizeof(vertices), vertices);
 }
 
