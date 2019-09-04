@@ -122,22 +122,33 @@ void shader_update_camera(Camera *c) {
 	c->should_update = 0;
 }
 
+int shader_has_uniform(Shader shader, const char *name) {
+	shader_use(shader);
+	log_info("uniform: %d\n", glGetUniformLocation(shader, name));
+	return glGetUniformLocation(shader, name) != -1;
+}
+
 void shader_set_int(Shader shader, const char *name, int x) {
+	shader_use(shader);
 	glUniform1i(glGetUniformLocation(shader, name), x);
 }
 
 void shader_set_float(Shader shader, const char *name, float x) {
+	shader_use(shader);
 	glUniform1f(glGetUniformLocation(shader, name), x);
 }
 
 void shader_set_vec3(Shader shader, const char *name, float x, float y, float z) {
+	shader_use(shader);
 	glUniform3f(glGetUniformLocation(shader, name), x, y, z);
 }
 
 void shader_set_vec4(Shader shader, const char *name, float x, float y, float z, float w) {
+	shader_use(shader);
 	glUniform4f(glGetUniformLocation(shader, name), x, y, z, w);
 }
 
 void shader_set_mat4(Shader shader, const char *name, mat4 mat) {
+	shader_use(shader);
 	glUniformMatrix4fv(glGetUniformLocation(shader, name), 1, GL_FALSE, mat[0]);
 }

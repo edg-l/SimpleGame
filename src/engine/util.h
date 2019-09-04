@@ -46,6 +46,7 @@ int util_mouse_in_rect(Rect *rect);
 void util_rect_margin(Margin margin, int distance, Rect *rect1, Rect *rect2);
 void util_rect_center(Rect *rect1, Rect *rect2);
 void util_rect_outline(Rect *outline, Rect *rect, int outline_size);
+void util_rect_padding(Rect *padding, Rect *rect, int padding_size);
 
 int max(int x, int y);
 int min(int x, int y);
@@ -60,6 +61,8 @@ int util_is_mouse_click(MouseButton button);
 int util_is_keyup(int code);
 int util_is_keypress(int code);
 
+void util_str_format(char* buf, size_t size, const char *fmt, ...);
+
 // In ms
 Uint32 util_tick();
 
@@ -67,4 +70,5 @@ Uint32 util_tick();
 int util_tick_passed(Uint32 a);
 
 double util_delta_time();
+double util_fps();
 #endif

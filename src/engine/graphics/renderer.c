@@ -281,6 +281,7 @@ int render_init(int width, int height, const char *title) {
 
 	settings_add_int("msaa_enable", 1, 0, 1);
 	settings_add_int("msaa_value", 2, 0, 4);
+	settings_add_int("vsync", 1, 0, 1);
 
 	if(!io_file_exists("settings.ini")) {
 		log_info("Settings doesn't exist, creating it.\n");
@@ -344,7 +345,7 @@ int render_init(int width, int height, const char *title) {
 	glViewport(0, 0, width, height);
 
 	// Set vsync
-	SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(settings_get_int("vsync"));
 
 	glClearColor(0, 0, 0, 1);
 
@@ -578,8 +579,6 @@ void render_text(int pt, int style, const char *text, float x, float y) {
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	shader_use(textShader);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(textVAO);

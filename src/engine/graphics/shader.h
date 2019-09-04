@@ -12,6 +12,7 @@ Shader shader_load_str(const char *vertexSrc, const char *fragmentSrc, const cha
 
 void shader_use(Shader shader);
 void shader_delete(Shader shader);
+int shader_has_uniform(Shader shader, const char *name);
 void shader_update_camera(Camera *c);
 
 void shader_set_int(Shader shader, const char *name, int x);

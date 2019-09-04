@@ -18,9 +18,9 @@ find_package(Freetype REQUIRED)
 pkg_check_modules(CGLM cglm REQUIRED)
 
 set(ENGINE_SOURCES
-	src/engine/color.h
-	src/engine/camera.h
 	src/engine/camera.c
+	src/engine/camera.h
+	src/engine/color.h
 	src/engine/graphics/renderer.c
 	src/engine/graphics/renderer.h
 	src/engine/graphics/shader.c
@@ -37,6 +37,8 @@ set(ENGINE_SOURCES
 	src/engine/tilemap.h
 	src/engine/ui/button.c
 	src/engine/ui/button.h
+	src/engine/ui/progress_bar.h
+	src/engine/ui/progress_bar.c
 	src/engine/ui/switch.c
 	src/engine/ui/switch.h
 	src/engine/ui/textbox.c

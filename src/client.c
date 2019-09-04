@@ -9,9 +9,12 @@
 #include <engine/camera.h>
 #include <engine/graphics/shader.h>
 #include <engine/tilemap.h>
+#include <engine/ui/progress_bar.h>
 #include <SDL.h>
 #include <stdlib.h>
 #include "config.h"
+
+// TODO: animated bar, dropdown
 
 int main(int argc, const char* argv[]) {
 
@@ -25,11 +28,6 @@ int main(int argc, const char* argv[]) {
 	Rect screen = util_rect(0, 0, settings_get_int("window_width"),
 			settings_get_int("window_height"));
 
-	render_text_color(20, 20, 200, 255);
-
-	int ws, hs;
-	render_text_size("hello world\ntest\ntest2", 38, STYLE_REGULAR, &ws, &hs);
-
 	Point mouse;
 
 	Camera *camera = camera_create();
@@ -37,11 +35,14 @@ int main(int argc, const char* argv[]) {
 
 	Tilemap *t = tilemap_create(50, 50, 16, TILE_AIR);
 	tilemap_set(t, 11, 10, TILE_WALL);
-	//tilemap_set_rect(t, util_rect(4, 4, 5, 2), TILE_WALL);
+	tilemap_set_rect_wall(t, util_rect(4, 4, 5, 6), TILE_WALL);
 
-	Switch *c = switch_create(200, 50, COLOR_RED, COLOR_WHITE, COLOR_BLUE);
-	c->rect.x = 200;
-	c->rect.y = 200;
+	char aFpsBuf[64];
+	double delta = util_delta_time();
+	double fps = util_fps();
+	double averageFps = util_fps();
+	double fpsTime = 0;
+	int fpsTimesAdded = 1;
 
 	while(1) {
 		// TODO: wrap this
@@ -55,7 +56,20 @@ int main(int argc, const char* argv[]) {
 
 		// Update
 		util_update();
-		double delta = util_delta_time();
+		delta = util_delta_time();
+		fpsTime += delta;
+		if(fpsTime > 500) {
+			averageFps = fps / fpsTimesAdded;
+			fps = util_fps();
+			fpsTimesAdded = 1;
+			fpsTime = 0;
+		}
+		else {
+			fps += util_fps();
+			fpsTimesAdded++;
+		}
+
+		util_str_format(aFpsBuf, sizeof(aFpsBuf), "FPS: %.02f", averageFps);
 
 		mouse = util_mouse_pos();
 		Point coords;
@@ -64,7 +78,9 @@ int main(int argc, const char* argv[]) {
 		if(util_is_keyup(SDL_SCANCODE_D))
 			camera_move(camera, 5, 0);
 
-		switch_update(c);
+		if(util_is_mouse_click(SDL_BUTTON_LEFT))
+			tilemap_set(t, coords.x, coords.y, TILE_WALL);
+
 
 		shader_update_camera(camera);
 
@@ -72,11 +88,12 @@ int main(int argc, const char* argv[]) {
 		render_color(200, 46, 46, 255);
 		render_clear();
 
-		//render_tilemap(t);
-		render_switch(c);
+		render_tilemap(t);
+		render_text_color_s(COLOR_GOLD);
+		render_text(28, STYLE_REGULAR, aFpsBuf, 20, 20);
 
 		render_present();
-		SDL_Delay(1);
+		//SDL_Delay(1);
 	}
 
 cleanup:

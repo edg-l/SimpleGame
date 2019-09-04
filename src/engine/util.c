@@ -1,7 +1,9 @@
-#include "util.h"
 #include "math.h"
+#include "util.h"
 #include <SDL.h>
 #include <engine/logger.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 static Uint32 prev_mouse_state;
 static Uint32 mouse_state;
@@ -43,6 +45,13 @@ void util_rect_outline(Rect *outline, Rect *rect, int outline_size) {
 	outline->y = rect->y - outline_size;
 	outline->w = rect->w + outline_size * 2;
 	outline->h = rect->h + outline_size * 2;
+}
+
+void util_rect_padding(Rect *padding, Rect *rect, int padding_size) {
+	padding->x = rect->x + padding_size;
+	padding->y = rect->y + padding_size;
+	padding->w = rect->w - padding_size * 2;
+	padding->h = rect->h - padding_size * 2;
 }
 
 int util_point_in_rect(Rect *rect, Point *point) {
@@ -128,4 +137,15 @@ int util_mouse_in_rect(Rect *rect) {
 
 double util_delta_time() {
 	return (double)((now_time - last_time) * 1000) / SDL_GetPerformanceFrequency();
+}
+
+double util_fps() {
+	return 1 / (util_delta_time() / 1000);
+}
+
+void util_str_format(char* buf, size_t size, const char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	vsnprintf(buf, size, fmt, args);
+	va_end(args);
 }

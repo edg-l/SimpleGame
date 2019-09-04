@@ -64,14 +64,6 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 		mat4 projection;
 		render_projection(projection);
 		shader_set_mat4(shader, "projection", projection);
-		mat4 view;
-		glm_mat4_identity(view);
-		vec3 v;
-		v[0] = 0;
-		v[1] = 40;
-		v[2] = 0;
-		//glm_translate(view, v);
-		shader_set_mat4(shader, "view", view);
 	}
 
 	return t;
@@ -88,6 +80,9 @@ void tilemap_free(Tilemap *t) {
 }
 
 void tilemap_set(Tilemap *t, int x, int y, TileType type) {
+	if(x >= t->w || x < 0 || y >= t->h || y < 0)
+		return;
+
 	t->tiles[y][x].type = type;
 
 	struct vertex {
@@ -115,7 +110,7 @@ void tilemap_set(Tilemap *t, int x, int y, TileType type) {
 }
 
 void tilemap_set_rect(Tilemap *t, Rect r, TileType type) {
-	if(r.w <= t->w && r.h <= t->h && r.x >= 0 && r.y >= 0) {
+	if(r.x + r.w < t->w && r.y + r.h < t->h && r.x >= 0 && r.y >= 0) {
 		for(int y = r.y; y < r.y + r.h; y++) {
 			for(int x = r.x; x < r.x + r.w; x++) {
 				tilemap_set(t, x, y, type);
@@ -125,10 +120,10 @@ void tilemap_set_rect(Tilemap *t, Rect r, TileType type) {
 }
 
 void tilemap_set_rect_wall(Tilemap *t, Rect r, TileType type) {
-	if(r.w <= t->w && r.h <= t->h && r.x >= 0 && r.y >= 0) {
+	if(r.x + r.w < t->w && r.y + r.h < t->h && r.x >= 0 && r.y >= 0) {
 		for(int y = r.y; y < r.y + r.h; y++) {
 			for(int x = r.x; x < r.x + r.w; x++) {
-				if(x == r.x || x == r.x + r.w || y == r.y || y == r.y + r.h)
+				if(x == r.x || x == r.x + r.w - 1 || y == r.y || y == r.y + r.h - 1)
 					tilemap_set(t, x, y, type);
 			}
 		}
