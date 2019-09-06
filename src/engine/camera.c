@@ -23,6 +23,15 @@ void camera_move(Camera *c, float offX, float offY) {
 	c->should_update = 1;
 }
 
+void camera_center(Camera *c, Rect rect) {
+	Rect screen = util_screen();
+	c->pos[0] = -((rect.x + rect.w / 2) - screen.w / 2);
+	c->pos[1] = -((rect.y + rect.h / 2) - screen.h / 2);
+	glm_mat4_identity(c->mat);
+	glm_translate(c->mat, c->pos);
+	c->should_update = 1;
+}
+
 void screen_to_coords(Camera *c, Tilemap *t, Point screen, Point *out) {
 	int width, height;
 	out->x = floor((screen.x / (float)t->tileSize) - (c->pos[0] / (float)t->tileSize));

@@ -51,31 +51,4 @@ int button_is_pressed(Button *button) {
 	return util_point_in_rect(&button->rect, &mouse) && util_is_mouse_click(BUTTON_LEFT);
 }
 
-void util_rect_margin(Margin margin, int distance, Rect *rect1, Rect *rect2) {
-	if(margin == MARGIN_RIGHT) {
-		rect2->x = rect1->x + rect1->w + distance;
-		rect2->y = rect1->y;
-		rect2->h = rect1->h;
-	}
-	else if(margin == MARGIN_LEFT) {
-		rect2->x = rect1->x - distance - rect2->w;
-		rect2->y= rect1->y;
-		rect2->h = rect1->h;
-	}
-	else if(margin == MARGIN_BOTTOM) {
-		rect2->x = rect1->x;
-		rect2->w = rect1->w;
-		rect2->y = rect1->y + rect1->h + distance;
-	}
-	else if(margin == MARGIN_TOP) {
-		rect2->x = rect1->x;
-		rect2->w = rect1->w;
-		rect2->y = rect1->y - rect2->h - distance;
-	}
-}
-
-void util_rect_center(Rect *rect1, Rect *rect2) {
-	rect2->x = rect1->x + (rect1->w - rect2->w) / 2;
-	rect2->y = rect1->y + (rect1->h - rect2->h) / 2;
-}
 

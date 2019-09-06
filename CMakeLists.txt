@@ -50,6 +50,8 @@ set(ENGINE_SOURCES
 
 set(CLIENT_SOURCE_FILES
 	src/client.c
+	src/player.c
+	src/player.h
 	)
 
 

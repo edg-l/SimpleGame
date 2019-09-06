@@ -14,6 +14,7 @@ typedef struct Camera {
 Camera *camera_create();
 
 void camera_move(Camera *c, float offX, float offY);
+void camera_center(Camera *c, Rect rect);
 
 void screen_to_coords(Camera *c, Tilemap *t, Point screen, Point *out);
 

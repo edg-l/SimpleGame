@@ -13,6 +13,7 @@
 #include <SDL.h>
 #include <stdlib.h>
 #include "config.h"
+#include "player.h"
 
 // TODO: animated bar, dropdown
 
@@ -24,6 +25,8 @@ int main(int argc, const char* argv[]) {
 	}
 
 	util_init();
+
+	render_clear_color(COLOR_GREY);
 
 	Rect screen = util_rect(0, 0, settings_get_int("window_width"),
 			settings_get_int("window_height"));
@@ -44,6 +47,10 @@ int main(int argc, const char* argv[]) {
 	double fpsTime = 0;
 	int fpsTimesAdded = 1;
 
+	Player *p = player_create(100, 500, 100, 100);
+	p->rect.x = 500;
+	p->rect.y = 400;
+
 	while(1) {
 		// TODO: wrap this
 		util_update_keyboard();
@@ -57,6 +64,8 @@ int main(int argc, const char* argv[]) {
 		// Update
 		util_update();
 		delta = util_delta_time();
+		double deltaS = delta / 1000;
+
 		fpsTime += delta;
 		if(fpsTime > 500) {
 			averageFps = fps / fpsTimesAdded;
@@ -75,8 +84,41 @@ int main(int argc, const char* argv[]) {
 		Point coords;
 		screen_to_coords(camera, t, mouse, &coords);
 
-		if(util_is_keyup(SDL_SCANCODE_D))
-			camera_move(camera, 5, 0);
+		// Handle player movement.
+		{
+			float friction = 1 - 0.05f;
+			float direction = 0;
+			if(util_is_keypress(SDL_SCANCODE_D))
+				p->speed.x += p->accel;
+			else if(util_is_keypress(SDL_SCANCODE_A))
+				p->speed.x -= p->accel;
+			if(util_is_keypress(SDL_SCANCODE_W))
+				p->speed.y -= p->accel;
+			else if(util_is_keypress(SDL_SCANCODE_S))
+				p->speed.y += p->accel;
+
+			float vel = sqrt(pow(p->speed.x, 2) + pow(p->speed.y, 2));
+
+			if(vel > (pow(p->max_speed, 2))) {
+				p->speed.x *= p->max_speed / vel;
+				p->speed.y *= p->max_speed / vel;
+			}
+
+			if(p->speed.x > p->max_speed)
+				p->speed.x = p->max_speed;
+			else if(p->speed.x < -p->max_speed)
+				p->speed.x = -p->max_speed;
+			if(p->speed.y > p->max_speed)
+				p->speed.y = p->max_speed;
+			else if(p->speed.y < -p->max_speed)
+				p->speed.y = -p->max_speed;
+			Point speed;
+			speed.x = p->speed.x * deltaS;
+			speed.y = p->speed.y * deltaS;
+			player_move(p, speed);
+			p->speed.x = p->speed.x * friction;
+			p->speed.y = p->speed.y * friction;
+		}
 
 		if(util_is_mouse_click(SDL_BUTTON_LEFT))
 			tilemap_set(t, coords.x, coords.y, TILE_WALL);
@@ -85,12 +127,14 @@ int main(int argc, const char* argv[]) {
 		shader_update_camera(camera);
 
 		// Render
-		render_color(200, 46, 46, 255);
 		render_clear();
 
 		render_tilemap(t);
+		render_use_camera(0);
 		render_text_color_s(COLOR_GOLD);
 		render_text(28, STYLE_REGULAR, aFpsBuf, 20, 20);
+
+		player_render(p);
 
 		render_present();
 		//SDL_Delay(1);

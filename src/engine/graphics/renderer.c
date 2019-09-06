@@ -30,43 +30,6 @@ static GLuint lineVAO;
 static GLuint textVAO;
 static GLuint textVBO;
 
-static const char *pQuadShaderVert = "#version 330 core\n"
-"layout (location = 0) in vec4 vertex;\n"
-"out vec2 TexCoords;\n"
-"uniform mat4 projection;\n"
-"uniform mat4 model;\n"
-"void main () {\n"
-"	TexCoords = vertex.zw;\n"
-"	gl_Position = projection * model * vec4(vertex.xy, 0.0, 1.0);\n"
-"}";
-
-static const char *pQuadShaderFrag = "#version 330 core\n"
-"in vec2 TexCoords;\n"
-"uniform vec4 quadColor;\n"
-"uniform int useSampler;\n"
-"uniform sampler2D tex;\n"
-"void main() {\n"
-"	if(useSampler != 0) gl_FragColor = texture(tex, TexCoords);\n"
-"	else gl_FragColor = quadColor;\n"
-"}";
-
-static const char *pTextShaderVert = "#version 330 core\n"
-"layout (location = 0) in vec4 vertex;\n"
-"out vec2 TexCoords;\n"
-"uniform mat4 projection;\n"
-"void main() {\n"
-"	gl_Position = projection * vec4(vertex.xy, 0.0, 1.0);\n"
-"	TexCoords = vertex.zw;\n"
-"}";
-
-static const char *pTextShaderFrag = "#version 330 core\n"
-"in vec2 TexCoords;\n"
-"uniform vec4 textColor;\n"
-"uniform sampler2D text;\n"
-"void main() {\n"
-"	gl_FragColor = textColor * vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);"
-"}";
-
 typedef struct Glyph {
 	FT_ULong code;
 	GLuint advance;
@@ -354,14 +317,16 @@ int render_init(int width, int height, const char *title) {
 
 	glm_ortho(0, width, height, 0, -1, 1, projection);
 
-	quadShader = shader_load_str(pQuadShaderVert, pQuadShaderFrag, NULL);
+	quadShader = shader_load("resources/shaders/quad.vert", "resources/shaders/quad.frag", NULL);
 	shader_use(quadShader);
 	shader_set_mat4(quadShader, "projection", projection);
 	shader_set_int(quadShader, "useSampler", 0);
+	shader_set_int(quadShader, "useView", 0);
 
-	textShader = shader_load_str(pTextShaderVert, pTextShaderFrag, NULL);
+	textShader = shader_load("resources/shaders/text.vert", "resources/shaders/text.frag", NULL);
 	shader_use(textShader);
 	shader_set_mat4(textShader, "projection", projection);
+	shader_set_int(textShader, "useView", 0);
 
 	{
 		// Setup the quad VAO
@@ -704,4 +669,13 @@ void render_text_size_len(const char* text, int pt, int style, Point *point, siz
 
 void render_text_size_s(const char* text, int pt, int style, Point *point) {
 	render_text_size(text, pt, style, &point->x, &point->y);
+}
+
+void render_use_camera(int enable) {
+	shader_set_int(quadShader, "useView", enable);
+	shader_set_int(textShader, "useView", enable);
+}
+
+void render_clear_color(Color c) {
+	glClearColor(c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f);
 }

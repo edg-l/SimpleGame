@@ -4,6 +4,7 @@
 #include <engine/logger.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <engine/settings.h>
 
 static Uint32 prev_mouse_state;
 static Uint32 mouse_state;
@@ -88,6 +89,10 @@ int util_rect_intersects(Rect *rect1, Rect *rect2, Rect *out) {
 	return 0;
 }
 
+Rect util_screen() {
+	return util_rect(0, 0, settings_get_int("window_width"), settings_get_int("window_height"));
+}
+
 int max(int x, int y) {
 	return x > y ? x : y;
 }
@@ -148,4 +153,32 @@ void util_str_format(char* buf, size_t size, const char *fmt, ...) {
 	va_start(args, fmt);
 	vsnprintf(buf, size, fmt, args);
 	va_end(args);
+}
+
+void util_rect_margin(Margin margin, int distance, Rect *rect1, Rect *rect2) {
+	if(margin == MARGIN_RIGHT) {
+		rect2->x = rect1->x + rect1->w + distance;
+		rect2->y = rect1->y;
+		rect2->h = rect1->h;
+	}
+	else if(margin == MARGIN_LEFT) {
+		rect2->x = rect1->x - distance - rect2->w;
+		rect2->y= rect1->y;
+		rect2->h = rect1->h;
+	}
+	else if(margin == MARGIN_BOTTOM) {
+		rect2->x = rect1->x;
+		rect2->w = rect1->w;
+		rect2->y = rect1->y + rect1->h + distance;
+	}
+	else if(margin == MARGIN_TOP) {
+		rect2->x = rect1->x;
+		rect2->w = rect1->w;
+		rect2->y = rect1->y - rect2->h - distance;
+	}
+}
+
+void util_rect_center(Rect *rect1, Rect *rect2) {
+	rect2->x = rect1->x + (rect1->w - rect2->w) / 2;
+	rect2->y = rect1->y + (rect1->h - rect2->h) / 2;
 }

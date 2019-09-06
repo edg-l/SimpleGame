@@ -48,6 +48,8 @@ void util_rect_center(Rect *rect1, Rect *rect2);
 void util_rect_outline(Rect *outline, Rect *rect, int outline_size);
 void util_rect_padding(Rect *padding, Rect *rect, int padding_size);
 
+Rect util_screen();
+
 int max(int x, int y);
 int min(int x, int y);
 
