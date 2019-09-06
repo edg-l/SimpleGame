@@ -32,6 +32,8 @@ typedef enum MouseButton {
 	BUTTON_MIDDLE = SDL_BUTTON_MIDDLE
 } MouseButton;
 
+struct Tilemap;
+
 Color util_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 Rect util_rect(int x, int y, int w, int h);
 Point util_point(int x, int y);
@@ -49,6 +51,8 @@ void util_rect_outline(Rect *outline, Rect *rect, int outline_size);
 void util_rect_padding(Rect *padding, Rect *rect, int padding_size);
 
 Rect util_screen();
+
+Point util_world_to_tilemap(struct Tilemap *t, Point world);
 
 int max(int x, int y);
 int min(int x, int y);

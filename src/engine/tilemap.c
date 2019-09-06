@@ -149,3 +149,7 @@ void render_tilemap(Tilemap *t) {
 	glDrawArrays(GL_TRIANGLES, 0, t->w * t->h * 6);
 	glBindVertexArray(0);
 }
+
+Rect tilemap_get_tile_rect(Tilemap *t, int x, int y) {
+	return util_rect(x * t->tileSize, y * t->tileSize, t->tileSize, t->tileSize);
+}

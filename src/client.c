@@ -51,6 +51,9 @@ int main(int argc, const char* argv[]) {
 	p->rect.x = 500;
 	p->rect.y = 400;
 
+	Point prevPos = util_point(0, 0);
+	Point curPos = util_point(0, 0);
+
 	while(1) {
 		// TODO: wrap this
 		util_update_keyboard();
@@ -86,23 +89,24 @@ int main(int argc, const char* argv[]) {
 
 		// Handle player movement.
 		{
+			prevPos = curPos;
 			float friction = 1 - 0.05f;
-			float direction = 0;
+			float directionX = 0;
+			float directionY = 0;
 			if(util_is_keypress(SDL_SCANCODE_D))
-				p->speed.x += p->accel;
+				directionX = 1;
 			else if(util_is_keypress(SDL_SCANCODE_A))
-				p->speed.x -= p->accel;
+				directionX = -1;
 			if(util_is_keypress(SDL_SCANCODE_W))
-				p->speed.y -= p->accel;
+				directionY = -1;
 			else if(util_is_keypress(SDL_SCANCODE_S))
-				p->speed.y += p->accel;
+				directionY = 1;
 
-			float vel = sqrt(pow(p->speed.x, 2) + pow(p->speed.y, 2));
+			float length = sqrt(pow(directionX, 2) + pow(directionY, 2));
 
-			if(vel > (pow(p->max_speed, 2))) {
-				p->speed.x *= p->max_speed / vel;
-				p->speed.y *= p->max_speed / vel;
-			}
+			p->speed.x += length != 0 ? p->accel * (directionX / length) : 0;
+			p->speed.y += length != 0 ? p->accel * (directionY / length) : 0;
+
 
 			if(p->speed.x > p->max_speed)
 				p->speed.x = p->max_speed;
@@ -115,9 +119,17 @@ int main(int argc, const char* argv[]) {
 			Point speed;
 			speed.x = p->speed.x * deltaS;
 			speed.y = p->speed.y * deltaS;
-			player_move(p, speed);
+			Rect intersection;
+			if(player_collide(p, speed, t, NULL, &intersection)) {
+				// TODO: do something here
+				player_move(p, speed);
+			}
+			else
+				player_move(p, speed);
 			p->speed.x = p->speed.x * friction;
 			p->speed.y = p->speed.y * friction;
+			curPos = util_point(p->rect.x, p->rect.y);
+			//log_info("Speed: %f\n", sqrt(pow(curPos.x - prevPos.x, 2) + pow(curPos.y - prevPos.y, 2)));
 		}
 
 		if(util_is_mouse_click(SDL_BUTTON_LEFT))

@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <engine/settings.h>
+#include <engine/tilemap.h>
 
 static Uint32 prev_mouse_state;
 static Uint32 mouse_state;
@@ -181,4 +182,11 @@ void util_rect_margin(Margin margin, int distance, Rect *rect1, Rect *rect2) {
 void util_rect_center(Rect *rect1, Rect *rect2) {
 	rect2->x = rect1->x + (rect1->w - rect2->w) / 2;
 	rect2->y = rect1->y + (rect1->h - rect2->h) / 2;
+}
+
+Point util_world_to_tilemap(Tilemap *t, Point world) {
+	return util_point(
+			floor(world.x / (float)t->tileSize),
+			floor(world.y / (float)t->tileSize)
+			);
 }

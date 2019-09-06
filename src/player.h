@@ -3,6 +3,7 @@
 
 #include <engine/util.h>
 #include <engine/ui/progress_bar.h>
+#include <engine/tilemap.h>
 
 typedef struct Player {
 	Rect rect;
@@ -23,5 +24,6 @@ void player_free(Player *p);
 void player_render(Player *p);
 
 void player_move(Player *p, Point m);
+int player_collide(Player *p, Point speed, Tilemap *t, Rect *rects, Rect *intersection);
 
 #endif
