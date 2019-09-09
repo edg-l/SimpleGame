@@ -119,12 +119,28 @@ int main(int argc, const char* argv[]) {
 			Point speed;
 			speed.x = p->speed.x * deltaS;
 			speed.y = p->speed.y * deltaS;
-			Rect intersection;
-			if(player_collide(p, speed, t, NULL, &intersection)) {
-				// TODO: do something here
-				player_move(p, speed);
+			Rect col;
+			if(player_collide(p, speed, t, NULL, &col)) {
+				//player_move(p, speed);
+				log_info("p: %d %d, c: %d %d %d %d\n", p->rect.x + speed.x, p->rect.y,
+						col.x, col.y, col.w, col.h);
+				if(p->rect.x + speed.x == col.x && speed.x < 0) {
+					log_info("col object on the left\n");
+					speed.x = 0;
+				}
+				else if(p->rect.x + p->rect.w + speed.x == col.x + col.w && speed.x > 0) {
+					log_info("col object on the right\n");
+					speed.x = 0;
+				}
+				else if(p->rect.y + speed.y == col.y && speed.y < 0) {
+					log_info("col object up\n");
+					speed.y = 0;
+				}
+				else if(p->rect.y + p->rect.h + speed.y == col.y + col.h && speed.y > 0) {
+					log_info("col object down\n");
+					speed.y = 0;
+				}
 			}
-			else
 				player_move(p, speed);
 			p->speed.x = p->speed.x * friction;
 			p->speed.y = p->speed.y * friction;
