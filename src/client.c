@@ -122,6 +122,7 @@ int main(int argc, const char* argv[]) {
 			Rect col;
 			if(player_collide(p, speed, t, NULL, &col)) {
 				//player_move(p, speed);
+				// Bug: when going up and left u can go thorugh wall
 				log_info("p: %d %d, c: %d %d %d %d\n", p->rect.x + speed.x, p->rect.y,
 						col.x, col.y, col.w, col.h);
 				if(p->rect.x + speed.x == col.x && speed.x < 0) {

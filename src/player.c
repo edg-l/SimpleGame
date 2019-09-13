@@ -60,14 +60,11 @@ int player_collide(Player *p, Point speed, Tilemap *t, Rect *rects, Rect *inters
 	for(int y = a.y; y < a.y + a.h + t->tileSize / 2; y+=t->tileSize / 2) {
 		for(int x = a.x; x < a.x + a.w + t->tileSize / 2; x+=t->tileSize / 2) {
 			Point tileCoord = util_world_to_tilemap(t, util_point(x, y));
-			//log_info("tile coord: %d, %d\n", tileCoord.x, tileCoord.y);
 			Tile *tile = tilemap_get(t, tileCoord.x, tileCoord.y);
 
 			if(tile->type == TILE_WALL) {
 				Rect rect = tilemap_get_tile_rect(t, tileCoord.x, tileCoord.y);
-				//log_info("tile wall: %d, %d, %d, %d\n", rect.x, rect.y, a.x, a.y);
 				if(util_rect_intersects(&rect, &a, intersection)) {
-					//log_info("collision\n");
 					return 1;
 				}
 			}
