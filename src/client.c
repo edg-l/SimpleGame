@@ -133,7 +133,7 @@ int main(int argc, const char* argv[]) {
 					log_info("col object on the right\n");
 					speed.x = 0;
 				}
-				else if(p->rect.y + speed.y == col.y && speed.y < 0) {
+				if(p->rect.y + speed.y == col.y && speed.y < 0) {
 					log_info("col object up\n");
 					speed.y = 0;
 				}

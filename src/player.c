@@ -57,8 +57,8 @@ int player_collide(Player *p, Point speed, Tilemap *t, Rect *rects, Rect *inters
 	Rect a = p->rect;
 	a.x += speed.x;
 	a.y += speed.y;
-	for(int y = a.y; y < a.y + a.h + t->tileSize / 2; y+=t->tileSize / 2) {
-		for(int x = a.x; x < a.x + a.w + t->tileSize / 2; x+=t->tileSize / 2) {
+	for(int y = a.y - t->tileSize * 2; y < a.y + a.h + t->tileSize / 2; y+=t->tileSize / 2) {
+		for(int x = a.x - t->tileSize * 2; x < a.x + a.w + t->tileSize / 2; x+=t->tileSize / 2) {
 			Point tileCoord = util_world_to_tilemap(t, util_point(x, y));
 			Tile *tile = tilemap_get(t, tileCoord.x, tileCoord.y);
 
