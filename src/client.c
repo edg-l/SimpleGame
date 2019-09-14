@@ -38,7 +38,7 @@ int main(int argc, const char* argv[]) {
 
 	Tilemap *t = tilemap_create(50, 50, 16, TILE_AIR);
 	tilemap_set(t, 11, 10, TILE_WALL);
-	tilemap_set_rect_wall(t, util_rect(4, 4, 5, 6), TILE_WALL);
+	tilemap_set_rect_wall(t, util_rect(0, 0, 50, 50), TILE_WALL);
 
 	char aFpsBuf[64];
 	double delta = util_delta_time();
@@ -120,24 +120,35 @@ int main(int argc, const char* argv[]) {
 			speed.x = p->speed.x * deltaS;
 			speed.y = p->speed.y * deltaS;
 			Rect col;
-			if(player_collide(p, speed, t, NULL, &col)) {
-				//player_move(p, speed);
-				// Bug: when going up and left u can go thorugh wall
-				log_info("p: %d %d, c: %d %d %d %d\n", p->rect.x + speed.x, p->rect.y,
-						col.x, col.y, col.w, col.h);
-				if(p->rect.x + speed.x == col.x && speed.x < 0) {
+			if(player_collide(p, util_point(speed.x, 0), t, NULL, &col)) {
+				Rect *r = &p->rect;
+				int x = p->rect.x + speed.x;
+				int y = p->rect.y + speed.y;
+
+				int left = col.x;
+				int right = col.x + col.w;
+
+				if(x <= right && x + r->w >= right && speed.x < 0) {
 					log_info("col object on the left\n");
 					speed.x = 0;
 				}
-				else if(p->rect.x + p->rect.w + speed.x == col.x + col.w && speed.x > 0) {
+				else if(x + r->w >= left && x <= left && speed.x > 0) {
 					log_info("col object on the right\n");
 					speed.x = 0;
 				}
-				if(p->rect.y + speed.y == col.y && speed.y < 0) {
+			}
+			if(player_collide(p, util_point(0, speed.y), t, NULL, &col)) {
+				Rect *r = &p->rect;
+				int y = p->rect.y + speed.y;
+
+				int top = col.y;
+				int bottom = col.y + col.h;
+
+				if(y <= bottom && y + r->h >= bottom && speed.y < 0) {
 					log_info("col object up\n");
 					speed.y = 0;
 				}
-				else if(p->rect.y + p->rect.h + speed.y == col.y + col.h && speed.y > 0) {
+				else if(y + r->h >= top && y <= top && speed.y > 0) {
 					log_info("col object down\n");
 					speed.y = 0;
 				}
