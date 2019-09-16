@@ -46,7 +46,7 @@ void player_move(Player *p, Point m) {
 void player_render(Player *p) {
 	render_use_camera(1);
 	render_color_s(COLOR_GOLD);
-	render_rect_s(&p->rect, 0);
+	render_rect_s(&p->rect, 1);
 
 	render_use_camera(0);
 	render_pb(p->hp_bar);
@@ -71,4 +71,79 @@ int player_collide(Player *p, Point speed, Tilemap *t, Rect *rects, Rect *inters
 		}
 	}
 	return 0;
+}
+
+void player_update(Player *p, Tilemap *t, Rect *rects) {
+	double delta = util_delta_time();
+	double deltaS = delta / 1000;
+	float friction = 1 - 0.05f;
+	float directionX = 0;
+	float directionY = 0;
+
+	if(util_is_keypress(SDL_SCANCODE_D))
+		directionX = 1;
+	else if(util_is_keypress(SDL_SCANCODE_A))
+		directionX = -1;
+	if(util_is_keypress(SDL_SCANCODE_W))
+		directionY = -1;
+	else if(util_is_keypress(SDL_SCANCODE_S))
+		directionY = 1;
+
+	float length = sqrt(pow(directionX, 2) + pow(directionY, 2));
+
+	p->speed.x += length != 0 ? p->accel * (directionX / length) : 0;
+	p->speed.y += length != 0 ? p->accel * (directionY / length) : 0;
+
+
+	if(p->speed.x > p->max_speed)
+		p->speed.x = p->max_speed;
+	else if(p->speed.x < -p->max_speed)
+		p->speed.x = -p->max_speed;
+	if(p->speed.y > p->max_speed)
+		p->speed.y = p->max_speed;
+	else if(p->speed.y < -p->max_speed)
+		p->speed.y = -p->max_speed;
+
+	Point speed;
+	speed.x = p->speed.x * deltaS;
+	speed.y = p->speed.y * deltaS;
+	Rect col;
+
+	if(player_collide(p, util_point(speed.x, 0), t, NULL, &col)) {
+		Rect *r = &p->rect;
+		int x = p->rect.x + speed.x;
+		int y = p->rect.y + speed.y;
+
+		int left = col.x;
+		int right = col.x + col.w;
+
+		if(x <= right && x + r->w >= right && speed.x < 0) {
+			log_info("col object on the left\n");
+			speed.x = 0;
+		}
+		else if(x + r->w >= left && x <= left && speed.x > 0) {
+			log_info("col object on the right\n");
+			speed.x = 0;
+		}
+	}
+
+	if(player_collide(p, util_point(0, speed.y), t, NULL, &col)) {
+		Rect *r = &p->rect;
+		int y = p->rect.y + speed.y;
+
+		int top = col.y;
+		int bottom = col.y + col.h;
+
+		if(y <= bottom && y + r->h >= bottom && speed.y < 0) {
+			log_info("col object up\n");
+			speed.y = 0;
+		}
+		else if(y + r->h >= top && y <= top && speed.y > 0) {
+			log_info("col object down\n");
+			speed.y = 0;
+		}
+	}
+	player_move(p, speed);
+	p->speed.x = p->speed.x * friction;
+	p->speed.y = p->speed.y * friction;
 }

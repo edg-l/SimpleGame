@@ -21,6 +21,7 @@ typedef struct Player {
 Player *player_create(int accel, int max_speed, int max_hp, int max_mana);
 void player_free(Player *p);
 
+void player_update(Player *p, Tilemap *t, Rect *rects);
 void player_render(Player *p);
 
 void player_move(Player *p, Point m);

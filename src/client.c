@@ -88,77 +88,7 @@ int main(int argc, const char* argv[]) {
 		screen_to_coords(camera, t, mouse, &coords);
 
 		// Handle player movement.
-		{
-			prevPos = curPos;
-			float friction = 1 - 0.05f;
-			float directionX = 0;
-			float directionY = 0;
-			if(util_is_keypress(SDL_SCANCODE_D))
-				directionX = 1;
-			else if(util_is_keypress(SDL_SCANCODE_A))
-				directionX = -1;
-			if(util_is_keypress(SDL_SCANCODE_W))
-				directionY = -1;
-			else if(util_is_keypress(SDL_SCANCODE_S))
-				directionY = 1;
-
-			float length = sqrt(pow(directionX, 2) + pow(directionY, 2));
-
-			p->speed.x += length != 0 ? p->accel * (directionX / length) : 0;
-			p->speed.y += length != 0 ? p->accel * (directionY / length) : 0;
-
-
-			if(p->speed.x > p->max_speed)
-				p->speed.x = p->max_speed;
-			else if(p->speed.x < -p->max_speed)
-				p->speed.x = -p->max_speed;
-			if(p->speed.y > p->max_speed)
-				p->speed.y = p->max_speed;
-			else if(p->speed.y < -p->max_speed)
-				p->speed.y = -p->max_speed;
-			Point speed;
-			speed.x = p->speed.x * deltaS;
-			speed.y = p->speed.y * deltaS;
-			Rect col;
-			if(player_collide(p, util_point(speed.x, 0), t, NULL, &col)) {
-				Rect *r = &p->rect;
-				int x = p->rect.x + speed.x;
-				int y = p->rect.y + speed.y;
-
-				int left = col.x;
-				int right = col.x + col.w;
-
-				if(x <= right && x + r->w >= right && speed.x < 0) {
-					log_info("col object on the left\n");
-					speed.x = 0;
-				}
-				else if(x + r->w >= left && x <= left && speed.x > 0) {
-					log_info("col object on the right\n");
-					speed.x = 0;
-				}
-			}
-			if(player_collide(p, util_point(0, speed.y), t, NULL, &col)) {
-				Rect *r = &p->rect;
-				int y = p->rect.y + speed.y;
-
-				int top = col.y;
-				int bottom = col.y + col.h;
-
-				if(y <= bottom && y + r->h >= bottom && speed.y < 0) {
-					log_info("col object up\n");
-					speed.y = 0;
-				}
-				else if(y + r->h >= top && y <= top && speed.y > 0) {
-					log_info("col object down\n");
-					speed.y = 0;
-				}
-			}
-				player_move(p, speed);
-			p->speed.x = p->speed.x * friction;
-			p->speed.y = p->speed.y * friction;
-			curPos = util_point(p->rect.x, p->rect.y);
-			//log_info("Speed: %f\n", sqrt(pow(curPos.x - prevPos.x, 2) + pow(curPos.y - prevPos.y, 2)));
-		}
+		player_update(p, t, NULL);
 
 		if(util_is_mouse_click(SDL_BUTTON_LEFT))
 			tilemap_set(t, coords.x, coords.y, TILE_WALL);
