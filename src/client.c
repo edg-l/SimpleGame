@@ -26,7 +26,7 @@ int main(int argc, const char* argv[]) {
 
 	util_init();
 
-	render_clear_color(COLOR_GREY);
+	render_clear_color(COLOR_WHITE);
 
 	Rect screen = util_rect(0, 0, settings_get_int("window_width"),
 			settings_get_int("window_height"));
@@ -34,7 +34,8 @@ int main(int argc, const char* argv[]) {
 	Point mouse;
 
 	Camera *camera = camera_create();
-	camera_move(camera, 30, 2);
+	camera_move(camera, 4, 3, -3);
+	//camera_lookat(camera, 0, 0, 0);
 
 	Tilemap *t = tilemap_create(50, 50, 16, TILE_AIR);
 	tilemap_set(t, 11, 10, TILE_WALL);
@@ -68,6 +69,7 @@ int main(int argc, const char* argv[]) {
 		util_update();
 		delta = util_delta_time();
 		double deltaS = delta / 1000;
+		double deltaX = 1000 / delta;
 
 		fpsTime += delta;
 		if(fpsTime > 500) {
@@ -81,17 +83,36 @@ int main(int argc, const char* argv[]) {
 			fpsTimesAdded++;
 		}
 
+		int directionX = 0;
+		int directionY = 0;
+		int directionZ = 0;
+		if(util_is_keypress(SDL_SCANCODE_D))
+			directionZ = 1;
+		else if(util_is_keypress(SDL_SCANCODE_A))
+			directionZ = -1;
+		if(util_is_keypress(SDL_SCANCODE_W))
+			directionX = 1;
+		else if(util_is_keypress(SDL_SCANCODE_S))
+			directionX = -1;
+		if(util_is_keypress(SDL_SCANCODE_SPACE))
+			directionY = -1;
+		else if(util_is_keypress(SDL_SCANCODE_LSHIFT))
+			directionY = 1;
+		float offx = directionX * 20.f * deltaS;
+		float offy = directionY * 20.f * deltaS;
+		float offz = directionZ * 20.f * deltaS;
+		log_info("delta: %f, %f, %f\n", deltaS, deltaX, delta);
+		if(directionX || directionY || directionZ) {
+			log_info("called\n");
+			camera_move(camera, offx, offy, offz);
+		}
 		util_str_format(aFpsBuf, sizeof(aFpsBuf), "FPS: %.02f", averageFps);
 
 		mouse = util_mouse_pos();
 		Point coords;
-		screen_to_coords(camera, t, mouse, &coords);
 
 		// Handle player movement.
-		player_update(p, t, NULL);
-
-		if(util_is_mouse_click(SDL_BUTTON_LEFT))
-			tilemap_set(t, coords.x, coords.y, TILE_WALL);
+		//player_update(p, t, NULL);
 
 
 		shader_update_camera(camera);
@@ -99,12 +120,13 @@ int main(int argc, const char* argv[]) {
 		// Render
 		render_clear();
 
-		render_tilemap(t);
-		render_use_camera(0);
-		render_text_color_s(COLOR_GOLD);
-		render_text(28, STYLE_REGULAR, aFpsBuf, 20, 20);
+		//render_tilemap(t);
+		//render_use_camera(0);
+		//render_text_color_s(COLOR_GOLD);
+		//render_text(28, STYLE_REGULAR, aFpsBuf, 20, 20);
+		render_voxel(0, 0, 0, 5);
 
-		player_render(p);
+		//player_render(p);
 
 		render_present();
 		//SDL_Delay(1);

@@ -37,6 +37,7 @@ void render_text_size_s(const char* text, int pt, int style, Point *point);
 void render_text_size_len(const char* text, int pt, int style, Point *point, size_t len);
 void render_text(int pt, int style, const char *text, float x, float y);
 void render_text_s(int pt, int style, const char *text, Point point);
+void render_voxel(int x, int y, int z, int size);
 void render_projection(mat4 m);
 void render_use_camera(int enable);
 void render_clear_color(Color c);

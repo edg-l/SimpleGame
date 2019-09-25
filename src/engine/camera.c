@@ -8,6 +8,10 @@ Camera *camera_create() {
 	c->pos[0] = 0;
 	c->pos[1] = 0;
 	c->pos[2] = 0;
+
+	c->dir[0] = 0;
+	c->dir[1] = 0;
+	c->dir[2] = 1;
 	c->should_update = 1;
 
 	glm_mat4_identity(c->mat);
@@ -15,20 +19,22 @@ Camera *camera_create() {
 	return c;
 }
 
-void camera_move(Camera *c, float offX, float offY) {
-	c->pos[0] -= offX;
-	c->pos[1] -= offY;
-	glm_mat4_identity(c->mat);
-	glm_translate(c->mat, c->pos);
+void camera_move(Camera *c, float offX, float offY, float offZ) {
+	c->pos[0] += offX * c->dir[0];
+	c->pos[1] += offY * c->dir[1];
+	c->pos[2] += offZ * c->dir[2];
+	vec3 off = {offX * c->dir[0], offY * c->dir[1], offZ * c->dir[2]};
+	glm_translate(c->mat, off);
 	c->should_update = 1;
 }
 
-void camera_center(Camera *c, Rect rect) {
-	Rect screen = util_screen();
-	c->pos[0] = -((rect.x + rect.w / 2) - screen.w / 2);
-	c->pos[1] = -((rect.y + rect.h / 2) - screen.h / 2);
-	glm_mat4_identity(c->mat);
-	glm_translate(c->mat, c->pos);
+
+void camera_lookat(Camera *c, float x, float y, float z) {
+	vec3 p = {x,y,z};
+
+	vec3 up = {0, 1, 0};
+
+	glm_lookat(c->pos, p, up, c->mat);
 	c->should_update = 1;
 }
 
