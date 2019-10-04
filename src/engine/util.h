@@ -63,6 +63,7 @@ void util_update();
 void util_update_keyboard();
 
 Point util_mouse_pos();
+void util_mouse_delta(int *x, int *y);
 int util_is_mouse_click(MouseButton button);
 int util_is_keyup(int code);
 int util_is_keypress(int code);

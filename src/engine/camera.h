@@ -8,15 +8,22 @@
 typedef struct Camera {
 	vec3 pos;
 	vec3 dir;
-	mat4 mat;
+	vec3 up;
+	mat4 view;
 	int should_update;
 } Camera;
 
+typedef enum Movement {
+	MOVE_FORWARD,
+	MOVE_BACKWARD,
+	STRAFE_LEFT,
+	STRAFE_RIGHT
+} Movement;
+
 Camera *camera_create();
 
-void camera_move(Camera *c, float offX, float offY, float offZ);
-void camera_lookat(Camera *c, float x, float y, float z);
-
-void screen_to_coords(Camera *c, Tilemap *t, Point screen, Point *out);
+void camera_move(Camera *c, Movement m, float speed);
+void camera_rotate(Camera *c, float angle, vec3 axis);
+void camera_update(Camera *c);
 
 #endif

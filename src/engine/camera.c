@@ -1,45 +1,57 @@
 #include "camera.h"
 #include <stdlib.h>
 #include <engine/settings.h>
+#include <engine/graphics/shader.h>
 #include <math.h>
 
 Camera *camera_create() {
 	Camera *c = malloc(sizeof(Camera));
-	c->pos[0] = 0;
-	c->pos[1] = 0;
-	c->pos[2] = 0;
-
-	c->dir[0] = 0;
-	c->dir[1] = 0;
+	glm_vec3_zero(c->pos);
+	glm_vec3_zero(c->dir);
+	glm_vec3_zero(c->up);
 	c->dir[2] = 1;
-	c->should_update = 1;
+	c->up[1] = 1;
 
-	glm_mat4_identity(c->mat);
-	glm_translate(c->mat, c->pos);
+	c->should_update = 1;
 	return c;
 }
 
-void camera_move(Camera *c, float offX, float offY, float offZ) {
-	c->pos[0] += offX * c->dir[0];
-	c->pos[1] += offY * c->dir[1];
-	c->pos[2] += offZ * c->dir[2];
-	vec3 off = {offX * c->dir[0], offY * c->dir[1], offZ * c->dir[2]};
-	glm_translate(c->mat, off);
+void camera_move(Camera *c, Movement m, float speed) {
+	vec3 cross;
+	vec3 dest;
+	switch(m) {
+		case MOVE_FORWARD:
+			glm_vec3_scale(c->dir, speed, dest);
+			glm_vec3_add(c->pos, dest, c->pos);
+			break;
+		case MOVE_BACKWARD:
+			glm_vec3_scale(c->dir, speed, dest);
+			glm_vec3_sub(c->pos, dest, c->pos);
+			break;
+		case STRAFE_LEFT:
+			glm_vec3_scale(c->dir, speed, dest);
+			glm_vec3_cross(dest, c->up, cross);
+			glm_vec3_add(c->pos, cross, c->pos);
+			break;
+		case STRAFE_RIGHT:
+			glm_vec3_scale(c->dir, speed, dest);
+			glm_vec3_cross(dest, c->up, cross);
+			glm_vec3_sub(c->pos, cross, c->pos);
+			break;
+	}
 	c->should_update = 1;
 }
 
-
-void camera_lookat(Camera *c, float x, float y, float z) {
-	vec3 p = {x,y,z};
-
-	vec3 up = {0, 1, 0};
-
-	glm_lookat(c->pos, p, up, c->mat);
+void camera_rotate(Camera *c, float angle, vec3 axis) {
+	glm_vec3_rotate(c->dir, angle, axis);
 	c->should_update = 1;
 }
 
-void screen_to_coords(Camera *c, Tilemap *t, Point screen, Point *out) {
-	int width, height;
-	out->x = floor((screen.x / (float)t->tileSize) - (c->pos[0] / (float)t->tileSize));
-	out->y = floor((screen.y / (float)t->tileSize) - (c->pos[1] / (float)t->tileSize));
+void camera_update(Camera *c) {
+	if(c->should_update) {
+		glm_mat4_identity(c->view);
+		vec3 up = {0,1,0};
+		glm_look(c->pos, c->dir, up, c->view);
+		shader_update_camera(c);
+	}
 }

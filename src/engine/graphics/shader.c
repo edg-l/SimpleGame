@@ -116,7 +116,7 @@ void shader_update_camera(Camera *c) {
 
 	while(current) {
 		int *val = current->value;
-		shader_set_mat4(*val, "view", c->mat);
+		shader_set_mat4(*val, "view", c->view);
 		current = current->next;
 	}
 	c->should_update = 0;

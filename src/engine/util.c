@@ -12,6 +12,7 @@ static Uint32 mouse_state;
 static Uint8 *prev_keyboard_status = NULL;
 static const Uint8 *keyboard_status = NULL;
 static int keyboard_status_length = 0;
+static Point old_mouse_pos;
 static Point mouse_pos;
 static double last_time = 0;
 static double now_time = 0;
@@ -104,6 +105,7 @@ int min(int x, int y) {
 
 void util_update() {
 	prev_mouse_state = mouse_state;
+	old_mouse_pos = mouse_pos;
 	mouse_state = SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
 	last_time = now_time;
 	now_time = SDL_GetPerformanceCounter();
@@ -189,4 +191,11 @@ Point util_world_to_tilemap(Tilemap *t, Point world) {
 			floor(world.x / (float)t->tileSize),
 			floor(world.y / (float)t->tileSize)
 			);
+}
+
+void util_mouse_delta(int *x, int *y) {
+	if(x)
+		*x = mouse_pos.x - old_mouse_pos.x;
+	if(y)
+		*y = mouse_pos.y - old_mouse_pos.y;
 }
