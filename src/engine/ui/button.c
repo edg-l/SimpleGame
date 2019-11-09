@@ -19,8 +19,8 @@ Button *button_create(int w, int h, int pt, int style, const char *text,
     button->textStyle = style;
 
     int len = strlen(text) + 1;
-    button->pText = malloc(len);
-    memcpy(button->pText, text, len);
+    button->pText = malloc(sizeof(char) * len);
+    strncpy(button->pText, text, len);
 
     render_text_size(button->pText, button->textpt, STYLE_REGULAR,
                      &button->textSizeW, &button->textSizeH);
@@ -37,10 +37,11 @@ void render_button(Button *button) {
     Point mouse = util_mouse_pos();
 
     if (util_point_in_rect(&button->rect, &mouse))
-        render_color(button->bg.r + 20, button->bg.g + 20, button->bg.b + 20,
+        render_color(button->bg.r + 40, button->bg.g, button->bg.b,
                      button->bg.a);
     else
         render_color(button->bg.r, button->bg.g, button->bg.b, button->bg.a);
+
     render_rect_s(&button->rect, 1);
 
     render_text_color(button->fg.r, button->fg.g, button->fg.b, button->fg.a);

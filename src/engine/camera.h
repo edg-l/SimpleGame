@@ -7,8 +7,6 @@
 
 typedef struct Camera {
 	vec3 pos;
-	vec3 dir;
-	vec3 up;
 	mat4 view;
 	int should_update;
 } Camera;
@@ -22,8 +20,7 @@ typedef enum Movement {
 
 Camera *camera_create();
 
-void camera_move(Camera *c, Movement m, float speed);
-void camera_rotate(Camera *c, float angle, vec3 axis);
+void camera_move(Camera *c, float offX, float offY, float speed);
 void camera_update(Camera *c);
 
 #endif
