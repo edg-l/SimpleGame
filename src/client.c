@@ -19,111 +19,118 @@
 
 int main(int argc, const char *argv[]) {
 
-    if (!render_init(1024, 768, "SimpleGame")) {
-        log_write(LOG_ERROR, "Error creating renderer: %s", SDL_GetError());
-        exit(EXIT_FAILURE);
-    }
+	if (!render_init(1024, 768, "SimpleGame")) {
+		log_write(LOG_ERROR, "Error creating renderer: %s", SDL_GetError());
+		exit(EXIT_FAILURE);
+	}
 
-    util_init();
+	util_init();
 
-    render_clear_color(COLOR_WHITE);
+	render_clear_color(COLOR_WHITE);
 
-    Rect screen = util_rect(0, 0, settings_get_int("window_width"),
-                            settings_get_int("window_height"));
+	Rect screen = util_rect(0, 0, settings_get_int("window_width"),
+							settings_get_int("window_height"));
 
-    Point mouse;
+	Point mouse;
 
-    Camera *camera = camera_create();
-    // camera_lookat(camera, 0, 0, 0);
+	Camera *camera = camera_create();
+	// camera_lookat(camera, 0, 0, 0);
 
-    char aFpsBuf[64];
-    double delta = util_delta_time();
-    double fps = util_fps();
-    double averageFps = util_fps();
-    double fpsTime = 0;
-    int fpsTimesAdded = 1;
+	char aFpsBuf[64];
+	double delta = util_delta_time();
+	double fps = util_fps();
+	double averageFps = util_fps();
+	double fpsTime = 0;
+	int fpsTimesAdded = 1;
 
-    Player *p = player_create(100, 500, 100, 100);
-    p->rect.x = 500;
-    p->rect.y = 400;
+	Player *p = player_create(100, 500, 100, 100);
+	p->rect.x = 500;
+	p->rect.y = 400;
 
-    ProgressBar *pb = pb_create(200, 50, COLOR_GOLD, COLOR_RED, COLOR_GREEN);
-    Button *but = button_create(200, 50, 20, STYLE_REGULAR, "sjJAavier",
-                                COLOR_WHITE, COLOR_RED);
-    but->rect.x = 400;
-    but->rect.y = 200;
+	ProgressBar *pb = pb_create(200, 50, COLOR_GOLD, COLOR_RED, COLOR_GREEN);
+	Button *but = button_create(200, 50, 20, STYLE_REGULAR, "sjJAavier",
+								COLOR_WHITE, COLOR_RED);
+	but->rect.x = 400;
+	but->rect.y = 200;
 
-    pb_set_progress(pb, 100);
+	pb_set_progress(pb, 100);
 
-    while (1) {
-        // TODO: wrap this
-        util_update_keyboard();
-        SDL_Event event;
-        int mdx = 0;
-        int mdy = 0;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                goto cleanup;
-            } else if (event.type == SDL_MOUSEMOTION) {
-                mdx = event.motion.xrel;
-                mdy = event.motion.yrel;
-            }
-        }
+	Textbox *tb = textbox_create(200, 100, 20, 40, COLOR_BLUE, COLOR_GREY, COLOR_RED);
+	tb->rect.x = 200;
+	tb->rect.y = 50;
 
-        // Update
-        util_update();
-        delta = util_delta_time();
+	while (1) {
+		// TODO: wrap this
+		util_update_keyboard();
+		SDL_Event event;
+		int mdx = 0;
+		int mdy = 0;
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_QUIT) {
+				goto cleanup;
+			} else if (event.type == SDL_MOUSEMOTION) {
+				mdx = event.motion.xrel;
+				mdy = event.motion.yrel;
+			}
+			textbox_on_sdlevent(tb, &event);
+		}
 
-        if (util_is_keyup(SDL_SCANCODE_K)) {
-            pb_set_progress(pb, 60);
-        }
+		// Update
+		util_update();
+		delta = util_delta_time();
 
-        if (util_is_keyup(SDL_SCANCODE_G)) {
-            pb_set_progress(pb, 20);
-        }
+		if (util_is_keyup(SDL_SCANCODE_K)) {
+			pb_set_progress(pb, 60);
+		}
 
-        fpsTime += delta;
-        if (fpsTime > 500) {
-            averageFps = fps / fpsTimesAdded;
-            fps = util_fps();
-            fpsTimesAdded = 1;
-            fpsTime = 0;
-        } else {
-            fps += util_fps();
-            fpsTimesAdded++;
-        }
+		if (util_is_keyup(SDL_SCANCODE_G)) {
+			pb_set_progress(pb, 20);
+		}
 
-        util_str_format(aFpsBuf, sizeof(aFpsBuf), "FPS: %.02f", averageFps);
+		fpsTime += delta;
+		if (fpsTime > 500) {
+			averageFps = fps / fpsTimesAdded;
+			fps = util_fps();
+			fpsTimesAdded = 1;
+			fpsTime = 0;
+		} else {
+			fps += util_fps();
+			fpsTimesAdded++;
+		}
 
-        mouse = util_mouse_pos();
+		util_str_format(aFpsBuf, sizeof(aFpsBuf), "FPS: %.02f", averageFps);
 
-        camera_update(camera);
-        pb_update(pb);
+		mouse = util_mouse_pos();
 
-        if (button_is_pressed(but))
-            log_info("pressed");
+		camera_update(camera);
+		pb_update(pb);
+		textbox_update(tb);
 
-        // Render
-        render_clear();
+		if (button_is_pressed(but))
+			log_info("pressed");
 
-        render_use_camera(0);
-        render_button(but);
+		// Render
+		render_clear();
+
+		render_use_camera(0);
+		render_button(but);
+		render_textbox(tb);
 		render_text_color_s(COLOR_RED);
 		render_text(36, STYLE_REGULAR, "abcdefghijkmnlopkrstxyzw1234567890?!,.-_", 40, 600);
 		render_text_color_s(COLOR_CYAN);
 		render_text(36, STYLE_BOLD, "abcdefghijkmnlopkrstxyzw1234567890?!,.-_", 40, 680);
 		render_text_color_s(COLOR_PURPLE);
 		render_text(36, STYLE_ITALIC, "abcdefghijkmnlopkrstxyzw1234567890?!,.-_", 40, 720);
-        render_pb(pb);
+		render_pb(pb);
 
-        render_present();
-        // SDL_Delay(1);
-    }
+		render_present();
+		// SDL_Delay(1);
+	}
 
 cleanup:
-    util_quit();
-    settings_save("settings.ini");
-    settings_quit();
-    render_quit();
-    return EXIT_SUCCESS;
+	util_quit();
+	settings_save("settings.ini");
+	settings_quit();
+	render_quit();
+	return EXIT_SUCCESS;
 }

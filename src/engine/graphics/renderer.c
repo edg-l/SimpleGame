@@ -52,13 +52,8 @@ typedef struct CachedTexture {
 	GLuint tex;
 } CachedTexture;
 
-void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id,
-                                        GLenum severity, GLsizei length,
-                                        const GLchar *message,
-                                        const void *userParam) {
-	log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_DEBUG,
-	          "OpenGL message type=%d, severity=%d, message: %s\n", type,
-	          severity, message);
+void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+	log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_DEBUG, "OpenGL message type=%d, severity=%d, message: %s\n", type, severity, message);
 }
 
 static void free_font(void *p) {
@@ -200,10 +195,6 @@ static CachedFont *search_font(unsigned int pt, int style) {
 				x = 0;
 			}
 
-			if(c == 'j') {
-				log_info("Found 'j': %p, %d, %d (%d, %d)\n", g->bitmap.buffer, g->bitmap.width, g->bitmap.rows, x, y);
-			}
-
 			glTexSubImage2D(GL_TEXTURE_2D, 0, (int)x, (int)y, (int)g->bitmap.width, (int)g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
 			Glyph *glyph = malloc(sizeof(Glyph));
@@ -215,10 +206,6 @@ static CachedFont *search_font(unsigned int pt, int style) {
 			glyph->tx = x;
 			glyph->ty = y;
 			glyph->code = c;
-
-			if(c == 'j') {
-				log_info("Found 'j' glyph: %d, %d\n", g->bitmap_left, g->bitmap_top);
-			}
 
 			list_push_back(cfont->pCharList, glyph, sizeof(Glyph));
 			free(glyph);
@@ -238,8 +225,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 }
 
 void render_projection(mat4 m) {
-	glm_ortho(0, settings_get_int("window_width"),
-	          settings_get_int("window_height"), 0, -1, 1, m);
+	glm_ortho(0, settings_get_int("window_width"), settings_get_int("window_height"), 0, -1, 1, m);
 }
 
 int render_init(int width_def, int height_def, const char *title) {
@@ -276,8 +262,7 @@ int render_init(int width_def, int height_def, const char *title) {
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-	                    SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -347,10 +332,10 @@ int render_init(int width_def, int height_def, const char *title) {
 		GLuint ebo;
 
 		GLfloat vertices[] = {
-		    0, 1, 0, 1, // top left
-		    1, 1, 1, 1, // top right
-		    1, 0, 1, 0, // bottom right
-		    0, 0, 0, 0  // bottom left
+			0, 1, 0, 1, // top left
+			1, 1, 1, 1, // top right
+			1, 0, 1, 0, // bottom right
+			0, 0, 0, 0	// bottom left
 		};
 
 		GLuint indices[] = {0, 1, 2, 2, 3, 0};
@@ -362,12 +347,10 @@ int render_init(int width_def, int height_def, const char *title) {
 		glBindVertexArray(quadVAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-		             GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-		             GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)0);
 		glEnableVertexAttribArray(0);
@@ -381,14 +364,14 @@ int render_init(int width_def, int height_def, const char *title) {
 		GLuint ebo;
 
 		GLfloat vertices[] = {
-		    0,
-		    0,
-		    0,
-		    0,
-		    1,
-		    1,
-		    0,
-		    0,
+			0,
+			0,
+			0,
+			0,
+			1,
+			1,
+			0,
+			0,
 		};
 
 		glGenVertexArrays(1, &lineVAO);
@@ -398,8 +381,7 @@ int render_init(int width_def, int height_def, const char *title) {
 		glBindVertexArray(lineVAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-		             GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid *)0);
 		glEnableVertexAttribArray(0);
@@ -442,8 +424,7 @@ void render_present() { SDL_GL_SwapWindow(pWindow); }
 
 void render_color(int r, int g, int b, int a) {
 	shader_use(quadShader);
-	shader_set_vec4(quadShader, "quadColor", r / 255.f, g / 255.f, b / 255.f,
-	                a / 255.f);
+	shader_set_vec4(quadShader, "quadColor", r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 }
 
 void render_color_s(Color color) {
@@ -483,8 +464,7 @@ void render_rect_s(Rect *rect, int filled) {
 	render_rect(rect->x, rect->y, rect->w, rect->h, filled);
 }
 
-void render_texture2D(float x, float y, float width, float height,
-                      unsigned int tex) {
+void render_texture2D(float x, float y, float width, float height, unsigned int tex) {
 	shader_use(quadShader);
 	shader_set_int(quadShader, "useSampler", 1);
 
@@ -542,8 +522,7 @@ void render_line_s(Point p1, Point p2) { render_line(p1.x, p1.y, p2.x, p2.y); }
 
 void render_text_color(int r, int g, int b, int a) {
 	shader_use(textShader);
-	glUniform4f(glGetUniformLocation(textShader, "textColor"), r / 255.f,
-	            g / 255.f, b / 255.f, a / 255.f);
+	glUniform4f(glGetUniformLocation(textShader, "textColor"), r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 }
 
 void render_text_color_s(Color color) {
@@ -551,6 +530,7 @@ void render_text_color_s(Color color) {
 }
 
 void render_text(unsigned int pt, int style, const char *text, float x, float y) {
+	// TODO: Fix adding a uppercase char changes the base of the text.
 	CachedFont *cfont = search_font(pt, style);
 
 	if (!cfont)
@@ -668,8 +648,7 @@ void render_text_size(const char *text, unsigned int pt, int style, unsigned int
 	*h += row_height;
 }
 
-void render_text_size_len(const char *text, unsigned int pt, int style, Point *point,
-                          size_t len) {
+void render_text_size_len(const char *text, unsigned int pt, int style, Point *point, size_t len) {
 	char *buf = malloc(len);
 	strncpy(buf, text, len);
 	render_text_size_s(buf, pt, style, point);

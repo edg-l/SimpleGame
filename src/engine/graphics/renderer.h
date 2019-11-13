@@ -1,8 +1,8 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include <engine/util.h>
 #include <cglm/cglm.h>
+#include <engine/util.h>
 
 enum {
 	STYLE_LIGHT,
@@ -16,7 +16,6 @@ enum {
 	STYLE_SEMIBOLD,
 	STYLE_SEMIBOLD_ITALIC
 };
-
 
 int render_init(int width, int height, const char *title);
 void render_quit();
@@ -32,9 +31,9 @@ void render_line(float x1, float y1, float x2, float y2);
 void render_line_s(Point p1, Point p2);
 void render_text_color(int r, int g, int b, int a);
 void render_text_color_s(Color color);
-void render_text_size(const char* text, unsigned int pt, int style, unsigned int *w, unsigned int*h);
-void render_text_size_s(const char* text, unsigned int pt, int style, Point *point);
-void render_text_size_len(const char* text, unsigned int pt, int style, Point *point, size_t len);
+void render_text_size(const char *text, unsigned int pt, int style, unsigned int *w, unsigned int *h);
+void render_text_size_s(const char *text, unsigned int pt, int style, Point *point);
+void render_text_size_len(const char *text, unsigned int pt, int style, Point *point, size_t len);
 void render_text(unsigned int pt, int style, const char *text, float x, float y);
 void render_text_s(unsigned int pt, int style, const char *text, Point point);
 void render_use_camera(int enable);
