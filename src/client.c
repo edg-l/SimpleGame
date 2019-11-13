@@ -109,7 +109,11 @@ int main(int argc, const char *argv[]) {
         render_use_camera(0);
         render_button(but);
 		render_text_color_s(COLOR_RED);
-		render_text(40, STYLE_REGULAR, "abcdefghijkmnlopkrstxyzw", 40, 600);
+		render_text(36, STYLE_REGULAR, "abcdefghijkmnlopkrstxyzw1234567890?!,.-_", 40, 600);
+		render_text_color_s(COLOR_CYAN);
+		render_text(36, STYLE_BOLD, "abcdefghijkmnlopkrstxyzw1234567890?!,.-_", 40, 680);
+		render_text_color_s(COLOR_PURPLE);
+		render_text(36, STYLE_ITALIC, "abcdefghijkmnlopkrstxyzw1234567890?!,.-_", 40, 720);
         render_pb(pb);
 
         render_present();

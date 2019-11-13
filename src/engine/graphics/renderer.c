@@ -31,8 +31,8 @@ static GLuint textVBO;
 
 typedef struct Glyph {
 	FT_ULong code;
-	GLuint advance;
-	GLuint bl, bt;
+	long advance;
+	int bl, bt;
 	GLuint width, height;
 	GLuint tx, ty;
 } Glyph;
@@ -163,10 +163,9 @@ static CachedFont *search_font(unsigned int pt, int style) {
 		cfont->atlas_width = tex_width;
 		cfont->atlas_height = tex_height;
 
-		log_info("Creating texture atlas for a new font with size: %dx%d\n", tex_width, tex_height);
+		log_info("Creating texture atlas for a new font with size: %dx%d max_dim=%f\n", tex_width, tex_height, max_dim);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (int)tex_width, (int)tex_height, 0, GL_RED,
-		             GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (int)tex_width, (int)tex_height, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -201,17 +200,25 @@ static CachedFont *search_font(unsigned int pt, int style) {
 				x = 0;
 			}
 
+			if(c == 'j') {
+				log_info("Found 'j': %p, %d, %d (%d, %d)\n", g->bitmap.buffer, g->bitmap.width, g->bitmap.rows, x, y);
+			}
+
 			glTexSubImage2D(GL_TEXTURE_2D, 0, (int)x, (int)y, (int)g->bitmap.width, (int)g->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, g->bitmap.buffer);
 
 			Glyph *glyph = malloc(sizeof(Glyph));
-			glyph->advance = (GLuint)(g->advance.x >> 6);
-			glyph->bl = (GLuint)g->bitmap_left;
-			glyph->bt = (GLuint)g->bitmap_top;
+			glyph->advance = g->advance.x >> 6L;
+			glyph->bl = g->bitmap_left;
+			glyph->bt = g->bitmap_top;
 			glyph->width = g->bitmap.width;
 			glyph->height = g->bitmap.rows;
 			glyph->tx = x;
 			glyph->ty = y;
 			glyph->code = c;
+
+			if(c == 'j') {
+				log_info("Found 'j' glyph: %d, %d\n", g->bitmap_left, g->bitmap_top);
+			}
 
 			list_push_back(cfont->pCharList, glyph, sizeof(Glyph));
 			free(glyph);
@@ -223,7 +230,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 		list_push_back(pFontCache, cfont, sizeof(CachedFont));
-		log_info("Added font (%dpt, %d glyphs, %d style) to cache\n", cfont->pt, count, cfont->style);
+		log_info("Added font (%dpt, %d glyphs, %d style, y=%d) to cache\n", cfont->pt, count, cfont->style, y);
 		free(cfont);
 	}
 
