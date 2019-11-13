@@ -12,7 +12,7 @@ typedef struct Color {
 
 typedef struct Rect {
 	int x, y;
-	int w, h;
+	unsigned int w, h;
 } Rect;
 
 typedef struct Point {

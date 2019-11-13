@@ -4,7 +4,7 @@
 #include <cglm/cglm.h>
 #include <engine/camera.h>
 
-typedef int Shader;
+typedef unsigned int Shader;
 
 // Geometry is optional, pass null if not required.
 Shader shader_load(const char *vertexPath, const char *fragmentPath, const char *geometryPath);

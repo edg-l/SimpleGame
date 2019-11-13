@@ -6,7 +6,6 @@
 #include <engine/logger.h>
 #include <string.h>
 
-static Shader last_shader_used = -1;
 static List *shaders;
 
 static void check_errors(GLuint id, int is_program) {
@@ -28,9 +27,9 @@ static void check_errors(GLuint id, int is_program) {
     }
 }
 
-static int load_shader_from_src(const char *vertS, const char *fragS,
+static unsigned int load_shader_from_src(const char *vertS, const char *fragS,
                                 const char *geoS) {
-    int vert, frag, geo, program;
+    GLuint vert, frag, geo, program;
 
     vert = glCreateShader(GL_VERTEX_SHADER);
     frag = glCreateShader(GL_FRAGMENT_SHADER);
@@ -46,6 +45,7 @@ static int load_shader_from_src(const char *vertS, const char *fragS,
     check_errors(frag, 0);
 
     if (geoS) {
+		geo = glCreateShader(GL_GEOMETRY_SHADER);
         glShaderSource(geo, 1, &geoS, NULL);
         glCompileShader(geo);
 
@@ -70,10 +70,10 @@ static int load_shader_from_src(const char *vertS, const char *fragS,
         shaders = list_create();
     }
 
-    int *proc = malloc(sizeof(int));
+    GLuint *proc = malloc(sizeof(GLuint));
     *proc = program;
 
-    list_push_back(shaders, proc, sizeof(int));
+    list_push_back(shaders, proc, sizeof(unsigned int));
 
     return program;
 }
@@ -87,7 +87,7 @@ Shader shader_load(const char *vertexPath, const char *fragmentPath,
     if (geometryPath)
         geoS = io_load(geometryPath);
 
-    int program = load_shader_from_src(vertS, fragS, geoS);
+    unsigned int program = load_shader_from_src(vertS, fragS, geoS);
 
     free(vertS);
     free(fragS);
@@ -102,21 +102,18 @@ Shader shader_load_str(const char *vertexSrc, const char *fragmentSrc,
 }
 
 void shader_delete(Shader shader) {
-    if (last_shader_used == shader)
-        last_shader_used = -1;
     glDeleteProgram(shader);
 }
 
 void shader_use(Shader shader) {
     glUseProgram(shader);
-    last_shader_used = shader;
 }
 
 void shader_update_camera(Camera *c) {
     ListValue *current = shaders->head;
 
     while (current) {
-        int *val = current->value;
+        unsigned int*val = current->value;
         shader_set_mat4(*val, "view", c->view);
         current = current->next;
     }

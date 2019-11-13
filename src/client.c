@@ -47,11 +47,6 @@ int main(int argc, const char *argv[]) {
     p->rect.x = 500;
     p->rect.y = 400;
 
-    Point prevPos = util_point(0, 0);
-    Point curPos = util_point(0, 0);
-
-    int grab = 0;
-
     ProgressBar *pb = pb_create(200, 50, COLOR_GOLD, COLOR_RED, COLOR_GREEN);
     Button *but = button_create(200, 50, 20, STYLE_REGULAR, "sjJAavier",
                                 COLOR_WHITE, COLOR_RED);
@@ -78,8 +73,6 @@ int main(int argc, const char *argv[]) {
         // Update
         util_update();
         delta = util_delta_time();
-        double deltaS = delta / 1000;
-        double deltaX = 1000 / delta;
 
         if (util_is_keyup(SDL_SCANCODE_K)) {
             pb_set_progress(pb, 60);
@@ -103,7 +96,6 @@ int main(int argc, const char *argv[]) {
         util_str_format(aFpsBuf, sizeof(aFpsBuf), "FPS: %.02f", averageFps);
 
         mouse = util_mouse_pos();
-        Point coords;
 
         camera_update(camera);
         pb_update(pb);
@@ -117,7 +109,7 @@ int main(int argc, const char *argv[]) {
         render_use_camera(0);
         render_button(but);
 		render_text_color_s(COLOR_RED);
-		render_text(40, STYLE_EXTRABOLD_ITALIC, "abcdefghijkmnlopkrstxyzw", 40, 600);
+		render_text(40, STYLE_REGULAR, "abcdefghijkmnlopkrstxyzw", 40, 600);
         render_pb(pb);
 
         render_present();

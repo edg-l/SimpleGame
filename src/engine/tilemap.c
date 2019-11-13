@@ -19,7 +19,7 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 
 	t->w = w;
 	t->h = h;
-	t->tiles = malloc(sizeof(Tile*) * h);
+	t->tiles = malloc(sizeof(Tile*) * (unsigned long)h);
 	t->tileSize = tile_size;
 
 	struct vertex {
@@ -33,7 +33,7 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 	int s = tile_size;
 	int n = 0;
 	for(int y = 0; y < h; y++) {
-		t->tiles[y] = malloc(sizeof(Tile) * w);
+		t->tiles[y] = malloc(sizeof(Tile) * (unsigned long)w);
 		for(int x = 0; x < w; x++) {
 			t->tiles[y][x].type = fill;
 			int ox = x * s;
@@ -68,9 +68,6 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 	if(!shader) {
 		shader = shader_load("resources/shaders/tilemap.vert", "resources/shaders/tilemap.frag", NULL);
 		shader_use(shader);
-		mat4 projection;
-		render_projection(projection);
-		shader_set_mat4(shader, "projection", projection);
 	}
 
 	return t;
@@ -114,14 +111,14 @@ void tilemap_set(Tilemap *t, int x, int y, TileType type) {
 
 	glBindVertexArray(t->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, t->vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, (t->w*y + x) * 6 * (2 * sizeof(GLfloat) + 4 * sizeof(GLint)),
+	glBufferSubData(GL_ARRAY_BUFFER, (unsigned long)(t->w*y + x) * 6 * (2 * sizeof(GLfloat) + 4 * sizeof(GLint)),
 			sizeof(vertices), vertices);
 }
 
 void tilemap_set_rect(Tilemap *t, Rect r, TileType type) {
 	if(r.x + r.w <= t->w && r.y + r.h <= t->h && r.x >= 0 && r.y >= 0) {
-		for(int y = r.y; y < r.y + r.h; y++) {
-			for(int x = r.x; x < r.x + r.w; x++) {
+		for(int y = (int)r.y; y < r.y + r.h; y++) {
+			for(int x = (int)r.x; x < r.x + r.w; x++) {
 				tilemap_set(t, x, y, type);
 			}
 		}
@@ -130,8 +127,8 @@ void tilemap_set_rect(Tilemap *t, Rect r, TileType type) {
 
 void tilemap_set_rect_wall(Tilemap *t, Rect r, TileType type) {
 	if(r.x + r.w <= t->w && r.y + r.h <= t->h && r.x >= 0 && r.y >= 0) {
-		for(int y = r.y; y < r.y + r.h; y++) {
-			for(int x = r.x; x < r.x + r.w; x++) {
+		for(int y = (int)r.y; y < r.y + r.h; y++) {
+			for(int x = (int)r.x; x < r.x + r.w; x++) {
 				if(x == r.x || x == r.x + r.w - 1 || y == r.y || y == r.y + r.h - 1)
 					tilemap_set(t, x, y, type);
 			}

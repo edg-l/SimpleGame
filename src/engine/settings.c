@@ -32,11 +32,11 @@ void settings_add_int(const char *name, int defvalue, int min, int max) {
     setting->min = min;
     setting->max = max;
 
-    int name_len = strlen(name) + 1;
+    size_t name_len = strlen(name) + 1;
 
     setting->name = malloc(name_len);
     memset(setting->name, 0, name_len);
-    strncpy(setting->name, name, name_len);
+    strcpy(setting->name, name);
 
     setting->defvalue.i = defvalue;
     setting->value.i = defvalue;
@@ -51,11 +51,11 @@ void settings_add_float(const char *name, float defvalue, float min,
     setting->min = min;
     setting->max = max;
 
-    int name_len = strlen(name) + 1;
+    size_t name_len = strlen(name) + 1;
 
     setting->name = malloc(name_len);
     memset(setting->name, 0, name_len);
-    strncpy(setting->name, name, name_len);
+    strcpy(setting->name, name);
 
     setting->defvalue.f = defvalue;
     setting->value.f = defvalue;
@@ -68,17 +68,17 @@ void settings_add_str(const char *name, char *defvalue, int min, int max) {
     setting->min = min;
     setting->max = max;
 
-    int name_len = strlen(name) + 1;
+    size_t name_len = strlen(name) + 1;
 
     setting->type = STRING;
     setting->name = malloc(name_len);
     memset(setting->name, 0, name_len);
-    strncpy(setting->name, name, name_len);
+    strcpy(setting->name, name);
 
-    setting->value.s = malloc(sizeof(char) * max + 1);
-    setting->defvalue.s = malloc(sizeof(char) * max + 1);
-    memset(setting->value.s, 0, sizeof(char) * max + 1);
-    memset(setting->defvalue.s, 0, sizeof(char) * max + 1);
+    setting->value.s = malloc(sizeof(char) * (size_t)max + 1);
+    setting->defvalue.s = malloc(sizeof(char) * (size_t)max + 1);
+    memset(setting->value.s, 0, sizeof(char) * (size_t)max + 1);
+    memset(setting->defvalue.s, 0, sizeof(char) * (size_t)max + 1);
 
     memcpy(setting->defvalue.s, defvalue, strlen(defvalue));
     memcpy(setting->value.s, defvalue, strlen(defvalue));
@@ -102,8 +102,9 @@ Setting *settings_get(const char *name) {
 
 void settings_save(const char *name) {
     log_write(LOG_INFO, "Saving settings.\n");
-    int current_size = 512;
-    int used_size = 0;
+	// TODO: create a growing buffer.
+    size_t current_size = 10000;
+    //size_t used_size = 0;
 
     char *s = malloc(sizeof(char) * current_size);
     memset(s, 0, sizeof(char) * current_size);
@@ -113,7 +114,7 @@ void settings_save(const char *name) {
     while (current) {
         Setting *setting = current->value;
 
-        strncat(s, setting->name, strlen(setting->name));
+        strcat(s, setting->name);
 
         strcat(s, ":");
 
@@ -136,7 +137,7 @@ void settings_save(const char *name) {
             strcat(s, fstr);
             break;
         case STRING:
-            strncat(s, setting->value.s, strlen(setting->value.s));
+            strcat(s, setting->value.s);
             break;
         }
         strcat(s, "\n");
@@ -163,7 +164,7 @@ void settings_set_str(const char *name, char *value) {
     size_t len = strlen(value) + 1;
 
     if (setting && len >= setting->min && len <= setting->max)
-        strncpy(setting->value.s, value, len);
+        strcpy(setting->value.s, value);
 }
 
 int settings_get_int(const char *name) {
@@ -212,7 +213,7 @@ void settings_load(const char *name) {
             int value = atoi(svalue);
             settings_set_int(sname, value);
         } else if (type == INTEGER) {
-            float value = atof(svalue);
+            float value = (float)atof(svalue);
             settings_set_float(sname, value);
         } else if (type == STRING) {
             settings_set_str(sname, svalue);
