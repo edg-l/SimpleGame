@@ -62,13 +62,6 @@ float util_point_distance(Point *point1, Point *point2) {
 }
 
 int util_rect_intersects(Rect *rect1, Rect *rect2, Rect *out) {
-    Rect *inside;
-    Rect *outside;
-
-    int is_inside = 0;
-
-    Rect i;
-
     int leftx = max(rect1->x, rect2->x);
     int rightx = min(rect1->x + rect1->w, rect2->x + rect2->w);
     int topy = max(rect1->y, rect2->y);

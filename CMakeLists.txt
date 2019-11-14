@@ -38,12 +38,14 @@ set(ENGINE_SOURCES
 	src/engine/logger.h
 	src/engine/settings.c
 	src/engine/settings.h
+	src/engine/textbuffer.c
+	src/engine/textbuffer.h
 	src/engine/tilemap.c
 	src/engine/tilemap.h
 	src/engine/ui/button.c
 	src/engine/ui/button.h
-	src/engine/ui/progress_bar.h
 	src/engine/ui/progress_bar.c
+	src/engine/ui/progress_bar.h
 	src/engine/ui/switch.c
 	src/engine/ui/switch.h
 	src/engine/ui/textbox.c

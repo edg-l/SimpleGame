@@ -8,6 +8,7 @@
 #include <engine/list.h>
 #include <engine/logger.h>
 #include <engine/settings.h>
+#include <engine/textbuffer.h>
 #include <engine/tilemap.h>
 #include <engine/ui/button.h>
 #include <engine/ui/progress_bar.h>
@@ -58,6 +59,8 @@ int main(int argc, const char *argv[]) {
 	Textbox *tb = textbox_create(200, 100, 20, 40, COLOR_BLUE, COLOR_GREY, COLOR_RED);
 	tb->rect.x = 200;
 	tb->rect.y = 50;
+
+	Tilemap *map = tilemap_create(20, 20, 32, TILE_AIR);
 
 	while (1) {
 		// TODO: wrap this
@@ -122,6 +125,9 @@ int main(int argc, const char *argv[]) {
 		render_text_color_s(COLOR_PURPLE);
 		render_text(36, STYLE_ITALIC, "abcdefghijkmnlopkrstxyzw1234567890?!,.-_", 40, 720);
 		render_pb(pb);
+
+		render_use_camera(1);
+		render_tilemap(map);
 
 		render_present();
 		// SDL_Delay(1);
