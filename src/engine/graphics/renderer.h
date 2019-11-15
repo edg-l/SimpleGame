@@ -38,5 +38,6 @@ void render_text(unsigned int pt, int style, const char *text, float x, float y)
 void render_text_s(unsigned int pt, int style, const char *text, Point point);
 void render_use_camera(int enable);
 void render_clear_color(Color c);
+void render_projection(mat4 proj);
 
 #endif

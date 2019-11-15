@@ -67,6 +67,9 @@ Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill) {
 	if (!shader) {
 		shader = shader_load("resources/shaders/tilemap.vert", "resources/shaders/tilemap.frag", NULL);
 		shader_use(shader);
+		mat4 proj;
+		render_projection(proj);
+		shader_set_mat4(shader, "projection", proj);
 	}
 
 	return t;
@@ -110,8 +113,7 @@ void tilemap_set(Tilemap *t, int x, int y, TileType type) {
 
 	glBindVertexArray(t->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, t->vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, (unsigned long)(t->w * y + x) * 6 * (2 * sizeof(GLfloat) + 4 * sizeof(GLint)),
-					sizeof(vertices), vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, (unsigned long)(t->w * y + x) * 6 * (2 * sizeof(GLfloat) + 4 * sizeof(GLint)),	sizeof(vertices), vertices);
 }
 
 void tilemap_set_rect(Tilemap *t, Rect r, TileType type) {

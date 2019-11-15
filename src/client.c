@@ -66,14 +66,10 @@ int main(int argc, const char *argv[]) {
 		// TODO: wrap this
 		util_update_keyboard();
 		SDL_Event event;
-		int mdx = 0;
-		int mdy = 0;
+
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
 				goto cleanup;
-			} else if (event.type == SDL_MOUSEMOTION) {
-				mdx = event.motion.xrel;
-				mdy = event.motion.yrel;
 			}
 			textbox_on_sdlevent(tb, &event);
 		}
