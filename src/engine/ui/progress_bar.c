@@ -5,7 +5,7 @@
 
 ProgressBar *pb_create(int w, int h, Color bg, Color start, Color end) {
     ProgressBar *p = malloc(sizeof(ProgressBar));
-    p->rect = util_rect(0, 0, w, h);
+    p->rect = engine_util_rect(0, 0, w, h);
     p->bg = bg;
     p->start = start;
     p->end = end;
@@ -19,18 +19,18 @@ ProgressBar *pb_create(int w, int h, Color bg, Color start, Color end) {
     return p;
 }
 
-void pb_free(ProgressBar *p) { free(p); }
+void engine_ui_progressbar_free(ProgressBar *p) { free(p); }
 
-void pb_set_progress(ProgressBar *p, double progress) {
+void engine_ui_progressbar_set_progress(ProgressBar *p, double progress) {
     p->initial_progress = p->progress;
     p->next_progress = progress;
     p->animate = 1;
     p->current_animation_time = 0;
 }
 
-void pb_update(ProgressBar *p) {
+void engine_ui_progressbar_update(ProgressBar *p) {
     if (p->animate) {
-        double delta = util_delta_time();
+        double delta = engine_util_delta_time();
         p->current_animation_time += delta;
         if (p->initial_progress < p->next_progress) {
             double diff = p->next_progress - p->initial_progress;
@@ -55,12 +55,12 @@ void pb_update(ProgressBar *p) {
         }
     }
 }
-void render_pb(ProgressBar *p) {
-    render_color_s(p->bg);
-    render_rect_s(&p->rect, 1);
+void engine_render_pb(ProgressBar *p) {
+    engine_render_color_s(p->bg);
+    engine_render_rect_s(&p->rect, 1);
 
     Rect inside;
-    util_rect_padding(&inside, &p->rect, p->padding);
+    engine_util_rect_padding(&inside, &p->rect, p->padding);
     Color c;
     if (p->progress <= 0) {
         c = p->start;
@@ -78,6 +78,6 @@ void render_pb(ProgressBar *p) {
 
     inside.w = round(inside.w * (p->progress / 100.f));
 
-    render_color_s(c);
-    render_rect_s(&inside, 1);
+    engine_render_color_s(c);
+    engine_render_rect_s(&inside, 1);
 }

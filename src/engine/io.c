@@ -17,7 +17,7 @@ char *io_load(const char *path) {
     SDL_RWops *file = SDL_RWFromFile(path, "r");
 
     if (!file) {
-        log_write(LOG_ERROR, "Loading file with path: %s (%s)\n", path,
+        engine_log_write(LOG_ERROR, "Loading file with path: %s (%s)\n", path,
                   SDL_GetError());
         return NULL;
     }
@@ -52,13 +52,13 @@ char *io_load_app(const char *path) {
         app_path = SDL_GetPrefPath("Ryozuki", "SimpleGame");
 
     char *combined_path = combine_path(app_path, path);
-    char *value = io_load(combined_path);
+    char *value = engine_io_load(combined_path);
 
     free(combined_path);
     return value;
 }
 
-void io_save(const char *path, char *value) {
+void engine_io_save(const char *path, char *value) {
     if (!app_path)
         app_path = SDL_GetPrefPath("Ryozuki", "SimpleGame");
 
@@ -67,7 +67,7 @@ void io_save(const char *path, char *value) {
     SDL_RWops *file = SDL_RWFromFile(combined_path, "w");
 
     if (!file) {
-        log_write(LOG_ERROR, "Loading file with path: %s (%s)\n", path,
+        engine_log_write(LOG_ERROR, "Loading file with path: %s (%s)\n", path,
                   SDL_GetError());
         return;
     }
@@ -76,7 +76,7 @@ void io_save(const char *path, char *value) {
     size_t len = SDL_RWwrite(file, value, sizeof(char), real_len);
 
     if (len != real_len) {
-        log_write(LOG_WARNING,
+        engine_log_write(LOG_WARNING,
                   "Couldn't write all the string to path (%d/%d): %s\n",
                   combined_path, len, real_len);
     }
@@ -85,7 +85,7 @@ void io_save(const char *path, char *value) {
     SDL_RWclose(file);
 }
 
-int io_file_exists(const char *path) {
+int engine_io_file_exists(const char *path) {
     if (!app_path)
         app_path = SDL_GetPrefPath("Ryozuki", "SimpleGame");
 

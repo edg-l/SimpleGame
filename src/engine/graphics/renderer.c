@@ -53,14 +53,14 @@ typedef struct CachedTexture {
 } CachedTexture;
 
 void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
-	log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_DEBUG, "OpenGL message type=%d, severity=%d, message: %s\n", type, severity, message);
+ engine_log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_DEBUG, "OpenGL message type=%d, severity=%d, message: %s\n", type, severity, message);
 }
 
 static void free_font(void *p) {
 	CachedFont *c = p;
 	glDeleteTextures(1, &c->tex);
 	FT_Done_Face(c->ft);
-	list_free(c->pCharList);
+ engine_list_free(c->pCharList);
 	free(c);
 }
 
@@ -133,11 +133,11 @@ static CachedFont *search_font(unsigned int pt, int style) {
 		CachedFont *cfont = malloc(sizeof(CachedFont));
 		cfont->pt = pt;
 		cfont->style = style;
-		cfont->pCharList = list_create();
+		cfont->pCharList = engine_list_create();
 		FT_Error fterr = FT_New_Face(ft, font_path(style), 0, &cfont->ft);
 
 		if (fterr) {
-			log_error("Error initializing Freetype: %s\n", FT_Error_String(fterr));
+		 engine_log_error("Error initializing Freetype: %s\n", FT_Error_String(fterr));
 			return NULL;
 		}
 
@@ -158,7 +158,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 		cfont->atlas_width = tex_width;
 		cfont->atlas_height = tex_height;
 
-		log_info("Creating texture atlas for a new font with size: %dx%d max_dim=%f\n", tex_width, tex_height, max_dim);
+	 engine_log_info("Creating texture atlas for a new font with size: %dx%d max_dim=%f\n", tex_width, tex_height, max_dim);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (int)tex_width, (int)tex_height, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
 
@@ -183,7 +183,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 			FT_Error ftcerr = FT_Load_Char(cfont->ft, c, FT_LOAD_RENDER);
 
 			if (ftcerr) {
-				log_error("Error loading char (%c): %s\n", c, FT_Error_String(fterr));
+			 engine_log_error("Error loading char (%c): %s\n", c, FT_Error_String(fterr));
 				continue;
 			}
 
@@ -207,7 +207,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 			glyph->ty = y;
 			glyph->code = c;
 
-			list_push_back(cfont->pCharList, glyph, sizeof(Glyph));
+		 engine_list_push_back(cfont->pCharList, glyph, sizeof(Glyph));
 			free(glyph);
 
 			x += g->bitmap.width;
@@ -216,47 +216,47 @@ static CachedFont *search_font(unsigned int pt, int style) {
 		}
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-		list_push_back(pFontCache, cfont, sizeof(CachedFont));
-		log_info("Added font (%dpt, %d glyphs, %d style, y=%d) to cache\n", cfont->pt, count, cfont->style, y);
+	 engine_list_push_back(pFontCache, cfont, sizeof(CachedFont));
+	 engine_log_info("Added font (%dpt, %d glyphs, %d style, y=%d) to cache\n", cfont->pt, count, cfont->style, y);
 		free(cfont);
 	}
 
 	return pFontCache->tail->value;
 }
 
-void render_projection(mat4 m) {
-	glm_ortho(0, settings_get_int("window_width"), settings_get_int("window_height"), 0, -1, 1, m);
+void engine_render_projection(mat4 m) {
+	glm_ortho(0, engine_settings_get_int("window_width"), engine_settings_get_int("window_height"), 0, -1, 1, m);
 }
 
-int render_init(int width_def, int height_def, const char *title) {
+int engine_render_init(int width_def, int height_def, const char *title) {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1) {
-		log_error("Error initializing SDL2: %s", SDL_GetError());
+	 engine_log_error("Error initializing SDL2: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
-	settings_init();
+ engine_settings_init();
 
-	settings_add_int("window_width", width_def, 5, 5000);
-	settings_add_int("window_height", height_def, 5, 5000);
+ engine_settings_add_int("window_width", width_def, 5, 5000);
+ engine_settings_add_int("window_height", height_def, 5, 5000);
 
-	settings_add_int("msaa_enable", 1, 0, 1);
-	settings_add_int("msaa_value", 2, 0, 4);
-	settings_add_int("vsync", 1, 0, 1);
-	settings_add_int("fov", 60, 45, 100);
+ engine_settings_add_int("msaa_enable", 1, 0, 1);
+ engine_settings_add_int("msaa_value", 2, 0, 4);
+ engine_settings_add_int("vsync", 1, 0, 1);
+ engine_settings_add_int("fov", 60, 45, 100);
 
 	if (!io_file_exists("settings.ini")) {
-		log_info("Settings doesn't exist, creating it.\n");
-		settings_save("settings.ini");
+	 engine_log_info("Settings doesn't exist, creating it.\n");
+	 engine_settings_save("settings.ini");
 	}
-	settings_load("settings.ini");
+ engine_settings_load("settings.ini");
 
-	int width = settings_get_int("window_width");
-	int height = settings_get_int("window_height");
+	int width = engine_settings_get_int("window_width");
+	int height = engine_settings_get_int("window_height");
 
 	pWindow = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL);
 
 	if (!pWindow) {
-		log_error("Error creating window: %s", SDL_GetError());
+	 engine_log_error("Error creating window: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
@@ -272,19 +272,19 @@ int render_init(int width_def, int height_def, const char *title) {
 
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, settings_get_int("msaa_enable"));
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, settings_get_int("msaa_value"));
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, engine_settings_get_int("msaa_enable"));
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, engine_settings_get_int("msaa_value"));
 
 	glContext = SDL_GL_CreateContext(pWindow);
 
 	if (!glContext) {
-		log_error("Error creating renderer: %s\n", SDL_GetError());
+	 engine_log_error("Error creating renderer: %s\n", SDL_GetError());
 		return 0;
 	}
 
 	FT_Error fterr = FT_Init_FreeType(&ft);
 	if (fterr) {
-		log_error("Error initializing Freetype: %s\n", FT_Error_String(fterr));
+	 engine_log_error("Error initializing Freetype: %s\n", FT_Error_String(fterr));
 		return 0;
 	}
 
@@ -293,7 +293,7 @@ int render_init(int width_def, int height_def, const char *title) {
 	GLenum glewError = glewInit();
 
 	if (glewError != GLEW_OK) {
-		log_error("Error initializing GLEW: %s\n", glewGetErrorString(glewError));
+	 engine_log_error("Error initializing GLEW: %s\n", glewGetErrorString(glewError));
 		return 0;
 	}
 
@@ -310,21 +310,21 @@ int render_init(int width_def, int height_def, const char *title) {
 
 	glClearColor(0, 0, 0, 1);
 
-	pFontCache = list_create_fn(free_font);
-	pTextCache = list_create_fn(free_texture);
+	pFontCache = engine_list_create_fn(free_font);
+	pTextCache = engine_list_create_fn(free_texture);
 
 	glm_ortho(0, width, height, 0, -1, 1, projection);
 
-	quadShader = shader_load("resources/shaders/quad.vert", "resources/shaders/quad.frag", NULL);
-	shader_use(quadShader);
-	shader_set_mat4(quadShader, "projection", projection);
-	shader_set_int(quadShader, "useSampler", 0);
-	shader_set_int(quadShader, "useView", 0);
+	quadShader = engine_shader_load("resources/shaders/quad.vert", "resources/shaders/quad.frag", NULL);
+ engine_shader_use(quadShader);
+ engine_shader_set_mat4(quadShader, "projection", projection);
+ engine_shader_set_int(quadShader, "useSampler", 0);
+ engine_shader_set_int(quadShader, "useView", 0);
 
-	textShader = shader_load("resources/shaders/text.vert", "resources/shaders/text.frag", NULL);
-	shader_use(textShader);
-	shader_set_mat4(textShader, "projection", projection);
-	shader_set_int(textShader, "useView", 0);
+	textShader = engine_shader_load("resources/shaders/text.vert", "resources/shaders/text.frag", NULL);
+ engine_shader_use(textShader);
+ engine_shader_set_mat4(textShader, "projection", projection);
+ engine_shader_set_int(textShader, "useView", 0);
 
 	{
 		// Setup the quad VAO
@@ -404,13 +404,13 @@ int render_init(int width_def, int height_def, const char *title) {
 		glBindVertexArray(0);
 	}
 
-	log_info("Renderer initialized.\n");
+ engine_log_info("Renderer initialized.\n");
 
 	return 1;
 }
 
-void render_quit() {
-	list_clear(pFontCache);
+void engine_render_quit() {
+ engine_list_clear(pFontCache);
 	FT_Done_FreeType(ft);
 	SDL_GL_DeleteContext(glContext);
 	pRenderer = NULL;
@@ -418,22 +418,22 @@ void render_quit() {
 	SDL_Quit();
 }
 
-void render_clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+void engine_render_clear() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 
-void render_present() { SDL_GL_SwapWindow(pWindow); }
+void engine_render_present() { SDL_GL_SwapWindow(pWindow); }
 
-void render_color(int r, int g, int b, int a) {
-	shader_use(quadShader);
-	shader_set_vec4(quadShader, "quadColor", r / 255.f, g / 255.f, b / 255.f, a / 255.f);
+void engine_render_color(int r, int g, int b, int a) {
+ engine_shader_use(quadShader);
+ engine_shader_set_vec4(quadShader, "quadColor", r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 }
 
-void render_color_s(Color color) {
-	render_color(color.r, color.g, color.b, color.a);
+void engine_render_color_s(Color color) {
+ engine_render_color(color.r, color.g, color.b, color.a);
 }
 
-void render_rect(float x, float y, float width, float height, int filled) {
-	shader_use(quadShader);
-	shader_set_int(quadShader, "useSampler", 0);
+void engine_render_rect(float x, float y, float width, float height, int filled) {
+ engine_shader_use(quadShader);
+ engine_shader_set_int(quadShader, "useSampler", 0);
 
 	mat4 model;
 	glm_mat4_identity(model);
@@ -449,7 +449,7 @@ void render_rect(float x, float y, float width, float height, int filled) {
 	scale[2] = 1;
 	glm_scale(model, scale);
 
-	shader_set_mat4(quadShader, "model", model);
+ engine_shader_set_mat4(quadShader, "model", model);
 
 	glBindVertexArray(quadVAO);
 
@@ -460,13 +460,13 @@ void render_rect(float x, float y, float width, float height, int filled) {
 	glBindVertexArray(0);
 }
 
-void render_rect_s(Rect *rect, int filled) {
-	render_rect(rect->x, rect->y, rect->w, rect->h, filled);
+void engine_render_rect_s(Rect *rect, int filled) {
+ engine_render_rect(rect->x, rect->y, rect->w, rect->h, filled);
 }
 
-void render_texture2D(float x, float y, float width, float height, unsigned int tex) {
-	shader_use(quadShader);
-	shader_set_int(quadShader, "useSampler", 1);
+void engine_render_texture2D(float x, float y, float width, float height, unsigned int tex) {
+ engine_shader_use(quadShader);
+ engine_shader_set_int(quadShader, "useSampler", 1);
 
 	mat4 model;
 	glm_mat4_identity(model);
@@ -482,7 +482,7 @@ void render_texture2D(float x, float y, float width, float height, unsigned int 
 	scale[2] = 1;
 	glm_scale(model, scale);
 
-	shader_set_mat4(quadShader, "model", model);
+ engine_shader_set_mat4(quadShader, "model", model);
 
 	glBindVertexArray(quadVAO);
 	glActiveTexture(GL_TEXTURE0);
@@ -492,9 +492,9 @@ void render_texture2D(float x, float y, float width, float height, unsigned int 
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
-void render_line(float x1, float y1, float x2, float y2) {
-	shader_use(quadShader);
-	shader_set_int(quadShader, "useSampler", 0);
+void engine_render_line(float x1, float y1, float x2, float y2) {
+ engine_shader_use(quadShader);
+ engine_shader_set_int(quadShader, "useSampler", 0);
 
 	mat4 model;
 	glm_mat4_identity(model);
@@ -510,7 +510,7 @@ void render_line(float x1, float y1, float x2, float y2) {
 	scale[2] = 1;
 	glm_scale(model, scale);
 
-	shader_set_mat4(quadShader, "model", model);
+ engine_shader_set_mat4(quadShader, "model", model);
 
 	glBindVertexArray(lineVAO);
 
@@ -518,18 +518,18 @@ void render_line(float x1, float y1, float x2, float y2) {
 	glBindVertexArray(0);
 }
 
-void render_line_s(Point p1, Point p2) { render_line(p1.x, p1.y, p2.x, p2.y); }
+void engine_render_line_s(Point p1, Point p2) { engine_render_line(p1.x, p1.y, p2.x, p2.y); }
 
-void render_text_color(int r, int g, int b, int a) {
-	shader_use(textShader);
+void engine_render_text_color(int r, int g, int b, int a) {
+ engine_shader_use(textShader);
 	glUniform4f(glGetUniformLocation(textShader, "textColor"), r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 }
 
-void render_text_color_s(Color color) {
-	render_text_color(color.r, color.g, color.b, color.a);
+void engine_render_text_color_s(Color color) {
+ engine_render_text_color(color.r, color.g, color.b, color.a);
 }
 
-void render_text(unsigned int pt, int style, const char *text, float x, float y) {
+void engine_render_text(unsigned int pt, int style, const char *text, float x, float y) {
 	// TODO: Fix adding a uppercase char changes the base of the text.
 	CachedFont *cfont = search_font(pt, style);
 
@@ -537,7 +537,7 @@ void render_text(unsigned int pt, int style, const char *text, float x, float y)
 		return;
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	shader_use(textShader);
+ engine_shader_use(textShader);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindVertexArray(textVAO);
@@ -605,13 +605,13 @@ void render_text(unsigned int pt, int style, const char *text, float x, float y)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
-void render_text_s(unsigned int pt, int style, const char *text, Point point) {
-	render_text(pt, style, text, point.x, point.y);
+void engine_render_text_s(unsigned int pt, int style, const char *text, Point point) {
+ engine_render_text(pt, style, text, point.x, point.y);
 }
 
-void render_clear_text_cache() { list_clear(pTextCache); }
+void engine_render_clear_text_cache() { engine_list_clear(pTextCache); }
 
-void render_text_size(const char *text, unsigned int pt, int style, unsigned int *w, unsigned int *h) {
+void engine_render_text_size(const char *text, unsigned int pt, int style, unsigned int *w, unsigned int *h) {
 	CachedFont *cfont = search_font(pt, style);
 
 	*w = 0;
@@ -648,22 +648,22 @@ void render_text_size(const char *text, unsigned int pt, int style, unsigned int
 	*h += row_height;
 }
 
-void render_text_size_len(const char *text, unsigned int pt, int style, Point *point, size_t len) {
+void engine_render_text_size_len(const char *text, unsigned int pt, int style, Point *point, size_t len) {
 	char *buf = malloc(len);
 	strncpy(buf, text, len);
-	render_text_size_s(buf, pt, style, point);
+ engine_render_text_size_s(buf, pt, style, point);
 	free(buf);
 }
 
-void render_text_size_s(const char *text, unsigned int pt, int style, Point *point) {
-	render_text_size(text, pt, style, (unsigned int *)&point->x, (unsigned int *)&point->y);
+void engine_render_text_size_s(const char *text, unsigned int pt, int style, Point *point) {
+ engine_render_text_size(text, pt, style, (unsigned int *)&point->x, (unsigned int *)&point->y);
 }
 
-void render_use_camera(int enable) {
-	shader_set_int(quadShader, "useView", enable);
-	shader_set_int(textShader, "useView", enable);
+void engine_render_use_camera(int enable) {
+ engine_shader_set_int(quadShader, "useView", enable);
+ engine_shader_set_int(textShader, "useView", enable);
 }
 
-void render_clear_color(Color c) {
+void engine_render_clear_color(Color c) {
 	glClearColor(c.r / 255.f, c.g / 255.f, c.b / 255.f, c.a / 255.f);
 }

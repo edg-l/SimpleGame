@@ -17,9 +17,9 @@ typedef struct Switch {
 
 Switch *switch_create(int w, int h, Color bg, Color offColor, Color onColor);
 
-void switch_update(Switch *s);
-void render_switch(Switch *s);
+void engine_ui_switch_update(Switch *s);
+void engine_render_switch(Switch *s);
 
-void switch_free(Switch *s);
+void engine_ui_switch_free(Switch *s);
 
 #endif

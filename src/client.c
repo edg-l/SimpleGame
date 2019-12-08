@@ -8,9 +8,9 @@ int main(int argc, const char *argv[]) {
 	while (1) {
 		engine_on_tick();
 
-		render_clear();
+	 engine_render_clear();
 
-		render_present();
+	 engine_render_present();
 		// SDL_Delay(1);
 	}
 

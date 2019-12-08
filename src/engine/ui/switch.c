@@ -6,7 +6,7 @@
 
 Switch *switch_create(int w, int h, Color bg, Color offColor, Color onColor) {
     Switch *s = malloc(sizeof(Switch));
-    s->rect = util_rect(0, 0, w, h);
+    s->rect = engine_util_rect(0, 0, w, h);
     s->bg = bg;
     s->off_color = offColor;
     s->on_color = onColor;
@@ -18,15 +18,15 @@ Switch *switch_create(int w, int h, Color bg, Color offColor, Color onColor) {
     return s;
 }
 
-void switch_update(Switch *s) {
-    if (util_mouse_in_rect(&s->rect) && util_is_mouse_click(BUTTON_LEFT)) {
+void engine_ui_switch_update(Switch *s) {
+    if (util_mouse_in_rect(&s->rect) && engine_util_is_mouse_click(BUTTON_LEFT)) {
         s->animate = 1;
         s->value = !s->value;
         if (s->current_animation_time > 0)
             s->current_animation_time =
                 s->total_animation_time - s->current_animation_time;
     } else if (s->animate) {
-        s->current_animation_time += util_delta_time();
+        s->current_animation_time += engine_util_delta_time();
         if (s->current_animation_time >= s->total_animation_time) {
             s->animate = 0;
             s->current_animation_time = 0;
@@ -34,25 +34,25 @@ void switch_update(Switch *s) {
     }
 }
 
-void switch_free(Switch *s) { free(s); }
+void engine_ui_switch_free(Switch *s) { free(s); }
 
-void render_switch(Switch *s) {
-    render_color_s(s->bg);
-    render_rect_s(&s->rect, 1);
+void engine_render_switch(Switch *s) {
+    engine_render_color_s(s->bg);
+    engine_render_rect_s(&s->rect, 1);
 
     if (!s->animate) {
         if (!s->value) {
-            Rect r = util_rect(s->rect.x + s->padding, s->rect.y + s->padding,
+            Rect r = engine_util_rect(s->rect.x + s->padding, s->rect.y + s->padding,
                                s->rect.w / 2 - s->padding,
                                s->rect.h - s->padding * 2);
-            render_color_s(s->off_color);
-            render_rect_s(&r, 1);
+            engine_render_color_s(s->off_color);
+            engine_render_rect_s(&r, 1);
         } else {
-            Rect r = util_rect(
+            Rect r = engine_util_rect(
                 s->rect.x + s->rect.w / 2, s->rect.y + s->padding,
                 s->rect.w / 2 - s->padding, s->rect.h - s->padding * 2);
-            render_color_s(s->on_color);
-            render_rect_s(&r, 1);
+            engine_render_color_s(s->on_color);
+            engine_render_rect_s(&r, 1);
         }
     } else {
         double percent = s->current_animation_time / s->total_animation_time;
@@ -69,11 +69,11 @@ void render_switch(Switch *s) {
                   round((s->on_color.b - s->off_color.b) * percent);
             c.a = 255;
 
-            Rect r = util_rect(
+            Rect r = engine_util_rect(
                 s->rect.x + s->padding + current, s->rect.y + s->padding,
                 s->rect.w / 2 - s->padding, s->rect.h - s->padding * 2);
-            render_color_s(c);
-            render_rect_s(&r, 1);
+            engine_render_color_s(c);
+            engine_render_rect_s(&r, 1);
         } else {
             Color c;
 
@@ -85,11 +85,11 @@ void render_switch(Switch *s) {
                   round((s->off_color.b - s->on_color.b) * percent);
             c.a = 255;
 
-            Rect r = util_rect(
+            Rect r = engine_util_rect(
                 s->rect.x + s->rect.w / 2 - current, s->rect.y + s->padding,
                 s->rect.w / 2 - s->padding, s->rect.h - s->padding * 2);
-            render_color_s(c);
-            render_rect_s(&r, 1);
+            engine_render_color_s(c);
+            engine_render_rect_s(&r, 1);
         }
     }
 }

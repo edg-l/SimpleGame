@@ -17,7 +17,7 @@ static const char* get_level_str(int level) {
 	return "";
 }
 
-void log_write(int level, const char* fmt, ...) {
+void engine_log_write(int level, const char* fmt, ...) {
 #ifdef NDEBUG
 	if(level == LOG_DEBUG)
 		return;
@@ -32,7 +32,7 @@ void log_write(int level, const char* fmt, ...) {
 	va_end(args);
 }
 
-static void log_write_internal(int level, const char* fmt, va_list args) {
+static void engine_log_write_internal(int level, const char* fmt, va_list args) {
 #ifdef NDEBUG
 	if(level == LOG_DEBUG)
 		return;
@@ -41,38 +41,38 @@ static void log_write_internal(int level, const char* fmt, va_list args) {
 	vprintf(fmt, args);
 }
 
-void log_info(const char *fmt, ...) {
+void engine_log_info(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 
-	log_write_internal(LOG_INFO, fmt, args);
+ engine_log_write_internal(LOG_INFO, fmt, args);
 
 	va_end(args);
 }
 
-void log_warning(const char *fmt, ...) {
+void engine_log_warning(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 
-	log_write_internal(LOG_WARNING, fmt, args);
+ engine_log_write_internal(LOG_WARNING, fmt, args);
 
 	va_end(args);
 }
 
-void log_debug(const char *fmt, ...) {
+void engine_log_debug(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 
-	log_write_internal(LOG_DEBUG, fmt, args);
+ engine_log_write_internal(LOG_DEBUG, fmt, args);
 
 	va_end(args);
 }
 
-void log_error(const char *fmt, ...) {
+void engine_log_error(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 
-	log_write_internal(LOG_ERROR, fmt, args);
+ engine_log_write_internal(LOG_ERROR, fmt, args);
 
 	va_end(args);
 }

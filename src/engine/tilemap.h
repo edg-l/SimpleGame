@@ -21,15 +21,15 @@ typedef struct Tilemap {
 } Tilemap;
 
 Tilemap *tilemap_create(int w, int h, int tile_size, TileType fill);
-void tilemap_free(Tilemap *t);
+void engine_tilemap_free(Tilemap *t);
 
-void tilemap_set(Tilemap *t, int x, int y, TileType type);
+void engine_tilemap_set(Tilemap *t, int x, int y, TileType type);
 
-void tilemap_set_rect(Tilemap *t, Rect r, TileType type);
-void tilemap_set_rect_wall(Tilemap *t, Rect r, TileType type);
+void engine_tilemap_set_rect(Tilemap *t, Rect r, TileType type);
+void engine_tilemap_set_rect_wall(Tilemap *t, Rect r, TileType type);
 Tile *tilemap_get(Tilemap *t, int x, int y);
-Rect tilemap_get_tile_rect(Tilemap *t, int x, int y);
+Rect engine_tilemap_get_tile_rect(Tilemap *t, int x, int y);
 
-void render_tilemap(Tilemap *t);
+void engine_render_tilemap(Tilemap *t);
 
 #endif

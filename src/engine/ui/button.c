@@ -11,7 +11,7 @@ Button *button_create(int w, int h, int pt, int style, const char *text,
     button = malloc(sizeof(Button));
     memset(button, 0, sizeof(Button));
 
-    button->rect = util_rect(0, 0, w, h);
+    button->rect = engine_util_rect(0, 0, w, h);
 
     button->fg = fg;
     button->bg = bg;
@@ -22,7 +22,7 @@ Button *button_create(int w, int h, int pt, int style, const char *text,
     button->pText = malloc(sizeof(char) * len);
     strncpy(button->pText, text, len);
 
-    render_text_size(button->pText, button->textpt, STYLE_REGULAR,
+    engine_render_text_size(button->pText, button->textpt, STYLE_REGULAR,
                      &button->textSizeW, &button->textSizeH);
 
     return button;
@@ -33,26 +33,26 @@ void button_free(Button *button) {
     free(button);
 }
 
-void render_button(Button *button) {
-    Point mouse = util_mouse_pos();
+void engine_render_button(Button *button) {
+    Point mouse = engine_util_mouse_pos();
 
     if (util_point_in_rect(&button->rect, &mouse))
-        render_color(button->bg.r + 40, button->bg.g, button->bg.b,
+        engine_render_color(button->bg.r + 40, button->bg.g, button->bg.b,
                      button->bg.a);
     else
-        render_color(button->bg.r, button->bg.g, button->bg.b, button->bg.a);
+        engine_render_color(button->bg.r, button->bg.g, button->bg.b, button->bg.a);
 
-    render_rect_s(&button->rect, 1);
+    engine_render_rect_s(&button->rect, 1);
 
-    render_text_color(button->fg.r, button->fg.g, button->fg.b, button->fg.a);
-    render_text(
+    engine_render_text_color(button->fg.r, button->fg.g, button->fg.b, button->fg.a);
+    engine_render_text(
         button->textpt, button->textStyle, button->pText,
         (int)(button->rect.x + (button->rect.w - button->textSizeW) / 2.f),
         (int)(button->rect.y + (button->rect.h - button->textSizeH) / 2.f));
 }
 
 int button_is_pressed(Button *button) {
-    Point mouse = util_mouse_pos();
-    return util_point_in_rect(&button->rect, &mouse) &&
-           util_is_mouse_click(BUTTON_LEFT);
+    Point mouse = engine_util_mouse_pos();
+    return engine_util_point_in_rect(&button->rect, &mouse) &&
+           engine_util_is_mouse_click(BUTTON_LEFT);
 }

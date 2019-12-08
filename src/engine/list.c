@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void list_freeelem(List *list, ListValue *elem) {
+static void engine_list_freeelem(List *list, ListValue *elem) {
     if (elem != NULL) {
         list->freeFunc(elem->value);
         free(elem);
@@ -16,9 +16,9 @@ List *list_create_fn(FREE_FN f) {
     return list;
 }
 
-List *list_create() { return list_create_fn(free); }
+List *list_create() { return engine_list_create_fn(free); }
 
-void list_push_front(List *list, void *value, size_t size) {
+void engine_list_push_front(List *list, void *value, size_t size) {
     void *buf = malloc(size);
     memcpy(buf, value, size);
 
@@ -38,7 +38,7 @@ void list_push_front(List *list, void *value, size_t size) {
         list->tail = list->head;
 }
 
-void list_push_back(List *list, void *value, size_t size) {
+void engine_list_push_back(List *list, void *value, size_t size) {
     void *buf = malloc(size);
     memcpy(buf, value, size);
 
@@ -59,7 +59,7 @@ void list_push_back(List *list, void *value, size_t size) {
     }
 }
 
-int list_pop_front(List *list) {
+int engine_list_pop_front(List *list) {
     ListValue *oldHead = list->head;
 
     if (!oldHead)
@@ -73,11 +73,11 @@ int list_pop_front(List *list) {
     if (list->tail == oldHead)
         list->tail = list->head;
 
-    list_freeelem(list, oldHead);
+    engine_list_freeelem(list, oldHead);
     return 1;
 }
 
-int list_pop_back(List *list) {
+int engine_list_pop_back(List *list) {
     ListValue *oldTail = list->tail;
 
     if (oldTail == NULL)
@@ -91,11 +91,11 @@ int list_pop_back(List *list) {
     if (list->head == oldTail)
         list->head = list->tail;
 
-    list_freeelem(list, oldTail);
+    engine_list_freeelem(list, oldTail);
     return 1;
 }
 
-int list_delete(List *list, int index) {
+int engine_list_delete(List *list, int index) {
     int i = 0;
 
     ListValue *current = list->head;
@@ -112,14 +112,14 @@ int list_delete(List *list, int index) {
         if (current->prev) {
             current->prev->next = current->next;
             current->next->prev = current->prev;
-            list_freeelem(list, current);
+            engine_list_freeelem(list, current);
         } else if (current->next && list->head == current) {
             list->head = current->next;
-            list_freeelem(list, current);
+            engine_list_freeelem(list, current);
         } else {
             list->head = NULL;
             list->tail = NULL;
-            list_freeelem(list, current);
+            engine_list_freeelem(list, current);
         }
 
         return 1;
@@ -148,9 +148,9 @@ void *list_get(List *list, int index) {
     return NULL;
 }
 
-int list_empty(List *list) { return list->head == NULL; }
+int engine_list_empty(List *list) { return list->head == NULL; }
 
-int list_size(List *list) {
+int engine_list_size(List *list) {
     int i = 0;
 
     ListValue *current = list->head;
@@ -163,17 +163,17 @@ int list_size(List *list) {
     return i;
 }
 
-void list_clear(List *list) {
+void engine_list_clear(List *list) {
     while (list->head) {
         ListValue *next = list->head->next;
-        list_freeelem(list, list->head);
+        engine_list_freeelem(list, list->head);
         list->head = next;
     }
 
     list->head = list->tail = NULL;
 }
 
-void list_free(List *list) {
-    list_clear(list);
+void engine_list_free(List *list) {
+    engine_list_clear(list);
     free(list);
 }

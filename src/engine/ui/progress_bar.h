@@ -18,10 +18,10 @@ typedef struct ProgressBar {
 } ProgressBar;
 
 ProgressBar *pb_create(int w, int h, Color bg, Color start, Color end);
-void pb_free(ProgressBar *p);
+void engine_ui_progressbar_free(ProgressBar *p);
 
-void pb_set_progress(ProgressBar *p, double progress);
-void pb_update(ProgressBar *p);
-void render_pb(ProgressBar *p);
+void engine_ui_progressbar_set_progress(ProgressBar *p, double progress);
+void engine_ui_progressbar_update(ProgressBar *p);
+void engine_render_pb(ProgressBar *p);
 
 #endif

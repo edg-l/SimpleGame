@@ -7,8 +7,8 @@
 char *io_load(const char *path);
 
 char *io_load_app(const char *path);
-void io_save(const char *path, char *value);
+void engine_io_save(const char *path, char *value);
 
-int io_file_exists(const char *path);
+int engine_io_file_exists(const char *path);
 
 #endif

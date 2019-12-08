@@ -8,10 +8,10 @@ enum {
 	LOG_ERROR,
 };
 
-void log_write(int level, const char* fmt, ...);
-void log_info(const char *fmt, ...);
-void log_warning(const char *fmt, ...);
-void log_debug(const char *fmt, ...);
-void log_error(const char *fmt, ...);
+void engine_log_write(int level, const char* fmt, ...);
+void engine_log_info(const char *fmt, ...);
+void engine_log_warning(const char *fmt, ...);
+void engine_log_debug(const char *fmt, ...);
+void engine_log_error(const char *fmt, ...);
 
 #endif

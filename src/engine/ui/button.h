@@ -19,5 +19,5 @@ int button_is_pressed(Button *button);
 
 void button_free(Button *button);
 
-void render_button(Button *button);
+void engine_render_button(Button *button);
 #endif

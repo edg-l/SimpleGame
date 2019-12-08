@@ -19,14 +19,14 @@ static void free_settings(void *value) {
 	free(setting);
 }
 
-void settings_init() { settings = list_create_fn(free_settings); }
+void engine_settings_init() { settings = engine_list_create_fn(free_settings); }
 
-void settings_quit() {
-	list_free(settings);
+void engine_settings_quit() {
+ engine_list_free(settings);
 	settings = NULL;
 }
 
-void settings_add_int(const char *name, int defvalue, int min, int max) {
+void engine_settings_add_int(const char *name, int defvalue, int min, int max) {
 	Setting *setting = malloc(sizeof(Setting));
 
 	setting->type = INTEGER;
@@ -41,10 +41,10 @@ void settings_add_int(const char *name, int defvalue, int min, int max) {
 
 	setting->defvalue.i = defvalue;
 	setting->value.i = defvalue;
-	list_push_back(settings, setting, sizeof(Setting));
+ engine_list_push_back(settings, setting, sizeof(Setting));
 }
 
-void settings_add_float(const char *name, float defvalue, float min,
+void engine_settings_add_float(const char *name, float defvalue, float min,
 						float max) {
 	Setting *setting = malloc(sizeof(Setting));
 
@@ -60,10 +60,10 @@ void settings_add_float(const char *name, float defvalue, float min,
 
 	setting->defvalue.f = defvalue;
 	setting->value.f = defvalue;
-	list_push_back(settings, setting, sizeof(Setting));
+ engine_list_push_back(settings, setting, sizeof(Setting));
 }
 
-void settings_add_str(const char *name, char *defvalue, int min, int max) {
+void engine_settings_add_str(const char *name, char *defvalue, int min, int max) {
 	Setting *setting = malloc(sizeof(Setting));
 
 	setting->min = min;
@@ -83,7 +83,7 @@ void settings_add_str(const char *name, char *defvalue, int min, int max) {
 
 	strcpy(setting->defvalue.s, defvalue);
 	strcpy(setting->value.s, defvalue);
-	list_push_back(settings, setting, sizeof(Setting));
+ engine_list_push_back(settings, setting, sizeof(Setting));
 }
 
 Setting *settings_get(const char *name) {
@@ -101,8 +101,8 @@ Setting *settings_get(const char *name) {
 	return NULL;
 }
 
-void settings_save(const char *name) {
-	log_write(LOG_INFO, "Saving settings.\n");
+void engine_settings_save(const char *name) {
+ engine_log_write(LOG_INFO, "Saving settings.\n");
 
 	TextBuffer *tb = tb_create(0);
 
@@ -140,23 +140,23 @@ void settings_save(const char *name) {
 		current = current->next;
 	}
 
-	io_save(name, tb->buffer);
+ engine_io_save(name, tb->buffer);
 	tb_free(tb);
 }
 
-void settings_set_int(const char *name, int value) {
-	Setting *setting = settings_get(name);
+void engine_settings_set_int(const char *name, int value) {
+	Setting *setting = engine_settings_get(name);
 	if (setting && value >= setting->min && value <= setting->max)
 		setting->value.i = value;
 }
 
-void settings_set_float(const char *name, float value) {
-	Setting *setting = settings_get(name);
+void engine_settings_set_float(const char *name, float value) {
+	Setting *setting = engine_settings_get(name);
 	if (setting && value >= setting->min && value <= setting->max)
 		setting->value.f = value;
 }
-void settings_set_str(const char *name, char *value) {
-	Setting *setting = settings_get(name);
+void engine_settings_set_str(const char *name, char *value) {
+	Setting *setting = engine_settings_get(name);
 
 	size_t len = strlen(value) + 1;
 
@@ -164,37 +164,37 @@ void settings_set_str(const char *name, char *value) {
 		strcpy(setting->value.s, value);
 }
 
-int settings_get_int(const char *name) {
-	Setting *setting = settings_get(name);
+int engine_settings_get_int(const char *name) {
+	Setting *setting = engine_settings_get(name);
 	if (setting)
 		return setting->value.i;
 
-	log_write(LOG_WARNING, "Tried to get value from a setting that doesn't exist.");
+ engine_log_write(LOG_WARNING, "Tried to get value from a setting that doesn't exist.");
 	return 0;
 }
 
-float settings_get_float(const char *name) {
-	Setting *setting = settings_get(name);
+float engine_settings_get_float(const char *name) {
+	Setting *setting = engine_settings_get(name);
 	if (setting)
 		return setting->value.f;
 
-	log_write(LOG_WARNING, "Tried to get value from a setting that doesn't exist.");
+ engine_log_write(LOG_WARNING, "Tried to get value from a setting that doesn't exist.");
 	return 0;
 }
 
 char *settings_get_str(const char *name) {
-	Setting *setting = settings_get(name);
+	Setting *setting = engine_settings_get(name);
 	if (setting)
 		return setting->value.s;
 
-	log_write(LOG_WARNING, "Tried to get value from a setting that doesn't exist.");
+ engine_log_write(LOG_WARNING, "Tried to get value from a setting that doesn't exist.");
 	return 0;
 }
 
-void settings_load(const char *name) {
-	char *s = io_load_app(name);
+void engine_settings_load(const char *name) {
+	char *s = engine_io_load_app(name);
 
-	log_write(LOG_INFO, "Loading settings.\n");
+ engine_log_write(LOG_INFO, "Loading settings.\n");
 
 	char *sname = strtok(s, ":");
 	while (sname) {
@@ -205,12 +205,12 @@ void settings_load(const char *name) {
 
 		if (type == INTEGER) {
 			int value = atoi(svalue);
-			settings_set_int(sname, value);
+		 engine_settings_set_int(sname, value);
 		} else if (type == INTEGER) {
 			float value = (float)atof(svalue);
-			settings_set_float(sname, value);
+		 engine_settings_set_float(sname, value);
 		} else if (type == STRING) {
-			settings_set_str(sname, svalue);
+		 engine_settings_set_str(sname, svalue);
 		}
 
 		sname = strtok(NULL, ":");

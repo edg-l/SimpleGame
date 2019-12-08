@@ -24,10 +24,10 @@ typedef struct Textbox {
 
 Textbox *textbox_create(int w, int h, int pt, int text_length, Color fg, Color bg, Color outline);
 
-void textbox_update(Textbox *t);
-void textbox_on_sdlevent(Textbox *t, SDL_Event *event);
-void textbox_free(Textbox *t);
+void engine_ui_textbox_update(Textbox *t);
+void engine_ui_textbox_on_sdlevent(Textbox *t, SDL_Event *event);
+void engine_ui_textbox_free(Textbox *t);
 
-void render_textbox(Textbox *t);
+void engine_render_textbox(Textbox *t);
 
 #endif
