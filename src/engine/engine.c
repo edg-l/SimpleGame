@@ -1,9 +1,12 @@
 #include "engine.h"
 #include <engine/graphics/renderer.h>
+#include <engine/input.h>
+#include <engine/io.h>
 #include <engine/logger.h>
 #include <engine/settings.h>
-#include <engine/io.h>
 
+
+// TODO: Add vector struct
 
 void engine_init(const char *pName) {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1) {
@@ -27,12 +30,13 @@ void engine_init(const char *pName) {
 		engine_settings_save("settings.ini");
 	}
 	engine_settings_load("settings.ini");
-	
+
 	if (!engine_render_init(pName)) {
 		engine_log_write(LOG_ERROR, "Error creating renderer: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
-	
+
+	engine_input_init();
 	engine_util_init();
 
 	engine_render_clear_color(COLOR_WHITE);
@@ -43,8 +47,6 @@ void engine_init(const char *pName) {
 
 int engine_on_tick() {
 	int stop = 0;
-	// TODO: Move this to engine_input
-	engine_util_update_keyboard();
 
 	SDL_Event event;
 
@@ -54,6 +56,7 @@ int engine_on_tick() {
 		}
 	}
 
+	engine_input_update();
 	engine_util_update();
 	return stop;
 }

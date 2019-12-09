@@ -32,6 +32,8 @@ set(ENGINE_SOURCES
 	src/engine/graphics/renderer.h
 	src/engine/graphics/shader.c
 	src/engine/graphics/shader.h
+	src/engine/input.c
+	src/engine/input.h
 	src/engine/io.c
 	src/engine/io.h
 	src/engine/list.c

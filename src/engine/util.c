@@ -96,31 +96,9 @@ int max(int x, int y) { return x > y ? x : y; }
 int min(int x, int y) { return x < y ? x : y; }
 
 void engine_util_update() {
-	prev_mouse_state = mouse_state;
-	old_mouse_pos = mouse_pos;
-	mouse_state = SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
 	last_time = now_time;
 	now_time = SDL_GetPerformanceCounter();
 }
-
-void engine_util_update_keyboard() {
-	if (keyboard_status) {
-		memcpy(prev_keyboard_status, keyboard_status, keyboard_status_length);
-	}
-}
-
-int engine_util_is_mouse_click(MouseButton button) {
-	return (prev_mouse_state & SDL_BUTTON(button)) &&
-		!(mouse_state & SDL_BUTTON(button));
-}
-
-int engine_util_is_keyup(int code) {
-	if (!prev_keyboard_status)
-		return 0;
-	return prev_keyboard_status[code] && !keyboard_status[code];
-}
-
-int engine_util_is_keypress(int code) { return keyboard_status[code]; }
 
 Uint32 engine_util_tick() { return SDL_GetTicks(); }
 

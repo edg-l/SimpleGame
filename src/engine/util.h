@@ -60,13 +60,6 @@ int min(int x, int y);
 void engine_util_init();
 void engine_util_quit();
 void engine_util_update();
-void engine_util_update_keyboard();
-
-Point engine_util_mouse_pos();
-void engine_util_mouse_delta(int *x, int *y);
-int engine_util_is_mouse_click(MouseButton button);
-int engine_util_is_keyup(int code);
-int engine_util_is_keypress(int code);
 
 void engine_util_str_format(char* buf, size_t size, const char *fmt, ...);
 
