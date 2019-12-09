@@ -102,7 +102,7 @@ Setting *engine_settings_get(const char *name) {
 }
 
 void engine_settings_save(const char *name) {
-	engine_log_write(LOG_INFO, "Saving settings.\n");
+	engine_log_debug("Saving settings.");
 
 	TextBuffer *tb = engine_buffer_create(0);
 
@@ -169,7 +169,7 @@ int engine_settings_get_int(const char *name) {
 	if (setting)
 		return setting->value.i;
 
-	engine_log_write(LOG_WARNING, "Tried to get value from a setting that doesn't exist.");
+	engine_log_warning("Tried to get value from a setting that doesn't exist.");
 	return 0;
 }
 
@@ -178,7 +178,7 @@ float engine_settings_get_float(const char *name) {
 	if (setting)
 		return setting->value.f;
 
-	engine_log_write(LOG_WARNING, "Tried to get value from a setting that doesn't exist.");
+	engine_log_warning("Tried to get value from a setting that doesn't exist.");
 	return 0;
 }
 
@@ -187,14 +187,14 @@ char *engine_settings_get_str(const char *name) {
 	if (setting)
 		return setting->value.s;
 
-	engine_log_write(LOG_WARNING, "Tried to get value from a setting that doesn't exist.");
+	engine_log_warning("Tried to get value from a setting that doesn't exist.");
 	return 0;
 }
 
 void engine_settings_load(const char *name) {
 	char *s = engine_io_load_app(name);
 
-	engine_log_write(LOG_INFO, "Loading settings.\n");
+	engine_log_debug("Loading settings.");
 
 	char *sname = strtok(s, ":");
 	while (sname) {

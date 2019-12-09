@@ -17,8 +17,7 @@ char *engine_io_load(const char *path) {
     SDL_RWops *file = SDL_RWFromFile(path, "r");
 
     if (!file) {
-        engine_log_write(LOG_ERROR, "Loading file with path: %s (%s)\n", path,
-                  SDL_GetError());
+        engine_log_write(LOG_ERROR, "Loading file with path: %s (%s)", path, SDL_GetError());
         return NULL;
     }
 
@@ -67,8 +66,7 @@ void engine_io_save(const char *path, char *value) {
     SDL_RWops *file = SDL_RWFromFile(combined_path, "w");
 
     if (!file) {
-        engine_log_write(LOG_ERROR, "Loading file with path: %s (%s)\n", path,
-                  SDL_GetError());
+        engine_log_write(LOG_ERROR, "Loading file with path: %s (%s)", path, SDL_GetError());
         return;
     }
 
@@ -76,9 +74,7 @@ void engine_io_save(const char *path, char *value) {
     size_t len = SDL_RWwrite(file, value, sizeof(char), real_len);
 
     if (len != real_len) {
-        engine_log_write(LOG_WARNING,
-                  "Couldn't write all the string to path (%d/%d): %s\n",
-                  combined_path, len, real_len);
+        engine_log_write(LOG_WARNING, "Couldn't write all the string to path (%d/%d): %s", combined_path, len, real_len);
     }
 
     free(combined_path);

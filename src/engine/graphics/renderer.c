@@ -53,7 +53,7 @@ typedef struct CachedTexture {
 } CachedTexture;
 
 void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
-	engine_log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_DEBUG, "OpenGL message type=%d, severity=%d, message: %s\n", type, severity, message);
+	engine_log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_DEBUG, "OpenGL message type=%d, severity=%d, message: %s", type, severity, message);
 }
 
 static void free_font(void *p) {
@@ -137,7 +137,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 		FT_Error fterr = FT_New_Face(ft, font_path(style), 0, &cfont->ft);
 
 		if (fterr) {
-			engine_log_error("Error initializing Freetype: %s\n", FT_Error_String(fterr));
+			engine_log_error("Error initializing Freetype: %s", FT_Error_String(fterr));
 			return NULL;
 		}
 
@@ -158,7 +158,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 		cfont->atlas_width = tex_width;
 		cfont->atlas_height = tex_height;
 
-		engine_log_info("Creating texture atlas for a new font with size: %dx%d max_dim=%f\n", tex_width, tex_height, max_dim);
+		engine_log_debug("Creating texture atlas for a new font with size: %dx%d max_dim=%f", tex_width, tex_height, max_dim);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, (int)tex_width, (int)tex_height, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
 
@@ -183,7 +183,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 			FT_Error ftcerr = FT_Load_Char(cfont->ft, c, FT_LOAD_RENDER);
 
 			if (ftcerr) {
-				engine_log_error("Error loading char (%c): %s\n", c, FT_Error_String(fterr));
+				engine_log_error("Error loading char (%c): %s", c, FT_Error_String(fterr));
 				continue;
 			}
 
@@ -217,7 +217,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 		engine_list_push_back(pFontCache, cfont, sizeof(CachedFont));
-		engine_log_info("Added font (%dpt, %d glyphs, %d style, y=%d) to cache\n", cfont->pt, count, cfont->style, y);
+		engine_log_debug("Added font (%dpt, %d glyphs, %d style, y=%d) to cache", cfont->pt, count, cfont->style, y);
 		free(cfont);
 	}
 
@@ -257,13 +257,13 @@ int engine_render_init(const char *title) {
 	glContext = SDL_GL_CreateContext(pWindow);
 
 	if (!glContext) {
-		engine_log_error("Error creating renderer: %s\n", SDL_GetError());
+		engine_log_error("Error creating renderer: %s", SDL_GetError());
 		return 0;
 	}
 
 	FT_Error fterr = FT_Init_FreeType(&ft);
 	if (fterr) {
-		engine_log_error("Error initializing Freetype: %s\n", FT_Error_String(fterr));
+		engine_log_error("Error initializing Freetype: %s", FT_Error_String(fterr));
 		return 0;
 	}
 
@@ -272,7 +272,7 @@ int engine_render_init(const char *title) {
 	GLenum glewError = glewInit();
 
 	if (glewError != GLEW_OK) {
-		engine_log_error("Error initializing GLEW: %s\n", glewGetErrorString(glewError));
+		engine_log_error("Error initializing GLEW: %s", glewGetErrorString(glewError));
 		return 0;
 	}
 
@@ -383,7 +383,7 @@ int engine_render_init(const char *title) {
 		glBindVertexArray(0);
 	}
 
-	engine_log_info("Renderer initialized.\n");
+	engine_log_debug("Renderer initialized.");
 
 	return 1;
 }

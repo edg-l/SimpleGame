@@ -4,6 +4,7 @@
 #include <engine/io.h>
 #include <engine/logger.h>
 #include <engine/settings.h>
+#include <engine/math/vector.h>
 
 
 // TODO: Add vector struct
@@ -15,6 +16,15 @@ void engine_init(const char *pName) {
 	}
 
 	engine_settings_init();
+
+	Vector2Di vec, vec2;
+	vec.x = 200;
+	vec.y = 200;
+	vec2.x = 200;
+	vec2.y = 200;
+
+	engine_math_vector2di_add(&vec, &vec2, &vec);
+	engine_log_info("vector: %d, %d", vec.x, vec.y);
 
 	// TODO: Set default fullscreen with display size.
 	engine_settings_add_int("window_width", 1024, 5, 5000);

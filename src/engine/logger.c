@@ -30,6 +30,8 @@ void engine_log_write(int level, const char* fmt, ...) {
 	vprintf(fmt, args);
 
 	va_end(args);
+
+	printf("\n");
 }
 
 static void engine_log_write_internal(int level, const char* fmt, va_list args) {
@@ -39,13 +41,14 @@ static void engine_log_write_internal(int level, const char* fmt, va_list args) 
 #endif
 	printf(get_level_str(level));
 	vprintf(fmt, args);
+	printf("\n");
 }
 
 void engine_log_info(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 
- engine_log_write_internal(LOG_INFO, fmt, args);
+	engine_log_write_internal(LOG_INFO, fmt, args);
 
 	va_end(args);
 }
@@ -54,7 +57,7 @@ void engine_log_warning(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 
- engine_log_write_internal(LOG_WARNING, fmt, args);
+	engine_log_write_internal(LOG_WARNING, fmt, args);
 
 	va_end(args);
 }
@@ -63,7 +66,7 @@ void engine_log_debug(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 
- engine_log_write_internal(LOG_DEBUG, fmt, args);
+	engine_log_write_internal(LOG_DEBUG, fmt, args);
 
 	va_end(args);
 }
@@ -72,7 +75,7 @@ void engine_log_error(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 
- engine_log_write_internal(LOG_ERROR, fmt, args);
+	engine_log_write_internal(LOG_ERROR, fmt, args);
 
 	va_end(args);
 }

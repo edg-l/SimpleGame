@@ -117,7 +117,7 @@ void engine_ui_textbox_on_sdlevent(Textbox *t, SDL_Event *event) {
 		}
 	}
 	else if(event->type == SDL_TEXTEDITING) {
-	 engine_log_info("textediting event: '%s' %d %d\n", event->edit.text, event->edit.start, event->edit.length);
+	 engine_log_debug("textediting event: '%s' %d %d", event->edit.text, event->edit.start, event->edit.length);
 	}
 }
 
