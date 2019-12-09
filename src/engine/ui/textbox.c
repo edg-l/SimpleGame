@@ -14,7 +14,7 @@ static void update_input_tick() {
 }
 
 Textbox *engine_ui_textbox_create(int w, int h, int pt, int text_length, Color fg,
-						Color bg, Color outline) {
+		Color bg, Color outline) {
 	Textbox *textbox = malloc(sizeof(Textbox));
 	textbox->length = text_length + 1;
 	textbox->pText = malloc(sizeof(char) * textbox->length);
@@ -35,7 +35,7 @@ Textbox *engine_ui_textbox_create(int w, int h, int pt, int text_length, Color f
 
 	Point cursor_size;
 
- engine_render_text_size_s("|", textbox->text_pt, STYLE_REGULAR, &cursor_size);
+	engine_render_text_size_s("|", textbox->text_pt, STYLE_REGULAR, &cursor_size);
 	textbox->cursor_size = cursor_size.y;
 	return textbox;
 }
@@ -47,10 +47,10 @@ void engine_ui_textbox_free(Textbox *t) {
 
 void engine_ui_textbox_update(Textbox *t) {
 	if (!t->focused && engine_util_mouse_in_rect(&t->rect) &&
-	 engine_input_mouse_click(BUTTON_LEFT)) {
+			engine_input_mouse_click(BUTTON_LEFT)) {
 		t->focused = 1;
 	} else if (!engine_util_mouse_in_rect(&t->rect) &&
-			   engine_input_mouse_click(BUTTON_LEFT)) {
+			engine_input_mouse_click(BUTTON_LEFT)) {
 		t->focused = 0;
 	}
 
@@ -61,10 +61,10 @@ void engine_ui_textbox_update(Textbox *t) {
 		}
 		if (engine_util_tick_passed(next_input_tick)) {
 			if (engine_input_keypress(SDL_SCANCODE_LCTRL) &&
-			 engine_input_keypress(SDL_SCANCODE_BACKSPACE)) {
+					engine_input_keypress(SDL_SCANCODE_BACKSPACE)) {
 				char *last_space = t->pText;
 				for (char *p = t->pText; *p && (p - t->pText) < t->cursor_pos;
-					 p++) {
+						p++) {
 					if (*p == ' ')
 						last_space = p;
 				}
@@ -89,11 +89,11 @@ void engine_ui_textbox_update(Textbox *t) {
 		if (t->cursor_pos == 0)
 			size.x = 0;
 		else if (t->cursor_pos >= len)
-		 engine_render_text_size_s(t->pText, t->text_pt, STYLE_REGULAR, &size);
+			engine_render_text_size_s(t->pText, t->text_pt, STYLE_REGULAR, &size);
 		else {
 			// Cursor is in the middle.
-		 engine_render_text_size_len(t->pText, t->text_pt, STYLE_REGULAR, &size,
-								 t->cursor_pos);
+			engine_render_text_size_len(t->pText, t->text_pt, STYLE_REGULAR, &size,
+					t->cursor_pos);
 		}
 
 		t->cursor_x = t->rect.x + t->padding + size.x;
@@ -117,29 +117,29 @@ void engine_ui_textbox_on_sdlevent(Textbox *t, SDL_Event *event) {
 		}
 	}
 	else if(event->type == SDL_TEXTEDITING) {
-	 engine_log_debug("textediting event: '%s' %d %d", event->edit.text, event->edit.start, event->edit.length);
+		engine_log_debug("textediting event: '%s' %d %d", event->edit.text, event->edit.start, event->edit.length);
 	}
 }
 
 void engine_render_textbox(Textbox *t) {
- engine_render_color_s(t->outline);
+	engine_render_color_s(t->outline);
 	Rect r;
- engine_util_rect_outline(&r, &t->rect, t->outline_size);
- engine_render_rect_s(&r, 1);
+	engine_util_rect_outline(&r, &t->rect, t->outline_size);
+	engine_render_rect_s(&r, 1);
 
- engine_render_color_s(t->bg);
- engine_render_rect_s(&t->rect, 1);
+	engine_render_color_s(t->bg);
+	engine_render_rect_s(&t->rect, 1);
 
 	if (strlen(t->pText) > 0) {
 		Point s;
-	 engine_render_text_size_s(t->pText, t->text_pt, STYLE_REGULAR, &s);
-	 engine_render_text(t->text_pt, STYLE_REGULAR, t->pText, t->rect.x + t->padding,
-					(int)(t->rect.y + (t->rect.h - s.y) / 2));
+		engine_render_text_size_s(t->pText, t->text_pt, STYLE_REGULAR, &s);
+		engine_render_text(t->text_pt, STYLE_REGULAR, t->pText, t->rect.x + t->padding,
+				(int)(t->rect.y + (t->rect.h - s.y) / 2));
 	}
 
 	Rect cursor = engine_util_rect(t->cursor_x, t->rect.y + (t->rect.h + t->cursor_size) / 3, 2, t->cursor_size);
 	if (t->focused && t->cursor_blink) {
-	 engine_render_color(40, 40, 40, 255);
-	 engine_render_rect_s(&cursor, 1);
+		engine_render_color(40, 40, 40, 255);
+		engine_render_rect_s(&cursor, 1);
 	}
 }

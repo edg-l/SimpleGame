@@ -7,7 +7,10 @@
 #include <engine/math/vector.h>
 
 
-// TODO: Add vector struct
+// TODO: Add rect structs and functions with macros!
+// TODO: Render circle
+// TODO: Render texture
+// TODO: entity manager for renderer
 
 void engine_init(const char *pName) {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1) {
