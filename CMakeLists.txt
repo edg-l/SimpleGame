@@ -40,6 +40,9 @@ set(ENGINE_SOURCES
 	src/engine/list.h
 	src/engine/logger.c
 	src/engine/logger.h
+	src/engine/math/vector.c
+	src/engine/math/vector.h
+	src/engine/math/constants.h
 	src/engine/settings.c
 	src/engine/settings.h
 	src/engine/textbuffer.c
