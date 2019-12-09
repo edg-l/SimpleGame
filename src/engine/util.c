@@ -20,7 +20,7 @@ static double now_time = 0;
 void engine_util_init() {
 	keyboard_status = SDL_GetKeyboardState(&keyboard_status_length);
 	prev_keyboard_status = malloc(keyboard_status_length);
- engine_util_update();
+	engine_util_update();
 }
 
 void engine_util_quit() { free(prev_keyboard_status); }
@@ -58,7 +58,7 @@ void engine_util_rect_padding(Rect *padding, Rect *rect, int padding_size) {
 int engine_util_point_in_rect(Rect *rect, Point *point) {
 	SDL_assert(rect);
 	if (point->x > rect->x && point->x < rect->x + rect->w &&
-		point->y > rect->y && point->y < rect->y + rect->h)
+			point->y > rect->y && point->y < rect->y + rect->h)
 		return 1;
 	return 0;
 }
@@ -88,7 +88,7 @@ int engine_util_rect_intersects(Rect *rect1, Rect *rect2, Rect *out) {
 
 Rect engine_util_screen() {
 	return engine_util_rect(0, 0, engine_settings_get_int("window_width"),
-					 engine_settings_get_int("window_height"));
+			engine_settings_get_int("window_height"));
 }
 
 int max(int x, int y) { return x > y ? x : y; }
@@ -111,7 +111,7 @@ void engine_util_update_keyboard() {
 
 int engine_util_is_mouse_click(MouseButton button) {
 	return (prev_mouse_state & SDL_BUTTON(button)) &&
-		   !(mouse_state & SDL_BUTTON(button));
+		!(mouse_state & SDL_BUTTON(button));
 }
 
 int engine_util_is_keyup(int code) {
@@ -124,7 +124,7 @@ int engine_util_is_keypress(int code) { return keyboard_status[code]; }
 
 Uint32 engine_util_tick() { return SDL_GetTicks(); }
 
-int engine_util_tick_passed(Uint32 a) { return SDL_TICKS_PASSED(util_tick(), a); }
+int engine_util_tick_passed(Uint32 a) { return SDL_TICKS_PASSED(engine_util_tick(), a); }
 
 int engine_util_mouse_in_rect(Rect *rect) {
 	SDL_assert(rect);
@@ -135,7 +135,7 @@ double engine_util_delta_time() {
 	return (double)((now_time - last_time) * 1000) / SDL_GetPerformanceFrequency();
 }
 
-double engine_util_fps() { return 1 / (util_delta_time() / 1000); }
+double engine_util_fps() { return 1 / (engine_util_delta_time() / 1000); }
 
 void engine_util_str_format(char *buf, size_t size, const char *fmt, ...) {
 	va_list args;

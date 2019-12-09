@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-TextBuffer *tb_create(unsigned long initial_size) {
+TextBuffer *engine_buffer_create(unsigned long initial_size) {
 	TextBuffer *tb = malloc(sizeof(TextBuffer));
 	tb->size = initial_size;
 	tb->cur_size = 0;
@@ -14,7 +14,7 @@ TextBuffer *tb_create(unsigned long initial_size) {
 	return tb;
 }
 
-void tb_add(TextBuffer *tb, const char *text) {
+void engine_buffer_add_str(TextBuffer *tb, const char *text) {
 	size_t len = strlen(text);
 
 	// strcat uses the null char on existing strings, but if size is 0 we need to add it.
@@ -30,7 +30,7 @@ void tb_add(TextBuffer *tb, const char *text) {
 	tb->cur_size += len;
 }
 
-void tb_free(TextBuffer *tb) {
+void engine_buffer_free(TextBuffer *tb) {
 	free(tb->buffer);
 	free(tb);
 }

@@ -22,7 +22,7 @@ typedef struct Textbox {
 	int cursor_blink;
 } Textbox;
 
-Textbox *textbox_create(int w, int h, int pt, int text_length, Color fg, Color bg, Color outline);
+Textbox *engine_ui_textbox_create(int w, int h, int pt, int text_length, Color fg, Color bg, Color outline);
 
 void engine_ui_textbox_update(Textbox *t);
 void engine_ui_textbox_on_sdlevent(Textbox *t, SDL_Event *event);

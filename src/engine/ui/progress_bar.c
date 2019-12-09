@@ -3,7 +3,7 @@
 #include <engine/logger.h>
 #include <math.h>
 
-ProgressBar *pb_create(int w, int h, Color bg, Color start, Color end) {
+ProgressBar *engine_ui_progressbar_create(int w, int h, Color bg, Color start, Color end) {
     ProgressBar *p = malloc(sizeof(ProgressBar));
     p->rect = engine_util_rect(0, 0, w, h);
     p->bg = bg;

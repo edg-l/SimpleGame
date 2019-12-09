@@ -26,6 +26,8 @@ set(ENGINE_SOURCES
 	src/engine/camera.c
 	src/engine/camera.h
 	src/engine/color.h
+	src/engine/engine.c
+	src/engine/engine.h
 	src/engine/graphics/renderer.c
 	src/engine/graphics/renderer.h
 	src/engine/graphics/shader.c

@@ -5,7 +5,7 @@
 
 typedef struct Button {
 	Rect rect;
-	int textSizeW, textSizeH;
+	unsigned int textSizeW, textSizeH;
 	int textpt;
 	int textStyle;
 	Color fg;
@@ -13,7 +13,7 @@ typedef struct Button {
 	char *pText;
 } Button;
 
-Button *button_create(int w, int h, int pt, int style, const char* text, Color fg, Color bg);
+Button *button_create(unsigned int w, unsigned int h, int pt, int style, const char* text, Color fg, Color bg);
 
 int button_is_pressed(Button *button);
 

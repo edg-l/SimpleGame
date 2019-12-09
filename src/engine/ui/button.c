@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Button *button_create(int w, int h, int pt, int style, const char *text,
+Button *button_create(unsigned int w, unsigned int h, int pt, int style, const char *text,
                       Color fg, Color bg) {
     Button *button;
 
@@ -20,7 +20,7 @@ Button *button_create(int w, int h, int pt, int style, const char *text,
 
     int len = strlen(text) + 1;
     button->pText = malloc(sizeof(char) * len);
-    strncpy(button->pText, text, len);
+    strcpy(button->pText, text);
 
     engine_render_text_size(button->pText, button->textpt, STYLE_REGULAR,
                      &button->textSizeW, &button->textSizeH);
@@ -36,7 +36,7 @@ void button_free(Button *button) {
 void engine_render_button(Button *button) {
     Point mouse = engine_util_mouse_pos();
 
-    if (util_point_in_rect(&button->rect, &mouse))
+    if (engine_util_point_in_rect(&button->rect, &mouse))
         engine_render_color(button->bg.r + 40, button->bg.g, button->bg.b,
                      button->bg.a);
     else

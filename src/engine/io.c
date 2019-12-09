@@ -7,13 +7,13 @@
 static char *app_path = NULL;
 
 static char *combine_path(const char *path1, const char *path2) {
-    char *combined_path = malloc(strlen(path1) + strlen(path2) + 1);
-    strncpy(combined_path, path1, strlen(path1) + 1);
-    strncat(combined_path, path2, strlen(path2) + 1);
+    char *combined_path = malloc(sizeof(char) * (strlen(path1) + strlen(path2) + 1));
+    strcpy(combined_path, path1);
+    strcat(combined_path, path2);
     return combined_path;
 }
 
-char *io_load(const char *path) {
+char *engine_io_load(const char *path) {
     SDL_RWops *file = SDL_RWFromFile(path, "r");
 
     if (!file) {
@@ -47,7 +47,7 @@ char *io_load(const char *path) {
     return source;
 }
 
-char *io_load_app(const char *path) {
+char *engine_io_load_app(const char *path) {
     if (!app_path)
         app_path = SDL_GetPrefPath("Ryozuki", "SimpleGame");
 

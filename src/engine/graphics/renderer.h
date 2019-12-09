@@ -17,7 +17,7 @@ enum {
 	STYLE_SEMIBOLD_ITALIC
 };
 
-int engine_render_init(int width, int height, const char *title);
+int engine_render_init(const char *title);
 void engine_render_quit();
 
 void engine_render_clear();

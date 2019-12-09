@@ -7,10 +7,10 @@ typedef struct TextBuffer {
 	unsigned long cur_size;
 } TextBuffer;
 
-TextBuffer *tb_create(unsigned long initial_size);
+TextBuffer *engine_buffer_create(unsigned long initial_size);
 
-void tb_add(TextBuffer *tb, const char *text);
+void engine_buffer_add_str(TextBuffer *tb, const char *text);
 
-void tb_free(TextBuffer *tb);
+void engine_buffer_free(TextBuffer *tb);
 
 #endif

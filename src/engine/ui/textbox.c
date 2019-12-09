@@ -12,7 +12,7 @@ static void update_input_tick() {
 	next_input_tick = engine_util_tick() + INPUT_DELAY_MS;
 }
 
-Textbox *textbox_create(int w, int h, int pt, int text_length, Color fg,
+Textbox *engine_ui_textbox_create(int w, int h, int pt, int text_length, Color fg,
 						Color bg, Color outline) {
 	Textbox *textbox = malloc(sizeof(Textbox));
 	textbox->length = text_length + 1;
@@ -48,18 +48,18 @@ void engine_ui_textbox_update(Textbox *t) {
 	if (!t->focused && engine_util_mouse_in_rect(&t->rect) &&
 	 engine_util_is_mouse_click(BUTTON_LEFT)) {
 		t->focused = 1;
-	} else if (!util_mouse_in_rect(&t->rect) &&
+	} else if (!engine_util_mouse_in_rect(&t->rect) &&
 			   engine_util_is_mouse_click(BUTTON_LEFT)) {
 		t->focused = 0;
 	}
 
 	if (t->focused) {
-		if (util_tick_passed(t->cursor_blink_tick)) {
+		if (engine_util_tick_passed(t->cursor_blink_tick)) {
 			t->cursor_blink = !t->cursor_blink;
 			t->cursor_blink_tick = engine_util_tick() + CURSOR_BLINK_MS;
 		}
-		if (util_tick_passed(next_input_tick)) {
-			if (util_is_keypress(SDL_SCANCODE_LCTRL) &&
+		if (engine_util_tick_passed(next_input_tick)) {
+			if (engine_util_is_keypress(SDL_SCANCODE_LCTRL) &&
 			 engine_util_is_keypress(SDL_SCANCODE_BACKSPACE)) {
 				char *last_space = t->pText;
 				for (char *p = t->pText; *p && (p - t->pText) < t->cursor_pos;
@@ -72,7 +72,7 @@ void engine_ui_textbox_update(Textbox *t) {
 				t->cursor_pos = last_space - t->pText;
 				t->update_cursor_x = 1;
 				update_input_tick();
-			} else if (util_is_keypress(SDL_SCANCODE_BACKSPACE)) {
+			} else if (engine_util_is_keypress(SDL_SCANCODE_BACKSPACE)) {
 				t->pText[max(0, strlen(t->pText) - 1)] = '\0';
 				t->cursor_pos = max(0, t->cursor_pos - 1);
 				t->update_cursor_x = 1;

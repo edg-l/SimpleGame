@@ -18,10 +18,10 @@ typedef struct List {
 	FREE_FN freeFunc;
 } List;
 
-List *list_create();
+List *engine_list_create();
 
 // Create a list with a custom free function for the element values.
-List *list_create_fn(FREE_FN f);
+List *engine_list_create_fn(FREE_FN f);
 
 void engine_list_push_front(List *list, void *value, size_t size);
 void engine_list_push_back(List *list, void *value, size_t size);

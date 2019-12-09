@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Switch *switch_create(int w, int h, Color bg, Color offColor, Color onColor) {
+Switch *engine_ui_switch_create(int w, int h, Color bg, Color offColor, Color onColor) {
     Switch *s = malloc(sizeof(Switch));
     s->rect = engine_util_rect(0, 0, w, h);
     s->bg = bg;
@@ -19,7 +19,7 @@ Switch *switch_create(int w, int h, Color bg, Color offColor, Color onColor) {
 }
 
 void engine_ui_switch_update(Switch *s) {
-    if (util_mouse_in_rect(&s->rect) && engine_util_is_mouse_click(BUTTON_LEFT)) {
+    if (engine_util_mouse_in_rect(&s->rect) && engine_util_is_mouse_click(BUTTON_LEFT)) {
         s->animate = 1;
         s->value = !s->value;
         if (s->current_animation_time > 0)

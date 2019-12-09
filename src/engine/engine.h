@@ -7,7 +7,7 @@ void engine_init(const char *pName);
 void engine_quit();
 
 // TODO: Add engine events
-void engine_on_tick();
+int engine_on_tick();
 
 #endif
 

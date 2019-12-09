@@ -5,12 +5,13 @@
 int main(int argc, const char *argv[]) {
 	engine_init("SimpleGame");
 
-	while (1) {
-		engine_on_tick();
+	int stop = 0;
+	while (!stop) {
+		stop = engine_on_tick();
 
-	 engine_render_clear();
+		engine_render_clear();
 
-	 engine_render_present();
+		engine_render_present();
 		// SDL_Delay(1);
 	}
 

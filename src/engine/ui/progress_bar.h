@@ -17,11 +17,11 @@ typedef struct ProgressBar {
 	double current_animation_time;
 } ProgressBar;
 
-ProgressBar *pb_create(int w, int h, Color bg, Color start, Color end);
+ProgressBar *engine_ui_progressbar_create(int w, int h, Color bg, Color start, Color end);
 void engine_ui_progressbar_free(ProgressBar *p);
 
 void engine_ui_progressbar_set_progress(ProgressBar *p, double progress);
 void engine_ui_progressbar_update(ProgressBar *p);
-void engine_render_pb(ProgressBar *p);
+void engine_render_progressbar(ProgressBar *p);
 
 #endif
