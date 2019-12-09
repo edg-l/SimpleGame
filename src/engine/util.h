@@ -26,12 +26,6 @@ typedef enum Margin {
 	MARGIN_RIGHT
 } Margin;
 
-typedef enum MouseButton {
-	BUTTON_LEFT = SDL_BUTTON_LEFT,
-	BUTTON_RIGHT = SDL_BUTTON_RIGHT,
-	BUTTON_MIDDLE = SDL_BUTTON_MIDDLE
-} MouseButton;
-
 struct Tilemap;
 
 Color engine_util_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
@@ -57,8 +51,6 @@ Point engine_util_world_to_tilemap(struct Tilemap *t, Point world);
 int max(int x, int y);
 int min(int x, int y);
 
-void engine_util_init();
-void engine_util_quit();
 void engine_util_update();
 
 void engine_util_str_format(char* buf, size_t size, const char *fmt, ...);

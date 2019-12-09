@@ -37,8 +37,6 @@ void engine_init(const char *pName) {
 	}
 
 	engine_input_init();
-	engine_util_init();
-
 	engine_render_clear_color(COLOR_WHITE);
 
 	// TODO: Add entity manager and initialize it here.
@@ -62,7 +60,6 @@ int engine_on_tick() {
 }
 
 void engine_quit() {
-	engine_util_quit();
 	engine_settings_save("settings.ini");
 	engine_settings_quit();
 	engine_render_quit();

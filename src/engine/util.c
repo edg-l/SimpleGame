@@ -4,26 +4,12 @@
 #include <engine/logger.h>
 #include <engine/settings.h>
 #include <engine/tilemap.h>
+#include <engine/input.h>
 #include <stdarg.h>
 #include <stdio.h>
 
-static Uint32 prev_mouse_state;
-static Uint32 mouse_state;
-static Uint8 *prev_keyboard_status = NULL;
-static const Uint8 *keyboard_status = NULL;
-static int keyboard_status_length = 0;
-static Point old_mouse_pos;
-static Point mouse_pos;
 static double last_time = 0;
 static double now_time = 0;
-
-void engine_util_init() {
-	keyboard_status = SDL_GetKeyboardState(&keyboard_status_length);
-	prev_keyboard_status = malloc(keyboard_status_length);
-	engine_util_update();
-}
-
-void engine_util_quit() { free(prev_keyboard_status); }
 
 Color engine_util_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
 	return (Color){r, g, b, a};
@@ -32,8 +18,6 @@ Color engine_util_color(unsigned char r, unsigned char g, unsigned char b, unsig
 Rect engine_util_rect(int x, int y, int w, int h) { return (Rect){x, y, w, h}; }
 
 Point engine_util_point(int x, int y) { return (Point){x, y}; }
-
-Point engine_util_mouse_pos() { return mouse_pos; }
 
 void engine_util_rect_outline(Rect *outline, Rect *rect, int outline_size) {
 	SDL_assert(outline);
@@ -106,7 +90,10 @@ int engine_util_tick_passed(Uint32 a) { return SDL_TICKS_PASSED(engine_util_tick
 
 int engine_util_mouse_in_rect(Rect *rect) {
 	SDL_assert(rect);
-	return engine_util_point_in_rect(rect, &mouse_pos);
+	int x,y;
+	engine_input_mouse_pos(&x, &y);
+	Point a = engine_util_point(x, y);
+	return engine_util_point_in_rect(rect, &a);
 }
 
 double engine_util_delta_time() {
@@ -149,11 +136,4 @@ void engine_util_rect_center(Rect *rect1, Rect *rect2) {
 
 Point engine_util_world_to_tilemap(Tilemap *t, Point world) {
 	return engine_util_point(floor(world.x / (float)t->tileSize), floor(world.y / (float)t->tileSize));
-}
-
-void engine_util_mouse_delta(int *x, int *y) {
-	if (x)
-		*x = mouse_pos.x - old_mouse_pos.x;
-	if (y)
-		*y = mouse_pos.y - old_mouse_pos.y;
 }

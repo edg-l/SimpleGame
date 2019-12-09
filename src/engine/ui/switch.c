@@ -1,6 +1,7 @@
 #include "switch.h"
 #include <engine/logger.h>
 #include <engine/util.h>
+#include <engine/input.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -19,12 +20,11 @@ Switch *engine_ui_switch_create(int w, int h, Color bg, Color offColor, Color on
 }
 
 void engine_ui_switch_update(Switch *s) {
-    if (engine_util_mouse_in_rect(&s->rect) && engine_util_is_mouse_click(BUTTON_LEFT)) {
+    if (engine_util_mouse_in_rect(&s->rect) && engine_input_mouse_click(BUTTON_LEFT)) {
         s->animate = 1;
         s->value = !s->value;
         if (s->current_animation_time > 0)
-            s->current_animation_time =
-                s->total_animation_time - s->current_animation_time;
+            s->current_animation_time = s->total_animation_time - s->current_animation_time;
     } else if (s->animate) {
         s->current_animation_time += engine_util_delta_time();
         if (s->current_animation_time >= s->total_animation_time) {

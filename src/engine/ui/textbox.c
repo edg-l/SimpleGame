@@ -1,6 +1,7 @@
 #include "textbox.h"
 #include <engine/graphics/renderer.h>
 #include <engine/logger.h>
+#include <engine/input.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -46,10 +47,10 @@ void engine_ui_textbox_free(Textbox *t) {
 
 void engine_ui_textbox_update(Textbox *t) {
 	if (!t->focused && engine_util_mouse_in_rect(&t->rect) &&
-	 engine_util_is_mouse_click(BUTTON_LEFT)) {
+	 engine_input_mouse_click(BUTTON_LEFT)) {
 		t->focused = 1;
 	} else if (!engine_util_mouse_in_rect(&t->rect) &&
-			   engine_util_is_mouse_click(BUTTON_LEFT)) {
+			   engine_input_mouse_click(BUTTON_LEFT)) {
 		t->focused = 0;
 	}
 
@@ -59,8 +60,8 @@ void engine_ui_textbox_update(Textbox *t) {
 			t->cursor_blink_tick = engine_util_tick() + CURSOR_BLINK_MS;
 		}
 		if (engine_util_tick_passed(next_input_tick)) {
-			if (engine_util_is_keypress(SDL_SCANCODE_LCTRL) &&
-			 engine_util_is_keypress(SDL_SCANCODE_BACKSPACE)) {
+			if (engine_input_keypress(SDL_SCANCODE_LCTRL) &&
+			 engine_input_keypress(SDL_SCANCODE_BACKSPACE)) {
 				char *last_space = t->pText;
 				for (char *p = t->pText; *p && (p - t->pText) < t->cursor_pos;
 					 p++) {
@@ -72,7 +73,7 @@ void engine_ui_textbox_update(Textbox *t) {
 				t->cursor_pos = last_space - t->pText;
 				t->update_cursor_x = 1;
 				update_input_tick();
-			} else if (engine_util_is_keypress(SDL_SCANCODE_BACKSPACE)) {
+			} else if (engine_input_keypress(SDL_SCANCODE_BACKSPACE)) {
 				t->pText[max(0, strlen(t->pText) - 1)] = '\0';
 				t->cursor_pos = max(0, t->cursor_pos - 1);
 				t->update_cursor_x = 1;
