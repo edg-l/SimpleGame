@@ -4,7 +4,7 @@
 #include <engine/util.h>
 
 typedef struct ProgressBar {
-	Rect rect;
+	Rect2Df rect;
 	double progress;
 	double initial_progress;
 	double next_progress;

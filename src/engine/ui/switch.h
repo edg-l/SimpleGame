@@ -4,7 +4,7 @@
 #include <engine/graphics/renderer.h>
 
 typedef struct Switch {
-	Rect rect;
+	Rect2Df rect;
 	Color bg;
 	Color off_color;
 	Color on_color;

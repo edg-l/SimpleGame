@@ -3,6 +3,8 @@
 
 #include <SDL.h>
 #include "util_colors.h"
+#include <engine/math/vector.h>
+#include <engine/math/rect.h>
 
 typedef Uint32 Tick;
 
@@ -15,38 +17,14 @@ typedef struct Rect {
 	unsigned int w, h;
 } Rect;
 
-typedef struct Point {
-	int x, y;
-} Point;
-
-typedef enum Margin {
-	MARGIN_LEFT,
-	MARGIN_TOP,
-	MARGIN_BOTTOM,
-	MARGIN_RIGHT
-} Margin;
-
 struct Tilemap;
 
 Color engine_util_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-Rect engine_util_rect(int x, int y, int w, int h);
-Point engine_util_point(int x, int y);
 
+void engine_util_screen(Rect2Di *out);
 
-int engine_util_point_in_rect(Rect *rect, Point *point);
-float engine_util_point_distance(Point *point1, Point *point2);
-int engine_util_rect_intersects(Rect *rect1, Rect *rect2, Rect *out);
-
-int engine_util_mouse_in_rect(Rect *rect);
-
-void engine_util_rect_margin(Margin margin, int distance, Rect *rect1, Rect *rect2);
-void engine_util_rect_center(Rect *rect1, Rect *rect2);
-void engine_util_rect_outline(Rect *outline, Rect *rect, int outline_size);
-void engine_util_rect_padding(Rect *padding, Rect *rect, int padding_size);
-
-Rect engine_util_screen();
-
-Point engine_util_world_to_tilemap(struct Tilemap *t, Point world);
+void engine_util_mouse_tile_pos(struct Tilemap *t, Vector2Di *out);
+struct Tile *engine_util_mouse_tile(struct Tilemap *t);
 
 int max(int x, int y);
 int min(int x, int y);

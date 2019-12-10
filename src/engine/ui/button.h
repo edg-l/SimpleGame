@@ -1,10 +1,10 @@
-#ifndef BUTTON_UI_H
-#define BUTTON_UI_H
+#ifndef ENGINE_UI_BUTTON_H
+#define ENGINE_UI_BUTTON_H
 
 #include <engine/graphics/renderer.h>
 
 typedef struct Button {
-	Rect rect;
+	Rect2Df rect;
 	unsigned int textSizeW, textSizeH;
 	int textpt;
 	int textStyle;

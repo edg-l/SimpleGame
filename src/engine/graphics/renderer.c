@@ -439,7 +439,7 @@ void engine_render_rect(float x, float y, float width, float height, int filled)
 	glBindVertexArray(0);
 }
 
-void engine_render_rect_s(Rect *rect, int filled) {
+void engine_render_rect_s(Rect2Df *rect, int filled) {
 	engine_render_rect(rect->x, rect->y, rect->w, rect->h, filled);
 }
 
@@ -497,7 +497,9 @@ void engine_render_line(float x1, float y1, float x2, float y2) {
 	glBindVertexArray(0);
 }
 
-void engine_render_line_s(Point p1, Point p2) { engine_render_line(p1.x, p1.y, p2.x, p2.y); }
+void engine_render_line_s(Vector2Df *p1, Vector2Df *p2) {
+	engine_render_line(p1->x, p1->y, p2->x, p2->y);
+}
 
 void engine_render_text_color(int r, int g, int b, int a) {
 	engine_shader_use(textShader);
@@ -584,8 +586,8 @@ void engine_render_text(unsigned int pt, int style, const char *text, float x, f
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
-void engine_render_text_s(unsigned int pt, int style, const char *text, Point point) {
-	engine_render_text(pt, style, text, point.x, point.y);
+void engine_render_text_s(unsigned int pt, int style, const char *text, Vector2Df *point) {
+	engine_render_text(pt, style, text, point->x, point->y);
 }
 
 void engine_render_clear_text_cache() { engine_list_clear(pTextCache); }
@@ -627,14 +629,14 @@ void engine_render_text_size(const char *text, unsigned int pt, int style, unsig
 	*h += row_height;
 }
 
-void engine_render_text_size_len(const char *text, unsigned int pt, int style, Point *point, size_t len) {
+void engine_render_text_size_len(const char *text, unsigned int pt, int style, Vector2Df *point, size_t len) {
 	char *buf = malloc(len);
 	strncpy(buf, text, len);
 	engine_render_text_size_s(buf, pt, style, point);
 	free(buf);
 }
 
-void engine_render_text_size_s(const char *text, unsigned int pt, int style, Point *point) {
+void engine_render_text_size_s(const char *text, unsigned int pt, int style, Vector2Df *point) {
 	engine_render_text_size(text, pt, style, (unsigned int *)&point->x, (unsigned int *)&point->y);
 }
 

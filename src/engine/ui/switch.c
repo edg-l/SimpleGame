@@ -7,7 +7,7 @@
 
 Switch *engine_ui_switch_create(int w, int h, Color bg, Color offColor, Color onColor) {
 	Switch *s = malloc(sizeof(Switch));
-	s->rect = engine_util_rect(0, 0, w, h);
+	s->rect = (Rect2Df){0, 0, w, h};
 	s->bg = bg;
 	s->off_color = offColor;
 	s->on_color = onColor;
@@ -20,7 +20,7 @@ Switch *engine_ui_switch_create(int w, int h, Color bg, Color offColor, Color on
 }
 
 void engine_ui_switch_update(Switch *s) {
-	if (engine_util_mouse_in_rect(&s->rect) && engine_input_mouse_click(BUTTON_LEFT)) {
+	if (engine_math_mouse_in_rect2df(&s->rect) && engine_input_mouse_click(BUTTON_LEFT)) {
 		s->animate = 1;
 		s->value = !s->value;
 		if (s->current_animation_time > 0)
@@ -42,15 +42,14 @@ void engine_render_switch(Switch *s) {
 
 	if (!s->animate) {
 		if (!s->value) {
-			Rect r = engine_util_rect(s->rect.x + s->padding, s->rect.y + s->padding,
+			Rect2Df r = (Rect2Df){s->rect.x + s->padding, s->rect.y + s->padding,
 					s->rect.w / 2 - s->padding,
-					s->rect.h - s->padding * 2);
+					s->rect.h - s->padding * 2};
 			engine_render_color_s(s->off_color);
 			engine_render_rect_s(&r, 1);
 		} else {
-			Rect r = engine_util_rect(
-					s->rect.x + s->rect.w / 2, s->rect.y + s->padding,
-					s->rect.w / 2 - s->padding, s->rect.h - s->padding * 2);
+			Rect2Df r = (Rect2Df){s->rect.x + s->rect.w / 2, s->rect.y + s->padding,
+					s->rect.w / 2 - s->padding, s->rect.h - s->padding * 2};
 			engine_render_color_s(s->on_color);
 			engine_render_rect_s(&r, 1);
 		}
@@ -69,9 +68,8 @@ void engine_render_switch(Switch *s) {
 				round((s->on_color.b - s->off_color.b) * percent);
 			c.a = 255;
 
-			Rect r = engine_util_rect(
-					s->rect.x + s->padding + current, s->rect.y + s->padding,
-					s->rect.w / 2 - s->padding, s->rect.h - s->padding * 2);
+			Rect2Df r = (Rect2Df){s->rect.x + s->padding + current, s->rect.y + s->padding,
+					s->rect.w / 2 - s->padding, s->rect.h - s->padding * 2};
 			engine_render_color_s(c);
 			engine_render_rect_s(&r, 1);
 		} else {
@@ -85,9 +83,8 @@ void engine_render_switch(Switch *s) {
 				round((s->off_color.b - s->on_color.b) * percent);
 			c.a = 255;
 
-			Rect r = engine_util_rect(
-					s->rect.x + s->rect.w / 2 - current, s->rect.y + s->padding,
-					s->rect.w / 2 - s->padding, s->rect.h - s->padding * 2);
+			Rect2Df r = (Rect2Df){s->rect.x + s->rect.w / 2 - current, s->rect.y + s->padding,
+					s->rect.w / 2 - s->padding, s->rect.h - s->padding * 2};
 			engine_render_color_s(c);
 			engine_render_rect_s(&r, 1);
 		}

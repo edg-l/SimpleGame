@@ -12,7 +12,7 @@ Button *button_create(unsigned int w, unsigned int h, int pt, int style, const c
 	button = malloc(sizeof(Button));
 	memset(button, 0, sizeof(Button));
 
-	button->rect = engine_util_rect(0, 0, w, h);
+	button->rect = (Rect2Df){0, 0, w, h};
 
 	button->fg = fg;
 	button->bg = bg;
@@ -35,10 +35,7 @@ void button_free(Button *button) {
 }
 
 void engine_render_button(Button *button) {
-	Point mouse;
-	engine_input_mouse_pos(&mouse.x, &mouse.y);
-
-	if (engine_util_point_in_rect(&button->rect, &mouse))
+	if (engine_math_mouse_in_rect2df(&button->rect))
 		engine_render_color(button->bg.r + 40, button->bg.g, button->bg.b,
 				button->bg.a);
 	else
@@ -54,8 +51,6 @@ void engine_render_button(Button *button) {
 }
 
 int button_is_pressed(Button *button) {
-	Point mouse;
-	engine_input_mouse_pos(&mouse.x, &mouse.y);
-	return engine_util_point_in_rect(&button->rect, &mouse) &&
+	return engine_math_mouse_in_rect2df(&button->rect) &&
 		engine_input_mouse_click(BUTTON_LEFT);
 }

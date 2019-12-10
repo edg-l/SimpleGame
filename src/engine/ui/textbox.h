@@ -4,8 +4,8 @@
 #include <engine/util.h>
 
 typedef struct Textbox {
-	Rect rect;
-	int padding;
+	Rect2Df rect;
+	float padding;
 	char *pText;
 	int length;
 	Color fg;
@@ -14,9 +14,9 @@ typedef struct Textbox {
 	int outline_size;
 	int focused;
 	int cursor_pos;
-	int cursor_size;
+	float cursor_size;
 	int update_cursor_x;
-	int cursor_x;
+	float cursor_x;
 	int text_pt;
 	Tick cursor_blink_tick;
 	int cursor_blink;

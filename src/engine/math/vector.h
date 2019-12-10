@@ -1,8 +1,8 @@
 #ifndef ENGINE_MATH_VECTOR_I
 #define ENGINE_MATH_VECTOR_I
 
-//#include <SDL_assert.h>
-//#include <math.h>
+#include <SDL_assert.h>
+#include <math.h>
 
 // To view macro expansion result comment includes and: gcc -E vector.h
 
@@ -20,6 +20,10 @@
 	inline double engine_math_vector2d ## name ## _length(Vector2D ## name *v) { \
 		SDL_assert(v); \
 		return sqrt(v->x * v->x + v->y * v->y) ; \
+	}; \
+	inline double engine_math_vector2d ## name ## _direction(Vector2D ## name *v) { \
+		SDL_assert(v); \
+		return atan(v->x / (double)v->y) ; \
 	}; \
 	inline void engine_math_vector2d ## name ## _sub(Vector2D ## name *v1, Vector2D ## name *v2, Vector2D ## name *out) { \
 		SDL_assert(v1); \
