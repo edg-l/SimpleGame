@@ -13,6 +13,8 @@
 // TODO: Resource manager
 // TODO: Fix text rendering, for example "Quit"
 
+static int running = 0;
+
 void engine_init(const char *pName, int argc, const char *argv[]) {
 
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1) {
@@ -49,14 +51,12 @@ void engine_init(const char *pName, int argc, const char *argv[]) {
 	// TODO: Add function to set a active camera, create one by default?
 };
 
-int engine_on_tick() {
-	int stop = 0;
-
+void engine_on_tick() {
 	SDL_Event event;
 
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
-			stop = 1;
+			running = 0;
 		}
 		engine_entity_onevent(&event);
 	}
@@ -64,13 +64,12 @@ int engine_on_tick() {
 	engine_input_update();
 	engine_util_update();
 	engine_entity_onupdate();
-	return stop;
 }
 
 int engine_run() {
-	int stop = 0;
-	while (!stop) {
-		stop = engine_on_tick();
+	running = 1;
+	while (running) {
+		engine_on_tick();
 
 		engine_render_clear();
 
@@ -80,12 +79,12 @@ int engine_run() {
 		// SDL_Delay(1);
 	}
 
-	engine_quit();
+	engine_settings_save("settings.ini");
+	engine_render_quit();
+	engine_settings_quit();
 	return EXIT_SUCCESS;
 }
 
 void engine_quit() {
-	engine_settings_save("settings.ini");
-	engine_settings_quit();
-	engine_render_quit();
+	running = 0;
 }

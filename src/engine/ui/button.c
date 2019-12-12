@@ -22,6 +22,35 @@ static void on_render(Entity *entity, double delta) {
 			button->textpt, button->textStyle, button->pText,
 			(int)(button->rect.x + (button->rect.w - button->textSizeW) / 2.f),
 			(int)(button->rect.y + (button->rect.h - button->textSizeH) / 2.f));
+
+
+	engine_render_text_color_s(COLOR_BLACK);
+	Rect2Df rect;
+	unsigned w, h;
+
+	const char *text = "Testing";
+	engine_render_text_size(text, 20, STYLE_REGULAR, &w, &h);
+
+	rect.x = 30;
+	rect.y = 30;
+	rect.w = w;
+	rect.h = h;
+
+	engine_render_color_s(COLOR_RED);
+	engine_render_rect_s(&rect, 0);
+	engine_render_text(20, STYLE_REGULAR, text, 30, 30);
+
+	const char *text2 = "testTing";
+	engine_render_text_size(text2, 20, STYLE_REGULAR, &w, &h);
+
+	rect.x = 120;
+	rect.y = 30;
+	rect.w = w;
+	rect.h = h;
+
+	engine_render_color_s(COLOR_RED);
+	engine_render_rect_s(&rect, 0);
+	engine_render_text(20, STYLE_REGULAR, text2, 120, 30);
 }
 
 static void on_mouse_click(Entity *entity, unsigned char button_code, int x, int y) {

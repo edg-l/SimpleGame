@@ -15,7 +15,7 @@ int main(int argc, const char *argv[]) {
 	engine_init("SimpleGame", argc, argv);
 
 	Button *start = engine_button_default(200, 100, 30, "Start", on_start_click);
-	Button *exit = engine_button_default(200, 100, 30, "Quit", on_exit_click);
+	Button *exit = engine_button_default(200, 100, 30, "Quit agdq", on_exit_click);
 
 	Rect2Df screen;
 	engine_util_screen(&screen);

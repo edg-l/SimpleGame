@@ -8,7 +8,7 @@ void engine_quit();
 int engine_run();
 
 // TODO: Add engine events
-int engine_on_tick();
+void engine_on_tick();
 
 #endif
 

@@ -528,7 +528,7 @@ void engine_render_text(unsigned int pt, int style, const char *text, float x, f
 	float startx = x;
 
 	int n = 0;
-	float firstBottom = -1;
+	float basey = -1;
 
 	for (const char *c = text; *c; c++) {
 		Node *current = cfont->pCharList->head;
@@ -536,13 +536,18 @@ void engine_render_text(unsigned int pt, int style, const char *text, float x, f
 		while (current) {
 			Glyph *glyph = current->value;
 			if (glyph->code == (unsigned long)*c && glyph->width && glyph->height) {
-				float ox = x + glyph->bl;
-				float oy = y - (glyph->height - glyph->bt);
-				if (firstBottom == -1) {
-					firstBottom = oy + glyph->height;
-				} else {
-					oy = (firstBottom - glyph->height) + (glyph->height - glyph->bt);
+				float ox;
+				if(c == text)
+					ox = x;
+				else
+					ox = x + glyph->bl;
+				// works:float oy = y - glyph->height + (glyph->height - glyph->bt);
+				float oy;
+				if(basey == -1) {
+					basey = y + glyph->height;
 				}
+				oy = basey - glyph->bt;
+
 				float tx = (float)glyph->tx / cfont->atlas_width;
 				float ty = (float)glyph->ty / cfont->atlas_height;
 				float tw = (float)glyph->width / cfont->atlas_width;
@@ -565,7 +570,6 @@ void engine_render_text(unsigned int pt, int style, const char *text, float x, f
 				break;
 			} else if (*c == '\n') {
 				y += (float)(cfont->ft->size->metrics.height >> 6);
-				firstBottom = -1;
 				x = startx;
 				break;
 			}
@@ -592,6 +596,7 @@ void engine_render_text_size(const char *text, unsigned int pt, int style, unsig
 	GLuint row_width = 0;
 	GLuint row_height = 0;
 
+
 	for (const char *c = text; *c; c++) {
 		Node *current = cfont->pCharList->head;
 
@@ -599,7 +604,8 @@ void engine_render_text_size(const char *text, unsigned int pt, int style, unsig
 			Glyph *glyph = current->value;
 			if (glyph->code == (unsigned long)*c && glyph->width && glyph->height) {
 				row_width += glyph->advance;
-				row_height = glyph->height > row_height ? glyph->height : row_height;
+				if(row_height == 0)
+					row_height = glyph->height - (glyph->height - glyph->bt);
 				break;
 			} else if (glyph->code == (unsigned long)*c && *c == ' ' && glyph->advance) {
 				row_width += glyph->advance;
