@@ -11,5 +11,7 @@
 #define COLOR_RED engine_util_color(255, 0, 0, 255)
 #define COLOR_WHITE engine_util_color(255, 255, 255, 255)
 #define COLOR_YELLOW engine_util_color(255, 255, 0, 255)
+#define COLOR_BLACK engine_util_color(0, 0, 0, 255)
+#define COLOR_DARK engine_util_color(40, 40, 40, 255)
 
 #endif

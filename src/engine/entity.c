@@ -72,7 +72,8 @@ void engine_entity_onupdate() {
 
 	while(node) {
 		Entity *entity = (Entity *)node->value;
-		entity->on_update(entity, delta);
+		if(entity->on_update)
+			entity->on_update(entity, delta);
 		node = node->next;
 	}
 }
@@ -84,7 +85,8 @@ void engine_entity_onrender() {
 
 	while(node) {
 		Entity *entity = (Entity *)node->value;
-		entity->on_render(entity, delta);
+		if(entity->on_render)
+			entity->on_render(entity, delta);
 		node = node->next;
 	}
 }
@@ -94,13 +96,15 @@ void engine_entity_onevent(union SDL_Event *event) {
 
 	while(node) {
 		Entity *entity = (Entity *)node->value;
-		if(event->type == SDL_KEYDOWN) {
-			entity->on_keydown(entity, event->key.keysym.scancode,
-					event->key.keysym.mod);
+		if(event->type == SDL_KEYUP) {
+			if(entity->on_keyup)
+				entity->on_keyup(entity, event->key.keysym.scancode,
+						event->key.keysym.mod);
 		}
 		else if(event->type == SDL_MOUSEBUTTONUP) {
-			entity->on_mouse_click(entity, event->button.button,
-					event->button.x, event->button.y);
+			if(entity->on_mouse_click)
+				entity->on_mouse_click(entity, event->button.button,
+						event->button.x, event->button.y);
 		}
 		node = node->next;
 	}

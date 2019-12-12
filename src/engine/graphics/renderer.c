@@ -20,7 +20,6 @@ static SDL_Window *pWindow = NULL;
 static SDL_GLContext glContext;
 static SDL_Renderer *pRenderer = NULL;
 static List *pFontCache = NULL;
-static List *pTextCache = NULL;
 static Shader quadShader;
 static Shader textShader;
 static mat4 projection;
@@ -64,12 +63,6 @@ static void free_font(void *p) {
 	FT_Done_Face(c->ft);
 	engine_list_free(c->pCharList);
 	free(c);
-}
-
-static void free_texture(void *p) {
-	CachedTexture *pCachedTexture = p;
-	glDeleteTextures(1, &pCachedTexture->tex);
-	free(pCachedTexture);
 }
 
 static unsigned int count_glyphs(FT_Face face) {
@@ -210,7 +203,6 @@ static CachedFont *search_font(unsigned int pt, int style) {
 			glyph->code = c;
 
 			engine_list_push_back(cfont->pCharList, glyph, sizeof(Glyph));
-			free(glyph);
 
 			x += g->bitmap.width;
 			c = FT_Get_Next_Char(cfont->ft, c, &gindex);
@@ -220,7 +212,6 @@ static CachedFont *search_font(unsigned int pt, int style) {
 
 		engine_list_push_back(pFontCache, cfont, sizeof(CachedFont));
 		engine_log_debug("Added font (%dpt, %d glyphs, %d style, y=%d) to cache", cfont->pt, count, cfont->style, y);
-		free(cfont);
 	}
 
 	return pFontCache->tail->value;
@@ -292,7 +283,6 @@ int engine_render_init(const char *title) {
 	glClearColor(0, 0, 0, 1);
 
 	pFontCache = engine_list_create_fn(free_font);
-	pTextCache = engine_list_create_fn(free_texture);
 
 	glm_ortho(0, width, height, 0, -1, 1, projection);
 
@@ -592,8 +582,6 @@ void engine_render_text(unsigned int pt, int style, const char *text, float x, f
 void engine_render_text_s(unsigned int pt, int style, const char *text, Vector2Df *point) {
 	engine_render_text(pt, style, text, point->x, point->y);
 }
-
-void engine_render_clear_text_cache() { engine_list_clear(pTextCache); }
 
 void engine_render_text_size(const char *text, unsigned int pt, int style, unsigned int *w, unsigned int *h) {
 	CachedFont *cfont = search_font(pt, style);

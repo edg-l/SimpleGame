@@ -23,6 +23,7 @@ find_package(Freetype REQUIRED)
 pkg_check_modules(CGLM cglm REQUIRED)
 
 set(ENGINE_SOURCES
+	src/engine/color.h
 	src/engine/camera.c
 	src/engine/camera.h
 	src/engine/color.h

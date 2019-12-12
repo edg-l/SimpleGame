@@ -5,12 +5,9 @@
 #include "util_colors.h"
 #include <engine/math/vector.h>
 #include <engine/math/rect.h>
+#include <engine/color.h>
 
 typedef Uint32 Tick;
-
-typedef struct Color {
-	unsigned char r, g, b, a;
-} Color;
 
 typedef struct Rect {
 	int x, y;
@@ -21,7 +18,7 @@ struct Tilemap;
 
 Color engine_util_color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
-void engine_util_screen(Rect2Di *out);
+void engine_util_screen(Rect2Df *out);
 
 void engine_util_mouse_tile_pos(struct Tilemap *t, Vector2Di *out);
 struct Tile *engine_util_mouse_tile(struct Tilemap *t);

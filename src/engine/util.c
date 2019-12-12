@@ -15,7 +15,7 @@ Color engine_util_color(unsigned char r, unsigned char g, unsigned char b, unsig
 	return (Color){r, g, b, a};
 }
 
-void engine_util_screen(Rect2Di *out) {
+void engine_util_screen(Rect2Df *out) {
 	SDL_assert(out);
 	out->x = 0;
 	out->y = 0;
@@ -61,5 +61,5 @@ Tile *engine_util_mouse_tile(Tilemap *t) {
 
 	Vector2Di pos;
 	engine_util_mouse_tile_pos(t, &pos);
-	return engine_tilemap_get(t, pos.x, pos.y); 
+	return engine_tilemap_get(t, pos.x, pos.y);
 }

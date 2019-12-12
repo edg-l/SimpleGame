@@ -7,7 +7,7 @@ typedef void (*ENTITY_RENDER_FN)(struct Entity *entity, double delta);
 typedef void (*ENTITY_UPDATE_FN)(struct Entity *entity, double deltaTime);
 typedef void (*ENTITY_EVENT_MOUSE_CLICK_FN)(struct Entity *entity, unsigned char button, 
 		int x, int y);
-typedef void (*ENTITY_EVENT_KEYDOWN_FN)(struct Entity *entity, int keycode, unsigned short mod);
+typedef void (*ENTITY_EVENT_KEYUP_FN)(struct Entity *entity, int keycode, unsigned short mod);
 typedef void (*ENTITY_FREE_FN)(struct Entity *entity);
 
 // TODO: Add more events 
@@ -17,7 +17,7 @@ typedef struct Entity {
 	ENTITY_UPDATE_FN on_update;
 	ENTITY_RENDER_FN on_render;
 	ENTITY_EVENT_MOUSE_CLICK_FN on_mouse_click;
-	ENTITY_EVENT_KEYDOWN_FN on_keydown;
+	ENTITY_EVENT_KEYUP_FN on_keyup;
 	ENTITY_FREE_FN on_free;
 } Entity;
 

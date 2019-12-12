@@ -1,6 +1,5 @@
 #include <stdarg.h>
 #include <stdio.h>
-#include "color.h"
 #include "logger.h"
 
 static const char* get_level_str(int level) {
