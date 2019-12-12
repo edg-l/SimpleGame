@@ -11,7 +11,7 @@
 // TODO: Render circle
 // TODO: Render texture
 // TODO: Resource manager
-// TODO: Entity manager for renderer
+// TODO: Fix text rendering, for example "Quit"
 
 void engine_init(const char *pName, int argc, const char *argv[]) {
 
