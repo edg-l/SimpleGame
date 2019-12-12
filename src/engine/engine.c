@@ -4,30 +4,23 @@
 #include <engine/io.h>
 #include <engine/logger.h>
 #include <engine/settings.h>
+#include <engine/entity.h>
 #include <engine/math/vector.h>
 
 
-// TODO: Add rect structs and functions with macros!
 // TODO: Render circle
 // TODO: Render texture
-// TODO: entity manager for renderer
+// TODO: Resource manager
+// TODO: Entity manager for renderer
 
-void engine_init(const char *pName) {
+void engine_init(const char *pName, int argc, const char *argv[]) {
+
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) == -1) {
 		engine_log_error("Error initializing SDL2: %s", SDL_GetError());
 		exit(EXIT_FAILURE);
 	}
 
 	engine_settings_init();
-
-	Vector2Di vec, vec2;
-	vec.x = 200;
-	vec.y = 200;
-	vec2.x = 200;
-	vec2.y = 200;
-
-	engine_math_vector2di_add(&vec, &vec2, &vec);
-	engine_log_info("vector: %d, %d", vec.x, vec.y);
 
 	// TODO: Set default fullscreen with display size.
 	engine_settings_add_int("window_width", 1024, 5, 5000);
@@ -36,7 +29,6 @@ void engine_init(const char *pName) {
 	engine_settings_add_int("msaa_enable", 1, 0, 1);
 	engine_settings_add_int("msaa_value", 2, 0, 4);
 	engine_settings_add_int("vsync", 1, 0, 1);
-	engine_settings_add_int("fov", 60, 45, 100);
 
 	if (!engine_io_file_exists("settings.ini")) {
 		engine_log_info("Settings doesn't exist, creating it.\n");
@@ -50,6 +42,7 @@ void engine_init(const char *pName) {
 	}
 
 	engine_input_init();
+	engine_entity_init();
 	engine_render_clear_color(COLOR_WHITE);
 
 	// TODO: Add entity manager and initialize it here.
@@ -65,11 +58,30 @@ int engine_on_tick() {
 		if (event.type == SDL_QUIT) {
 			stop = 1;
 		}
+		engine_entity_onevent(&event);
 	}
 
 	engine_input_update();
 	engine_util_update();
+	engine_entity_onupdate();
 	return stop;
+}
+
+int engine_run() {
+	int stop = 0;
+	while (!stop) {
+		stop = engine_on_tick();
+
+		engine_render_clear();
+
+		engine_entity_onrender();
+
+		engine_render_present();
+		// SDL_Delay(1);
+	}
+
+	engine_quit();
+	return EXIT_SUCCESS;
 }
 
 void engine_quit() {

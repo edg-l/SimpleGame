@@ -110,7 +110,7 @@ void engine_shader_use(Shader shader) {
 }
 
 void engine_shader_update_camera(Camera *c) {
-    ListValue *current = shaders->head;
+    Node *current = shaders->head;
 
     while (current) {
         unsigned int*val = current->value;

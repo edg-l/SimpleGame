@@ -53,6 +53,8 @@ typedef struct CachedTexture {
 } CachedTexture;
 
 void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
+	if(type == GL_DEBUG_TYPE_OTHER)
+		return;
 	engine_log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_DEBUG, "OpenGL message type=%d, severity=%d, message: %s", type, severity, message);
 }
 
@@ -112,7 +114,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 	if (!pFontCache)
 		return NULL;
 
-	ListValue *pCurrent = pFontCache->head;
+	Node *pCurrent = pFontCache->head;
 
 	while (pCurrent) {
 		CachedFont *c = (CachedFont *)pCurrent->value;
@@ -471,6 +473,7 @@ void engine_render_texture2D(float x, float y, float width, float height, unsign
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
+
 void engine_render_line(float x1, float y1, float x2, float y2) {
 	engine_shader_use(quadShader);
 	engine_shader_set_int(quadShader, "useSampler", 0);
@@ -538,7 +541,7 @@ void engine_render_text(unsigned int pt, int style, const char *text, float x, f
 	float firstBottom = -1;
 
 	for (const char *c = text; *c; c++) {
-		ListValue *current = cfont->pCharList->head;
+		Node *current = cfont->pCharList->head;
 
 		while (current) {
 			Glyph *glyph = current->value;
@@ -602,7 +605,7 @@ void engine_render_text_size(const char *text, unsigned int pt, int style, unsig
 	GLuint row_height = 0;
 
 	for (const char *c = text; *c; c++) {
-		ListValue *current = cfont->pCharList->head;
+		Node *current = cfont->pCharList->head;
 
 		while (current) {
 			Glyph *glyph = current->value;

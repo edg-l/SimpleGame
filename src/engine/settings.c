@@ -87,7 +87,7 @@ void engine_settings_add_str(const char *name, char *defvalue, int min, int max)
 }
 
 Setting *engine_settings_get(const char *name) {
-	ListValue *current = settings->head;
+	Node *current = settings->head;
 
 	while (current) {
 		Setting *setting = current->value;
@@ -106,7 +106,7 @@ void engine_settings_save(const char *name) {
 
 	TextBuffer *tb = engine_buffer_create(0);
 
-	ListValue *current = settings->head;
+	Node *current = settings->head;
 
 	while (current) {
 		Setting *setting = current->value;
