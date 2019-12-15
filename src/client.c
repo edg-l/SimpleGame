@@ -2,6 +2,7 @@
 #include <engine/engine.h>
 #include <engine/logger.h>
 #include <engine/ui/button.h>
+#include <engine/ui/textbox.h>
 
 static void on_start_click() {
 	engine_log_info("Start clicked!");
@@ -26,6 +27,13 @@ int main(int argc, const char *argv[]) {
 
 	engine_entity_add((Entity *)start);
 	engine_entity_add((Entity *)exit);
+
+	Textbox *textbox = engine_ui_textbox_create(500, 50, 20, 30, COLOR_WHITE, COLOR_BLACK, COLOR_GREY);
+
+	textbox->rect.x = 50;
+	textbox->rect.y = 700;
+
+	engine_entity_add((Entity *)textbox);
 
 	return engine_run();
 }

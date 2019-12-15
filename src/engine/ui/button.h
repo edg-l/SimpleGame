@@ -12,7 +12,7 @@ typedef void (*BUTTON_ON_CLICK_FN)();
 typedef struct Button {
 	Entity entity;
 	Rect2Df rect;
-	unsigned int textSizeW, textSizeH;
+	float textSizeW, textSizeH;
 	int textpt;
 	int textStyle;
 	Color fg;

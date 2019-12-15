@@ -26,7 +26,7 @@ static void on_render(Entity *entity, double delta) {
 
 	engine_render_text_color_s(COLOR_BLACK);
 	Rect2Df rect;
-	unsigned w, h;
+	float w, h;
 
 	const char *text = "Testing";
 	engine_render_text_size(text, 20, STYLE_REGULAR, &w, &h);
@@ -53,7 +53,7 @@ static void on_render(Entity *entity, double delta) {
 	engine_render_text(20, STYLE_REGULAR, text2, 120, 30);
 }
 
-static void on_mouse_click(Entity *entity, unsigned char button_code, int x, int y) {
+static void on_mouse_button_down(Entity *entity, unsigned char button_code, int x, int y) {
 	Button *button = (Button *)entity;
 	if(button->on_click && button_code == SDL_BUTTON_LEFT
 			&& engine_math_mouse_in_rect2df(&button->rect)) {
@@ -76,7 +76,7 @@ Button *engine_button_create(unsigned int w, unsigned int h, int pt, int style, 
 
 	button->entity.render_priority = 1000;
 	button->entity.on_render = on_render;
-	button->entity.on_mouse_click = on_mouse_click;
+	button->entity.on_mouse_button_down = on_mouse_button_down;
 	button->entity.on_free = on_free;
 
 	button->rect = (Rect2Df){0, 0, w, h};

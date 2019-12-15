@@ -1,9 +1,12 @@
 #ifndef ENGINE_UI_TEXTBOX_H
 #define ENGINE_UI_TEXTBOX_H
 
-#include <engine/util.h>
+#include <engine/entity.h>
+#include <engine/math/rect.h>
+#include <engine/color.h>
 
 typedef struct Textbox {
+	Entity entity;
 	Rect2Df rect;
 	float padding;
 	char *pText;
@@ -18,16 +21,10 @@ typedef struct Textbox {
 	int update_cursor_x;
 	float cursor_x;
 	int text_pt;
-	Tick cursor_blink_tick;
+	unsigned int cursor_blink_tick;
 	int cursor_blink;
 } Textbox;
 
 Textbox *engine_ui_textbox_create(int w, int h, int pt, int text_length, Color fg, Color bg, Color outline);
-
-void engine_ui_textbox_update(Textbox *t);
-void engine_ui_textbox_on_sdlevent(Textbox *t, SDL_Event *event);
-void engine_ui_textbox_free(Textbox *t);
-
-void engine_render_textbox(Textbox *t);
 
 #endif

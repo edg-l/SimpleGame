@@ -101,10 +101,28 @@ void engine_entity_onevent(union SDL_Event *event) {
 				entity->on_keyup(entity, event->key.keysym.scancode,
 						event->key.keysym.mod);
 		}
+		else if(event->type == SDL_KEYDOWN) {
+			if(entity->on_keydown)
+				entity->on_keydown(entity, event->key.keysym.scancode,
+						event->key.keysym.mod);
+		}
 		else if(event->type == SDL_MOUSEBUTTONUP) {
-			if(entity->on_mouse_click)
-				entity->on_mouse_click(entity, event->button.button,
+			if(entity->on_mouse_button_up)
+				entity->on_mouse_button_up(entity, event->button.button,
 						event->button.x, event->button.y);
+		}
+		else if(event->type == SDL_MOUSEBUTTONDOWN) {
+			if(entity->on_mouse_button_down)
+				entity->on_mouse_button_down(entity, event->button.button,
+						event->button.x, event->button.y);
+		}
+		else if(event->type == SDL_TEXTINPUT) {
+			if(entity->on_textinput)
+				entity->on_textinput(entity, event->text.text);
+		}
+		else if(event->type == SDL_TEXTEDITING) {
+			if(entity->on_textediting)
+				entity->on_textediting(entity, event->edit.text, event->edit.start, event->edit.length);
 		}
 		node = node->next;
 	}

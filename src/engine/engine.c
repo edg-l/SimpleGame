@@ -11,7 +11,6 @@
 // TODO: Render circle
 // TODO: Render texture
 // TODO: Resource manager
-// TODO: Fix text rendering, for example "Quit"
 
 static int running = 0;
 

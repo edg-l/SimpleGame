@@ -587,7 +587,7 @@ void engine_render_text_s(unsigned int pt, int style, const char *text, Vector2D
 	engine_render_text(pt, style, text, point->x, point->y);
 }
 
-void engine_render_text_size(const char *text, unsigned int pt, int style, unsigned int *w, unsigned int *h) {
+void engine_render_text_size(const char *text, unsigned int pt, int style, float *w, float *h) {
 	CachedFont *cfont = search_font(pt, style);
 
 	*w = 0;
@@ -634,7 +634,7 @@ void engine_render_text_size_len(const char *text, unsigned int pt, int style, V
 }
 
 void engine_render_text_size_s(const char *text, unsigned int pt, int style, Vector2Df *point) {
-	engine_render_text_size(text, pt, style, (unsigned int *)&point->x, (unsigned int *)&point->y);
+	engine_render_text_size(text, pt, style, &point->x, &point->y);
 }
 
 void engine_render_use_camera(int enable) {

@@ -32,7 +32,7 @@ void engine_render_line(float x1, float y1, float x2, float y2);
 void engine_render_line_s(Vector2Df *p1, Vector2Df *p2);
 void engine_render_text_color(int r, int g, int b, int a);
 void engine_render_text_color_s(Color color);
-void engine_render_text_size(const char *text, unsigned int pt, int style, unsigned int *w, unsigned int *h);
+void engine_render_text_size(const char *text, unsigned int pt, int style, float *w, float *h);
 void engine_render_text_size_s(const char *text, unsigned int pt, int style, Vector2Df *p);
 void engine_render_text_size_len(const char *text, unsigned int pt, int style, Vector2Df *point, size_t len);
 void engine_render_text(unsigned int pt, int style, const char *text, float x, float y);
