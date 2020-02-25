@@ -11,7 +11,6 @@
 #include <engine/logger.h>
 #include <engine/settings.h>
 #include <ft2build.h>
-#include <stddef.h>
 #include FT_FREETYPE_H
 
 static FT_Library ft;
@@ -211,7 +210,7 @@ static CachedFont *search_font(unsigned int pt, int style) {
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
 		engine_list_push_back(pFontCache, cfont, sizeof(CachedFont));
-		engine_log_debug("Added font (%dpt, %d glyphs, %d style, y=%d) to cache", cfont->pt, count, cfont->style, y);
+		engine_log_debug("Added font (%dpt, %d/%d glyphs, %d style, y=%d) to cache", cfont->pt, count, cfont->ft->num_glyphs, cfont->style, y);
 	}
 
 	return pFontCache->tail->value;
@@ -528,7 +527,6 @@ void engine_render_text(unsigned int pt, int style, const char *text, float x, f
 	float startx = x;
 
 	int n = 0;
-	float basey = -1;
 
 	for (const char *c = text; *c; c++) {
 		Node *current = cfont->pCharList->head;
@@ -543,10 +541,7 @@ void engine_render_text(unsigned int pt, int style, const char *text, float x, f
 					ox = x + glyph->bl;
 				// works:float oy = y - glyph->height + (glyph->height - glyph->bt);
 				float oy;
-				if(basey == -1) {
-					basey = y + glyph->height;
-				}
-				oy = basey - glyph->bt;
+				oy = y + cfont->pt - glyph->bt;
 
 				float tx = (float)glyph->tx / cfont->atlas_width;
 				float ty = (float)glyph->ty / cfont->atlas_height;
@@ -594,8 +589,7 @@ void engine_render_text_size(const char *text, unsigned int pt, int style, float
 	*h = 0;
 
 	GLuint row_width = 0;
-	GLuint row_height = 0;
-
+	GLuint row_height = cfont->pt;
 
 	for (const char *c = text; *c; c++) {
 		Node *current = cfont->pCharList->head;
@@ -604,16 +598,15 @@ void engine_render_text_size(const char *text, unsigned int pt, int style, float
 			Glyph *glyph = current->value;
 			if (glyph->code == (unsigned long)*c && glyph->width && glyph->height) {
 				row_width += glyph->advance;
-				if(row_height == 0)
+				/*if(row_height == 0)
 					row_height = glyph->height - (glyph->height - glyph->bt);
+				*/
 				break;
 			} else if (glyph->code == (unsigned long)*c && *c == ' ' && glyph->advance) {
 				row_width += glyph->advance;
 				break;
 			} else if (*c == '\n') {
-				*h += row_height;
-				row_height = 0;
-				*h += (GLuint)(cfont->ft->size->metrics.height >> 6) / 2;
+				*h += (GLuint)(cfont->ft->size->metrics.height >> 6);
 				*w = *w > row_width ? *w : row_width;
 				row_width = 0;
 				break;

@@ -28,7 +28,7 @@ static void on_render(Entity *entity, double delta) {
 	Rect2Df rect;
 	float w, h;
 
-	const char *text = "Testing";
+	const char *text = "Testing\nend";
 	engine_render_text_size(text, 20, STYLE_REGULAR, &w, &h);
 
 	rect.x = 30;
