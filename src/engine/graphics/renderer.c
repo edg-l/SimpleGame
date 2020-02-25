@@ -51,7 +51,7 @@ typedef struct CachedTexture {
 } CachedTexture;
 
 void GLAPIENTRY opengl_message_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
-	if(type == GL_DEBUG_TYPE_OTHER)
+	if (type == GL_DEBUG_TYPE_OTHER)
 		return;
 	engine_log_write(type == GL_DEBUG_TYPE_ERROR ? LOG_ERROR : LOG_DEBUG, "OpenGL message type=%d, severity=%d, message: %s", type, severity, message);
 }
@@ -78,26 +78,26 @@ static unsigned int count_glyphs(FT_Face face) {
 
 static const char *font_path(int style) {
 	switch (style) {
-		case STYLE_LIGHT:
-			return "resources/fonts/OpenSans-Light.ttf";
-		case STYLE_LIGHT_ITALIC:
-			return "resources/fonts/OpenSans-LightItalic.ttf";
-		case STYLE_REGULAR:
-			return "resources/fonts/OpenSans-Regular.ttf";
-		case STYLE_ITALIC:
-			return "resources/fonts/OpenSans-Italic.ttf";
-		case STYLE_BOLD:
-			return "resources/fonts/OpenSans-Bold.ttf";
-		case STYLE_BOLD_ITALIC:
-			return "resources/fonts/OpenSans-BoldItalic.ttf";
-		case STYLE_EXTRABOLD:
-			return "resources/fonts/OpenSans-ExtraBold.ttf";
-		case STYLE_EXTRABOLD_ITALIC:
-			return "resources/fonts/OpenSans-ExtraBoldItalic.ttf";
-		case STYLE_SEMIBOLD:
-			return "resources/fonts/OpenSans-Semibold.ttf";
-		case STYLE_SEMIBOLD_ITALIC:
-			return "resources/fonts/OpenSans-SemiboldItalic.ttf";
+	case STYLE_LIGHT:
+		return "resources/fonts/OpenSans-Light.ttf";
+	case STYLE_LIGHT_ITALIC:
+		return "resources/fonts/OpenSans-LightItalic.ttf";
+	case STYLE_REGULAR:
+		return "resources/fonts/OpenSans-Regular.ttf";
+	case STYLE_ITALIC:
+		return "resources/fonts/OpenSans-Italic.ttf";
+	case STYLE_BOLD:
+		return "resources/fonts/OpenSans-Bold.ttf";
+	case STYLE_BOLD_ITALIC:
+		return "resources/fonts/OpenSans-BoldItalic.ttf";
+	case STYLE_EXTRABOLD:
+		return "resources/fonts/OpenSans-ExtraBold.ttf";
+	case STYLE_EXTRABOLD_ITALIC:
+		return "resources/fonts/OpenSans-ExtraBoldItalic.ttf";
+	case STYLE_SEMIBOLD:
+		return "resources/fonts/OpenSans-Semibold.ttf";
+	case STYLE_SEMIBOLD_ITALIC:
+		return "resources/fonts/OpenSans-SemiboldItalic.ttf";
 	}
 	return font_path(STYLE_REGULAR);
 }
@@ -535,7 +535,7 @@ void engine_render_text(unsigned int pt, int style, const char *text, float x, f
 			Glyph *glyph = current->value;
 			if (glyph->code == (unsigned long)*c && glyph->width && glyph->height) {
 				float ox;
-				if(c == text)
+				if (c == text)
 					ox = x;
 				else
 					ox = x + glyph->bl;

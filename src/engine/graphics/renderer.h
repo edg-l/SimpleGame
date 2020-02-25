@@ -2,8 +2,8 @@
 #define ENGINE_RENDERER_H
 
 #include <cglm/cglm.h>
-#include <engine/util.h>
 #include <engine/math/vector.h>
+#include <engine/util.h>
 #include <stdlib.h>
 
 enum {
