@@ -1,9 +1,9 @@
 #ifndef ENGINE_UI_TEXTBOX_H
 #define ENGINE_UI_TEXTBOX_H
 
+#include <engine/color.h>
 #include <engine/entity.h>
 #include <engine/math/rect.h>
-#include <engine/color.h>
 
 typedef struct Textbox {
 	Entity entity;

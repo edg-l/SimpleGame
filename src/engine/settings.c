@@ -45,7 +45,7 @@ void engine_settings_add_int(const char *name, int defvalue, int min, int max) {
 }
 
 void engine_settings_add_float(const char *name, float defvalue, float min,
-		float max) {
+							   float max) {
 	Setting *setting = malloc(sizeof(Setting));
 
 	setting->type = FLOAT;
@@ -124,17 +124,17 @@ void engine_settings_save(const char *name) {
 		char fstr[64];
 
 		switch (setting->type) {
-			case INTEGER:
-				sprintf(str, "%d", setting->value.i);
-				engine_buffer_add_str(tb, str);
-				break;
-			case FLOAT:
-				snprintf(fstr, sizeof(fstr), "%f", setting->value.f);
-				engine_buffer_add_str(tb, fstr);
-				break;
-			case STRING:
-				engine_buffer_add_str(tb, setting->value.s);
-				break;
+		case INTEGER:
+			sprintf(str, "%d", setting->value.i);
+			engine_buffer_add_str(tb, str);
+			break;
+		case FLOAT:
+			snprintf(fstr, sizeof(fstr), "%f", setting->value.f);
+			engine_buffer_add_str(tb, fstr);
+			break;
+		case STRING:
+			engine_buffer_add_str(tb, setting->value.s);
+			break;
 		}
 		engine_buffer_add_str(tb, "\n");
 		current = current->next;

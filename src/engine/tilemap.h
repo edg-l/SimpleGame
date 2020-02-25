@@ -1,8 +1,8 @@
 #ifndef ENGINE_TILEMAP_H
 #define ENGINE_TILEMAP_H
 
-#include <engine/math/rect.h>
 #include <engine/entity.h>
+#include <engine/math/rect.h>
 
 typedef enum TileType {
 	TILE_AIR,

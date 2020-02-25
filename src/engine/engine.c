@@ -1,12 +1,11 @@
 #include "engine.h"
+#include <engine/entity.h>
 #include <engine/graphics/renderer.h>
 #include <engine/input.h>
 #include <engine/io.h>
 #include <engine/logger.h>
-#include <engine/settings.h>
-#include <engine/entity.h>
 #include <engine/math/vector.h>
-
+#include <engine/settings.h>
 
 // TODO: Render circle
 // TODO: Render texture

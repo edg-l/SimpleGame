@@ -1,19 +1,19 @@
 #include "entity.h"
+#include <SDL_assert.h>
+#include <SDL_events.h>
 #include <engine/list.h>
 #include <engine/logger.h>
 #include <engine/util.h>
-#include <SDL_assert.h>
-#include <SDL_events.h>
 
 static List *entity_list;
 
 static void entity_free(void *data) {
-	if(!data)
+	if (!data)
 		return;
 
 	Entity *entity = (Entity *)data;
 
-	if(!entity->on_free) {
+	if (!entity->on_free) {
 		engine_log_warning("Entity %p has no free function, possible memory leak.", entity);
 		return;
 	}
@@ -38,20 +38,18 @@ void engine_entity_add(Entity *entity) {
 	unsigned int i = 0;
 	Node *node = entity_list->head;
 
-	if(!node) {
+	if (engine_list_empty(entity_list)) {
 		engine_list_push_front(entity_list, entity, sizeof(Entity));
 		return;
 	}
 
-	while(node) {
+	engine_list_for(entity_list, node) {
 		Entity *current_entity = (Entity *)node->value;
 
-		if(current_entity->render_priority > entity->render_priority) {
+		if (current_entity->render_priority > entity->render_priority) {
 			engine_list_insert(entity_list, entity, sizeof(Entity), i);
 			return;
 		}
-
-		node = node->next;
 		i++;
 	}
 
@@ -68,62 +66,49 @@ void engine_entity_remove(Entity *entity) {
 void engine_entity_onupdate() {
 	double delta = engine_util_delta_time();
 
-	Node *node = entity_list->head;
-
-	while(node) {
+	engine_list_for(entity_list, node) {
 		Entity *entity = (Entity *)node->value;
-		if(entity->on_update)
+		if (entity->on_update)
 			entity->on_update(entity, delta);
-		node = node->next;
 	}
 }
 
 void engine_entity_onrender() {
 	double delta = engine_util_delta_time();
 
-	Node *node = entity_list->head;
-
-	while(node) {
+	engine_list_for(entity_list, node) {
 		Entity *entity = (Entity *)node->value;
-		if(entity->on_render)
+		if (entity->on_render)
 			entity->on_render(entity, delta);
-		node = node->next;
 	}
 }
 
 void engine_entity_onevent(union SDL_Event *event) {
-	Node *node = entity_list->head;
-
-	while(node) {
+	engine_list_for(entity_list, node) {
 		Entity *entity = (Entity *)node->value;
-		if(event->type == SDL_KEYUP) {
-			if(entity->on_keyup)
+
+		if (event->type == SDL_KEYUP) {
+			if (entity->on_keyup)
 				entity->on_keyup(entity, event->key.keysym.scancode,
-						event->key.keysym.mod);
-		}
-		else if(event->type == SDL_KEYDOWN) {
-			if(entity->on_keydown)
+								 event->key.keysym.mod);
+		} else if (event->type == SDL_KEYDOWN) {
+			if (entity->on_keydown)
 				entity->on_keydown(entity, event->key.keysym.scancode,
-						event->key.keysym.mod);
-		}
-		else if(event->type == SDL_MOUSEBUTTONUP) {
-			if(entity->on_mouse_button_up)
+								   event->key.keysym.mod);
+		} else if (event->type == SDL_MOUSEBUTTONUP) {
+			if (entity->on_mouse_button_up)
 				entity->on_mouse_button_up(entity, event->button.button,
-						event->button.x, event->button.y);
-		}
-		else if(event->type == SDL_MOUSEBUTTONDOWN) {
-			if(entity->on_mouse_button_down)
+										   event->button.x, event->button.y);
+		} else if (event->type == SDL_MOUSEBUTTONDOWN) {
+			if (entity->on_mouse_button_down)
 				entity->on_mouse_button_down(entity, event->button.button,
-						event->button.x, event->button.y);
-		}
-		else if(event->type == SDL_TEXTINPUT) {
-			if(entity->on_textinput)
+											 event->button.x, event->button.y);
+		} else if (event->type == SDL_TEXTINPUT) {
+			if (entity->on_textinput)
 				entity->on_textinput(entity, event->text.text);
-		}
-		else if(event->type == SDL_TEXTEDITING) {
-			if(entity->on_textediting)
+		} else if (event->type == SDL_TEXTEDITING) {
+			if (entity->on_textediting)
 				entity->on_textediting(entity, event->edit.text, event->edit.start, event->edit.length);
 		}
-		node = node->next;
 	}
 }

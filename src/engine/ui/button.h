@@ -21,9 +21,9 @@ typedef struct Button {
 	BUTTON_ON_CLICK_FN on_click;
 } Button;
 
-Button *engine_button_create(unsigned int w, unsigned int h, int pt,
+Button *engine_ui_button_create(unsigned int w, unsigned int h, int pt,
 		int style, const char* text, BUTTON_ON_CLICK_FN on_click, Color fg, Color bg);
 
-#define engine_button_default(w, h, pt, text, on_click) engine_button_create((w), (h), (pt), STYLE_REGULAR, (text), on_click, COLOR_WHITE, COLOR_DARK)
+#define engine_button_default(w, h, pt, text, on_click) engine_ui_button_create((w), (h), (pt), STYLE_REGULAR, (text), on_click, COLOR_WHITE, COLOR_DARK)
 
 #endif

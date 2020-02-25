@@ -1,7 +1,7 @@
 #include "textbox.h"
 #include <engine/graphics/renderer.h>
-#include <engine/logger.h>
 #include <engine/input.h>
+#include <engine/logger.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -25,10 +25,10 @@ static void on_update(Entity *e, double delta) {
 	Textbox *t = (Textbox *)e;
 
 	if (!t->focused && engine_math_mouse_in_rect2df(&t->rect) &&
-			engine_input_mouse_click(BUTTON_LEFT)) {
+		engine_input_mouse_click(BUTTON_LEFT)) {
 		t->focused = 1;
 	} else if (!engine_math_mouse_in_rect2df(&t->rect) &&
-			engine_input_mouse_click(BUTTON_LEFT)) {
+			   engine_input_mouse_click(BUTTON_LEFT)) {
 		t->focused = 0;
 	}
 
@@ -39,10 +39,10 @@ static void on_update(Entity *e, double delta) {
 		}
 		if (engine_util_tick_passed(next_input_tick)) {
 			if (engine_input_keypress(SDL_SCANCODE_LCTRL) &&
-					engine_input_keypress(SDL_SCANCODE_BACKSPACE)) {
+				engine_input_keypress(SDL_SCANCODE_BACKSPACE)) {
 				char *last_space = t->pText;
 				for (char *p = t->pText; *p && (p - t->pText) < t->cursor_pos;
-						p++) {
+					 p++) {
 					if (*p == ' ')
 						last_space = p;
 				}
@@ -71,7 +71,7 @@ static void on_update(Entity *e, double delta) {
 		else {
 			// Cursor is in the middle.
 			engine_render_text_size_len(t->pText, t->text_pt, STYLE_REGULAR, &size,
-					t->cursor_pos);
+										t->cursor_pos);
 		}
 
 		t->cursor_x = t->rect.x + t->padding + size.x;
@@ -96,8 +96,7 @@ static void on_textinput(Entity *e, const char *text) {
 }
 
 static void on_textediting(Entity *e, const char *text, int start, int length) {
-		engine_log_debug("textediting event: '%s' %d %d", text, start, length);
-
+	engine_log_debug("textediting event: '%s' %d %d", text, start, length);
 }
 
 void on_render(Entity *e, double delta) {
@@ -116,7 +115,7 @@ void on_render(Entity *e, double delta) {
 		engine_render_text_color_s(t->fg);
 		engine_render_text_size_s(t->pText, t->text_pt, STYLE_REGULAR, &s);
 		engine_render_text(t->text_pt, STYLE_REGULAR, t->pText, t->rect.x + t->padding,
-				(int)(t->rect.y + (t->rect.h - s.y) / 2));
+						   (int)(t->rect.y + (t->rect.h - s.y) / 2));
 	}
 
 	Rect2Df cursor = (Rect2Df){t->cursor_x, t->rect.y + t->padding / 2 + (t->rect.h - t->cursor_size) / 2, 2, t->cursor_size};
@@ -128,7 +127,7 @@ void on_render(Entity *e, double delta) {
 }
 
 Textbox *engine_ui_textbox_create(int w, int h, int pt, int text_length, Color fg,
-		Color bg, Color outline) {
+								  Color bg, Color outline) {
 
 	Textbox *textbox = malloc(sizeof(Textbox));
 	memset(textbox, 0, sizeof(Textbox));
@@ -162,4 +161,3 @@ Textbox *engine_ui_textbox_create(int w, int h, int pt, int text_length, Color f
 	textbox->cursor_size = cursor_size.y;
 	return textbox;
 }
-

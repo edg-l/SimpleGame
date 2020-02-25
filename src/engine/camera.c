@@ -22,6 +22,6 @@ void camera_update(Camera *c) {
 	if (c->should_update) {
 		glm_mat4_identity(c->view);
 		glm_translate(c->view, c->pos);
-	 engine_shader_update_camera(c);
+		engine_shader_update_camera(c);
 	}
 }

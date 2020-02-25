@@ -2,8 +2,8 @@
 #define ENGINE_CAMERA_H
 
 #include <cglm/cglm.h>
-#include <engine/util.h>
 #include <engine/tilemap.h>
+#include <engine/util.h>
 
 typedef struct Camera {
 	vec3 pos;

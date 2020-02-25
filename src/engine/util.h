@@ -1,11 +1,11 @@
 #ifndef ENGINE_UTIL_H
 #define ENGINE_UTIL_H
 
-#include <SDL.h>
 #include "util_colors.h"
-#include <engine/math/vector.h>
-#include <engine/math/rect.h>
+#include <SDL.h>
 #include <engine/color.h>
+#include <engine/math/rect.h>
+#include <engine/math/vector.h>
 
 typedef Uint32 Tick;
 
@@ -28,7 +28,7 @@ int min(int x, int y);
 
 void engine_util_update();
 
-void engine_util_str_format(char* buf, size_t size, const char *fmt, ...);
+void engine_util_str_format(char *buf, size_t size, const char *fmt, ...);
 
 // In ms
 Uint32 engine_util_tick();

@@ -58,4 +58,6 @@ void engine_list_swap_index(List *list, unsigned index1, unsigned index2);
 // Removes items where the remove function returns true. Returns the count of removed items.
 int engine_list_remove_if(List *list, LIST_REMOVE_FN check);
 
+#define engine_list_for(list_name, node) for(Node *node = list_name->head; node; node = node->next)
+
 #endif

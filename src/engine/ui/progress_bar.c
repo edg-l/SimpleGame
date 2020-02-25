@@ -5,6 +5,14 @@
 
 ProgressBar *engine_ui_progressbar_create(int w, int h, Color bg, Color start, Color end) {
 	ProgressBar *p = malloc(sizeof(ProgressBar));
+
+	memset(p, 0, sizeof(ProgressBar));
+
+	p->entity.render_priority = 1000;
+	p->entity.on_render = on_render;
+	p->entity.on_update = on_update;
+	p->entity.on_free = on_free;
+
 	p->rect = (Rect2Df){0, 0, w, h};
 	p->bg = bg;
 	p->start = start;
@@ -16,10 +24,14 @@ ProgressBar *engine_ui_progressbar_create(int w, int h, Color bg, Color start, C
 	p->initial_progress = 0;
 	p->next_progress = 0;
 	p->padding = 2;
+
 	return p;
 }
 
-void engine_ui_progressbar_free(ProgressBar *p) { free(p); }
+static void on_free(Entity *entity) {
+	ProgressBar *p = (ProgressBar *)entity;
+	free(p);
+}
 
 void engine_ui_progressbar_set_progress(ProgressBar *p, double progress) {
 	p->initial_progress = p->progress;
@@ -28,25 +40,33 @@ void engine_ui_progressbar_set_progress(ProgressBar *p, double progress) {
 	p->current_animation_time = 0;
 }
 
-void engine_ui_progressbar_update(ProgressBar *p) {
+static void on_update(Entity *entity) {
+	ProgressBar *p = (ProgressBar *)entity;
+
 	if (p->animate) {
 		double delta = engine_util_delta_time();
 		p->current_animation_time += delta;
+
 		if (p->initial_progress < p->next_progress) {
 			double diff = p->next_progress - p->initial_progress;
 			double percent = p->current_animation_time /
 				(p->total_animation_time * (diff / 100.f));
+
 			p->progress = p->initial_progress + (diff * percent);
+
 			if (p->progress >= p->next_progress) {
 				p->progress = p->next_progress;
 				p->animate = 0;
 				p->current_animation_time = 0;
 			}
-		} else {
+		}
+		else {
 			double diff = p->initial_progress - p->next_progress;
 			double percent = p->current_animation_time /
 				(p->total_animation_time * (diff / 100.f));
+
 			p->progress = p->initial_progress - (diff * percent);
+
 			if (p->progress <= p->next_progress) {
 				p->progress = p->next_progress;
 				p->animate = 0;
@@ -55,18 +75,24 @@ void engine_ui_progressbar_update(ProgressBar *p) {
 		}
 	}
 }
-void engine_render_pb(ProgressBar *p) {
+static void on_render(Entity *entity) {
+	ProgressBar *p = (ProgressBar *)entity;
+
 	engine_render_color_s(p->bg);
 	engine_render_rect_s(&p->rect, 1);
 
 	Rect2Df inside;
 	engine_math_rect2df_padding(&inside, &p->rect, p->padding);
+
 	Color c;
+
 	if (p->progress <= 0) {
 		c = p->start;
-	} else if (p->progress >= 100) {
+	}
+	else if (p->progress >= 100) {
 		c = p->end;
-	} else {
+	}
+	else {
 		c.r =
 			p->start.r + round((p->end.r - p->start.r) * (p->progress / 100.f));
 		c.g =

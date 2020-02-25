@@ -37,7 +37,7 @@ void engine_input_mouse_delta(int *x, int *y) {
 }
 int engine_input_mouse_click(MouseButton button) {
 	return (prev_mouse_state & SDL_BUTTON(button)) &&
-		!(mouse_state & SDL_BUTTON(button));
+		   !(mouse_state & SDL_BUTTON(button));
 }
 
 int engine_input_keyup(int code) {

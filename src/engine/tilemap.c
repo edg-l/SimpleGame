@@ -26,7 +26,7 @@ typedef struct Vertex {
 } Vertex;
 
 void on_free(Entity *entity) {
-	Tilemap *t = (Tilemap*)entity;
+	Tilemap *t = (Tilemap *)entity;
 	glDeleteVertexArrays(1, &t->vao);
 	glDeleteBuffers(1, &t->vbo);
 	for (int y = 0; y < t->h; y++) {
@@ -60,7 +60,7 @@ void engine_tilemap_set(Tilemap *t, int x, int y, TileType type) {
 
 	glBindVertexArray(t->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, t->vbo);
-	glBufferSubData(GL_ARRAY_BUFFER, (unsigned long)(t->w * y + x) * 6 * (2 * sizeof(GLfloat) + 4 * sizeof(GLfloat)),	sizeof(vertices), vertices);
+	glBufferSubData(GL_ARRAY_BUFFER, (unsigned long)(t->w * y + x) * 6 * (2 * sizeof(GLfloat) + 4 * sizeof(GLfloat)), sizeof(vertices), vertices);
 }
 
 void engine_tilemap_set_rect(Tilemap *t, Rect2Di r, TileType type) {
@@ -91,7 +91,7 @@ Tile *engine_tilemap_get(Tilemap *t, int x, int y) {
 }
 
 static void on_render(Entity *entity, double delta) {
-	Tilemap *t = (Tilemap*)entity;
+	Tilemap *t = (Tilemap *)entity;
 	engine_shader_use(shader);
 	glBindVertexArray(t->vao);
 	glDrawArrays(GL_TRIANGLES, 0, t->w * t->h * 6);

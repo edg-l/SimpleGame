@@ -1,7 +1,6 @@
 #ifndef ENGINE_INPUT_H
 #define ENGINE_INPUT_H
 
-
 typedef enum MouseButton {
 	BUTTON_LEFT = 1,
 	BUTTON_MIDDLE,
